@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/sprites">
+        <file>SpritesJojoChampionship/Dio Brando The World sprites.png</file>
+        <file>SpritesJojoChampionship/Giorno sprites.png</file>
+        <file>SpritesJojoChampionship/Gyro Zeppeli sprites.png</file>
+        <file>SpritesJojoChampionship/Jotaro Kujo sprites.png</file>
+        <file>SpritesJojoChampionship/sprites extras.png</file>
+    </qresource>
+</RCC>
