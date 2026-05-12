@@ -8,26 +8,28 @@ Personaje::Personaje(QGraphicsItem *parent) : QGraphicsPixmapItem(parent)
     vy = 0;
     aceleracion_y = 0.8;
     enSuelo = false;
+    hitbox = QRectF(8, 5, 30, 60);
 }
-
 bool Personaje::verificarColision(float proximoX, float proximoY)
 {
-    float xActual = x();
-    float yActual = y();
+    if (!scene()) {
+        return false;
+    }
 
-    setPos(proximoX, proximoY);
+    // 2. Creamos la hitbox en la posición futura
+    QRectF rectFuturo = hitbox;
+    rectFuturo.translate(proximoX, proximoY);
 
-    // Revisamos con qué está chocando en esa nueva posición
-    QList<QGraphicsItem *> objetosChocando = collidingItems();
+    // 3. Preguntamos a la escena
+    QList<QGraphicsItem *> objetosEnRect = scene()->items(rectFuturo);
 
-    for (QGraphicsItem *item : objetosChocando) {
-        // Si el objeto con el que choca es de la clase obstaculo
+    for (QGraphicsItem *item : objetosEnRect) {
+        if (item == this) continue;
+
         if (dynamic_cast<obstaculo*>(item)) {
-            setPos(xActual, yActual); // Volvemos a la posición segura
-            return true; // Confirmamos que hay un choque
+            return true;
         }
     }
 
-    setPos(xActual, yActual);
     return false;
 }

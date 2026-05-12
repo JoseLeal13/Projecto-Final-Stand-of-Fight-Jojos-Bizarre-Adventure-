@@ -20,6 +20,9 @@ protected:
     float aceleracion_y;
     bool enSuelo;
 
+    QRectF hitbox;
+
+
 public:
     Personaje(QGraphicsItem *parent = nullptr);
 
@@ -37,6 +40,7 @@ public:
     void setVida(int v) { puntosdevida = v; }
     int getVida() { return puntosdevida; }
     int getCarga() { return barradeCarga; }
+
 };
 
 #endif // PERSONAJE_H
