@@ -7,8 +7,9 @@
 class obstaculo : public QGraphicsRectItem
 {
 public:
-    // Solo declaramos el constructor
-    obstaculo(float x, float y, float ancho, float alto);
+    obstaculo(float x, float y, float ancho, float alto, QGraphicsItem *parent = nullptr);
+    enum { Type = UserType + 1 };
+    int type() const override { return Type; }
 };
 
 #endif // OBSTACULO_H

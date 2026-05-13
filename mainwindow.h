@@ -26,6 +26,7 @@ private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene; // El mundo donde vive Jojo
     Jojo *jojo;            // El objeto Jojo
+    QSet<int> teclasPresionadas;
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;

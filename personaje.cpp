@@ -12,24 +12,20 @@ Personaje::Personaje(QGraphicsItem *parent) : QGraphicsPixmapItem(parent)
 }
 bool Personaje::verificarColision(float proximoX, float proximoY)
 {
-    if (!scene()) {
-        return false;
-    }
+    if (!scene()) return false;
 
-    // 2. Creamos la hitbox en la posición futura
     QRectF rectFuturo = hitbox;
     rectFuturo.translate(proximoX, proximoY);
 
-    // 3. Preguntamos a la escena
     QList<QGraphicsItem *> objetosEnRect = scene()->items(rectFuturo);
 
     for (QGraphicsItem *item : objetosEnRect) {
         if (item == this) continue;
 
-        if (dynamic_cast<obstaculo*>(item)) {
+        // ESTO ES MUCHO MÁS SEGURO QUE DYNAMIC_CAST
+        if (item->type() == UserType + 1) {
             return true;
         }
     }
-
     return false;
 }

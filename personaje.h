@@ -6,6 +6,7 @@
 #include <QGraphicsScene>
 #include <QList>
 #include "obstaculo.h"
+#include <QTimer>
 
 class Personaje : public QObject, public QGraphicsPixmapItem
 {

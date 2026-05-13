@@ -34,16 +34,22 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::actualizar() {
-    if (jojo) jojo->moverse();
+    if (jojo) {
+        jojo->moverse();
+        jojo->actualizarAtaque();
+        jojo->actualizarAtaquesFuertes();
+    }
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event) {
     if (!jojo || event->isAutoRepeat()) return;
 
+    // Guardamos la tecla actual
+    teclasPresionadas.insert(event->key());
+
     switch (event->key()) {
     case Qt::Key_A:
     case Qt::Key_Left:
-        // Solo reinicia el frame si estaba quieto, para que la caminata sea fluida
         if (jojo->getVelocidadX() == 0) jojo->setFrameActual(0);
         jojo->setVelocidadX(-7);
         break;
@@ -60,18 +66,31 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
         jojo->setDefensa(true);
         break;
     case Qt::Key_J:
-        jojo->atacar();
+        // Verificamos si W o S están en el set ANTES de disparar
+        if (teclasPresionadas.contains(Qt::Key_W)) {
+            jojo->atacarFuerte(1); // W + J
+        }
+        else if (teclasPresionadas.contains(Qt::Key_S)) {
+            jojo->atacarFuerte(2); // S + J
+        }
+        else {
+            jojo->atacar(); // J normal
+        }
         break;
     }
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event) {
-    if (!jojo || event->isAutoRepeat()) return;
+    if (event->isAutoRepeat()) return;
+
+    // --- OPERACIÓN CRÍTICA ---
+    // Removemos la tecla del registro inmediatamente
+    teclasPresionadas.remove(event->key());
+
+    if (!jojo) return;
 
     int key = event->key();
-
-    // LÓGICA DE MOVIMIENTO INDEFINIDO:
-    // Solo frenamos si la tecla que soltamos es la que nos estaba moviendo.
+    // Frenar movimiento horizontal
     if ((key == Qt::Key_A || key == Qt::Key_Left) && jojo->getVelocidadX() < 0) {
         jojo->setVelocidadX(0);
     }
