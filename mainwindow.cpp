@@ -1,31 +1,34 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    // 1. Configurar la escena
     scene = new QGraphicsScene(this);
-    scene->setSceneRect(0, 0, 1000, 600); // Un mundo ancho para caminar
+    scene->setSceneRect(0, 0, 1000, 600);
     ui->graphicsView->setScene(scene);
 
-    // 2. CREAR EL SUELO (Obstáculo)
-    // Lo ponemos en la parte inferior (y=550) de extremo a extremo
     obstaculo *suelo = new obstaculo(0, 550, 1000, 50);
     scene->addItem(suelo);
 
-    // 3. CREAR A JOTARO
     jojo = new Jojo();
-    jojo->setPos(100, 400); // Posición inicial sobre el suelo
+
+    jojo->setPos(100, 480);
     scene->addItem(jojo);
 
-    // 4. EL TIMER (El latido del juego)
+    Jojo *dummy = new Jojo();
+    dummy->setEsDummy(true);
+    dummy->setPos(500, 480);
+    dummy->setMirandoDerecha(false);
+    scene->addItem(dummy);
+
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::actualizar);
-    timer->start(1000/60); // 60 FPS
+    timer->start(1000/60);
 }
 
 MainWindow::~MainWindow()
@@ -35,9 +38,19 @@ MainWindow::~MainWindow()
 
 void MainWindow::actualizar() {
     if (jojo) {
+
+        if (teclasPresionadas.contains(Qt::Key_A) || teclasPresionadas.contains(Qt::Key_Left)) {
+            jojo->setVelocidadX(-7);
+        } else if (teclasPresionadas.contains(Qt::Key_D) || teclasPresionadas.contains(Qt::Key_Right)) {
+            jojo->setVelocidadX(7);
+        } else {
+            jojo->setVelocidadX(0);
+        }
+
         jojo->moverse();
         jojo->actualizarAtaque();
         jojo->actualizarAtaquesFuertes();
+        jojo->actualizarEspecial();
     }
 }
 
@@ -58,7 +71,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
         if (jojo->getVelocidadX() == 0) jojo->setFrameActual(0);
         jojo->setVelocidadX(7);
         break;
-    case Qt::Key_W:
     case Qt::Key_Space:
         jojo->saltar();
         break;
@@ -77,20 +89,26 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
             jojo->atacar(); // J normal
         }
         break;
+    case Qt::Key_L:
+        jojo->habilidadEspecial();
+        break;
+    case Qt::Key_F1:
+        Personaje::modoDebug = !Personaje::modoDebug;
+        scene->update();
+        qDebug() << "Modo Debug:" << Personaje::modoDebug;
+        break;
     }
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event) {
     if (event->isAutoRepeat()) return;
 
-    // --- OPERACIÓN CRÍTICA ---
-    // Removemos la tecla del registro inmediatamente
     teclasPresionadas.remove(event->key());
 
     if (!jojo) return;
 
     int key = event->key();
-    // Frenar movimiento horizontal
+
     if ((key == Qt::Key_A || key == Qt::Key_Left) && jojo->getVelocidadX() < 0) {
         jojo->setVelocidadX(0);
     }

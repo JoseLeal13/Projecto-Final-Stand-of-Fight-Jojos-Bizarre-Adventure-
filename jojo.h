@@ -16,7 +16,12 @@ public:
     bool puedeAtacar = true;
     int faseCombo = 0;
 
+    enum { Type = UserType + 2 }; // Define el ID de la clase
+    int type() const override { return Type; } // Devuelve el ID
 
+    //Pruebas con un Jotaro falso
+    void setMirandoDerecha(bool derecha) { mirandoDerecha = derecha; }
+    void setEsDummy(bool dummy) { esDummy = dummy; }
 
     void moverse() override;
     void atacar() override;
@@ -25,8 +30,11 @@ public:
     void actualizarAtaquesFuertes();
     void defensa();
     void habilidadEspecial() override; // ¡Star Platinum: Za Warudo!
+    void actualizarEspecial();
     // Auxiliares de combate
     void procesarDano(QRectF area, int cantidad);
+    void recibirDano(int cantidad);
+    void actualizarDano();
     // Controles de estado
     void saltar();
     void setVelocidadX(float v) { vx = v; }
@@ -37,12 +45,19 @@ public:
     void setFrameActual(int f) { frameActual = f; }
     float getVelocidadX() { return vx; }
 
+    void evaluarHitboxBasico();
+    void evaluarHitboxFuerte1();
+    void evaluarHitboxFuerte2();
+    void evaluarHitboxEspecial();
+
 private:
     bool estaDefendiendo;
     int tiempoAtaque; // Para manejar la duración de la animación
 
     bool stand = false;
     int frameActualStand = 0;
+
+    bool esDummy = false;
 
     // Hojas de sprites recortadas por acción
     QList<QPixmap> spritesQUIETO;

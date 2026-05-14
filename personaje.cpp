@@ -29,3 +29,16 @@ bool Personaje::verificarColision(float proximoX, float proximoY)
     }
     return false;
 }
+
+bool Personaje::modoDebug = true; //Verificar hitbox
+
+void Personaje::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+    // Dibujamos el sprite original (lo que hace QGraphicsPixmapItem normalmente)
+    QGraphicsPixmapItem::paint(painter, option, widget);
+
+    // Si el modo debug está activo, dibujamos la hitbox de colisión
+    if (modoDebug) {
+        painter->setPen(Qt::red);
+        painter->drawRect(hitbox);
+    }
+}

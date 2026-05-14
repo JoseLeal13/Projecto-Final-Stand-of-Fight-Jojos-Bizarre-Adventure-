@@ -7,6 +7,7 @@
 #include <QList>
 #include "obstaculo.h"
 #include <QTimer>
+#include <QPainter>
 
 class Personaje : public QObject, public QGraphicsPixmapItem
 {
@@ -41,6 +42,9 @@ public:
     void setVida(int v) { puntosdevida = v; }
     int getVida() { return puntosdevida; }
     int getCarga() { return barradeCarga; }
+
+    static bool modoDebug; // Variable para activar/desactivar hitboxes
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
 };
 
