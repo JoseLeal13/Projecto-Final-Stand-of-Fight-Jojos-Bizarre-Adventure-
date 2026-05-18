@@ -8,26 +8,52 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // 1. Definimos un tamaño fijo para la escena (ejemplo: 800 de ancho x 600 de alto)
+    int anchoEscena = 800;
+    int altoEscena = 600;
+
     scene = new QGraphicsScene(this);
-    scene->setSceneRect(0, 0, 1000, 600);
+    scene->setSceneRect(0, 0, anchoEscena, altoEscena);
     ui->graphicsView->setScene(scene);
 
-    obstaculo *suelo = new obstaculo(0, 550, 1000, 50);
+    // 2. Ajustamos el QGraphicsView para que no cree barras de scroll ni bordes raros
+    ui->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->graphicsView->setFixedSize(anchoEscena, altoEscena);
+    this->setFixedSize(anchoEscena + 20, altoEscena + 20); // Ventana contenedora ligeramente más grande
+
+    // 3. Colocamos el SUELO (Grosor: 50px).
+    // Debe estar al fondo de la escena: Y = AltoEscena - Grosor (600 - 50 = 550)
+    int grosorSuelo = 50;
+    obstaculo *suelo = new obstaculo(0, altoEscena - grosorSuelo, anchoEscena, grosorSuelo);
     scene->addItem(suelo);
 
-    jojo = new Jojo();
+    // 4. Colocamos las PAREDES (Grosor: 40px)
+    int grosorPared = 40;
+    // Pared Izquierda: desde X = -40 hasta X = 0 (así no se ve en pantalla, pero frena)
+    obstaculo *paredIzquierda = new obstaculo(-grosorPared, 0, grosorPared, altoEscena);
+    // Pared Derecha: empieza justo donde termina la escena (X = 800)
+    obstaculo *paredDerecha = new obstaculo(anchoEscena, 0, grosorPared, altoEscena);
 
-    jojo->setPos(100, 480);
+    scene->addItem(paredIzquierda);
+    scene->addItem(paredDerecha);
+
+    // 5. Inicializamos y posicionamos a los personajes de forma segura dentro del escenario
+    jojo = new Jojo();
+    // Y = 550 (suelo) - 90 (alto del sprite de Jojo) = 460 para que pise el suelo perfectamente
+    jojo->setPos(150, 460);
     scene->addItem(jojo);
 
-    Jojo *dummy = new Jojo();
+    // El puntero dummy debe ser miembro de la clase (en mainwindow.h) para poder llamarlo en actualizar()
+    dummy = new Jojo();
     dummy->setEsDummy(true);
-    dummy->setPos(500, 480);
+    dummy->setPos(200, 460); // Centrado en la mitad derecha
     dummy->setMirandoDerecha(false);
     scene->addItem(dummy);
 
+    // 6. Configuración del Timer del juego
     QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &MainWindow::actualizar);
+    connect(timer, &QTimer::timeout, this, &MainWindow::actualizar, Qt::UniqueConnection);
     timer->start(1000/60);
 }
 
@@ -51,6 +77,9 @@ void MainWindow::actualizar() {
         jojo->actualizarAtaque();
         jojo->actualizarAtaquesFuertes();
         jojo->actualizarEspecial();
+        if (dummy) {
+            dummy->moverse(); // Procesa su gravedad, sus estados de daño y animaciones de golpe
+        }
     }
 }
 

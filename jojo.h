@@ -1,41 +1,31 @@
 #ifndef JOJO_H
 #define JOJO_H
-
 #include "personaje.h"
 #include <QPixmap>
 #include <QList>
 #include <QPainter>
-
 class Jojo : public Personaje
 {
 public:
     Jojo();
-
     bool estaAtacando = false;
     bool danoAplicado = false;
     bool puedeAtacar = true;
     int faseCombo = 0;
-
-    enum { Type = UserType + 2 }; // Define el ID de la clase
-    int type() const override { return Type; } // Devuelve el ID
-
-    //Pruebas con un Jotaro falso
+    enum { Type = UserType + 2 };
+    int type() const override { return Type; }
     void setMirandoDerecha(bool derecha) { mirandoDerecha = derecha; }
     void setEsDummy(bool dummy) { esDummy = dummy; }
-
     void moverse() override;
     void atacar() override;
     void atacarFuerte(int tipo);
     void actualizarAtaque();
     void actualizarAtaquesFuertes();
     void defensa();
-    void habilidadEspecial() override; // ¡Star Platinum: Za Warudo!
+    void habilidadEspecial() override;
     void actualizarEspecial();
-    // Auxiliares de combate
     void procesarDano(QRectF area, int cantidad);
     void recibirDano(int cantidad);
-    void actualizarDano();
-    // Controles de estado
     void saltar();
     void setVelocidadX(float v) { vx = v; }
     void setDefensa(bool d) {
@@ -44,22 +34,30 @@ public:
     }
     void setFrameActual(int f) { frameActual = f; }
     float getVelocidadX() { return vx; }
-
     void evaluarHitboxBasico();
     void evaluarHitboxFuerte1();
     void evaluarHitboxFuerte2();
     void evaluarHitboxEspecial();
 
+    // Estado de daño recibido
+    enum EstadoDano { NORMAL, DANO1, DANO2, STANDUP, MUERTO };
+    EstadoDano estadoDano = NORMAL;
+
 private:
     bool estaDefendiendo;
-    int tiempoAtaque; // Para manejar la duración de la animación
-
+    int tiempoAtaque;
     bool stand = false;
     int frameActualStand = 0;
-
+    short int ralentizadorStand = 0;
+    short int ralentizadorJFuerte = 0;
+    short int ralentizadorSP = 0;
+    int frameJotaroEsp   = 0;
+    int frameSPEsp       = 0;
+    int ralentJotaroEsp  = 0;
+    int ralentSPEsp      = 0;
     bool esDummy = false;
 
-    // Hojas de sprites recortadas por acción
+    // Sprites existentes
     QList<QPixmap> spritesQUIETO;
     QList<QPixmap> spritesCAMINAR;
     QList<QPixmap> spritesSALTO;
@@ -71,13 +69,25 @@ private:
     QList<QPixmap> spritesFUERTE2;
     QList<QPixmap> spritesESPECIAL;
 
-    // Variables de control de animación
+    // Nuevos sprites de daño
+    QList<QPixmap> spritesDANO1;
+    QList<QPixmap> spritesDANO2;
+    QList<QPixmap> spritesSTANDUP;
+
     int frameActual;
     int contadorAnimacion;
     bool mirandoDerecha;
 
-    // Función interna para cargar y recortar los sprites
-    void cargarSprites();
-};
+    // Variables para sistema de daño
+    int danioAcumulado = 0;         // daño acumulado en el ataque actual
+    int frameDano = 0;              // frame actual de animación de daño
+    short int ralentizadorDano = 0; // ralentizador para animaciones de daño
+    bool recibiendoGolpes = false;  // true mientras llegan golpes del ataque actual
 
+    void cargarSprites();
+    void activarDano1();
+    void activarDano2(bool mitadEmpuje = false);
+    void actualizarAnimDano();
+    void recibirDanoConOrigen(int cantidad, float atacanteX);
+};
 #endif

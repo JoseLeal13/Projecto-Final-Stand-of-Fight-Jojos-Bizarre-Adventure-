@@ -26,6 +26,7 @@ private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene; // El mundo donde vive Jojo
     Jojo *jojo;            // El objeto Jojo
+    Jojo *dummy;
     QSet<int> teclasPresionadas;
 
 protected:

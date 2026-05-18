@@ -2,7 +2,7 @@
 
 Personaje::Personaje(QGraphicsItem *parent) : QGraphicsPixmapItem(parent)
 {
-    puntosdevida = 100;
+    puntosdevida = 300;
     barradeCarga = 0;
     vx = 0;
     vy = 0;
