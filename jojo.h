@@ -4,6 +4,7 @@
 #include <QPixmap>
 #include <QList>
 #include <QPainter>
+
 class Jojo : public Personaje
 {
 public:
@@ -26,8 +27,13 @@ public:
     void actualizarEspecial();
     void procesarDano(QRectF area, int cantidad);
     void recibirDano(int cantidad);
+    void recibirDanoConOrigen(int cantidad, float atacanteX);
     void saltar();
-    void setVelocidadX(float v) { vx = v; }
+    void setVelocidadX(float v) {
+        if (estadoDano == DANO1 || estadoDano == DANO2 ||
+            estadoDano == STANDUP || estadoDano == MUERTO) return;
+        vx = v;
+    }
     void setDefensa(bool d) {
         estaDefendiendo = d;
         frameActual = 0;
@@ -88,6 +94,5 @@ private:
     void activarDano1();
     void activarDano2(bool mitadEmpuje = false);
     void actualizarAnimDano();
-    void recibirDanoConOrigen(int cantidad, float atacanteX);
 };
 #endif

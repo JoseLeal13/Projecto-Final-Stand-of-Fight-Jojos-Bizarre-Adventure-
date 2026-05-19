@@ -3,6 +3,7 @@
 
 #include <QGraphicsRectItem>
 #include <QBrush>
+#include <QPen>
 
 class obstaculo : public QGraphicsRectItem
 {

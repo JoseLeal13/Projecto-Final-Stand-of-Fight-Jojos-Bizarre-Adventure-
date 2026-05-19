@@ -1,8 +1,11 @@
 #include "jojo.h"
+#include "dio.h"
+
+static const float ESCALA = 1.8f;
 
 Jojo::Jojo() : Personaje()
 {
-    setPixmap(QPixmap(":/sprites/SpritesJojoChampionship/Jotaro Kujo sprites.png").scaled(60, 90));
+    setPixmap(QPixmap(":/sprites/SpritesJojoChampionship/Jotaro Kujo sprites.png").scaled(60*1.8, 90*1.8));
     estaDefendiendo = false;
     tiempoAtaque = 0;
     frameActual = 0;
@@ -89,6 +92,27 @@ void Jojo::cargarSprites() {
         spritesSTANDUP.append(hoja.copy(607 + (i * 65), 234, 58, 60));
     for(int i = 0; i < 2; i++)
         spritesSTANDUP.append(hoja.copy(800 + (i * 40), 234, 40, 60));
+
+    float escala = 1.8f;
+
+    auto escalarLista = [&](QList<QPixmap>& lista) {
+        for (QPixmap& p : lista)
+            p = p.scaled(p.width() * escala, p.height() * escala,
+                         Qt::KeepAspectRatio, Qt::FastTransformation);
+    };
+
+    escalarLista(spritesQUIETO);
+    escalarLista(spritesCAMINAR);
+    escalarLista(spritesSALTO);
+    escalarLista(spritesDEFENSA);
+    escalarLista(spritesBASICO1);
+    escalarLista(spritesBASICO2);
+    escalarLista(spritesFUERTE1);
+    escalarLista(spritesFUERTE2);
+    escalarLista(spritesESPECIAL);
+    escalarLista(spritesDANO1);
+    escalarLista(spritesDANO2);
+    escalarLista(spritesSTANDUP);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -109,18 +133,27 @@ void Jojo::activarDano2(bool mitadEmpuje) {
     estadoDano = DANO2;
     frameDano = 0;
     ralentizadorDano = 0;
-    estaAtacando = false;
-    stand = false;
-    faseCombo = 0;
-    frameActualStand = 0;
 
-    // Empuje fuerte: horizontal considerable + impulso vertical
+    // SI ESTÁ EN ATAQUE FUERTE O ESPECIAL, TIENE ARMADURA IMPARABLE
+    if (stand && (faseCombo == 3 || faseCombo == 4 || faseCombo == 5)) {
+        qDebug() << "[HYPER ARMOR] ¡Jotaro resiste el aturdimiento y continúa el ataque!";
+        // NO reseteamos estaAtacando, ni stand, ni faseCombo. La animación sigue viva.
+    } else {
+        // Si no está usando su Stand de forma pesada, sí se interrumpe normalmente
+        estaAtacando = false;
+        stand = false;
+        faseCombo = 0;
+        frameActualStand = 0;
+    }
+
+    // El empuje físico se aplica igual (vuela por el golpe pero el Stand sigue golpeando)
     float empujeX = mirandoDerecha ? -6.0f : 6.0f;
     float empujeY = -10.0f;
     if (mitadEmpuje) { empujeX *= 0.5f; empujeY *= 0.5f; }
     vx = empujeX;
     vy = empujeY;
     enSuelo = false;
+
     qDebug() << "[DAÑO2] Golpe fuerte recibido. Acumulado:" << danioAcumulado;
 }
 
@@ -244,18 +277,9 @@ void Jojo::moverse() {
     bool enAnimDano = (estadoDano == DANO1 || estadoDano == DANO2 || estadoDano == STANDUP);
 
     if (esDummy) {
-        // EL DUMMY: No responde a teclas.
-        // Si NO está sufriendo daño, se queda quieto en su sitio.
-        if (!enAnimDano) {
-            vx = 0;
-        }
-        // Si está en DANO2, conservará el vx/vy del empuje que le dio activarDano2()
+        if (!enAnimDano) vx = 0;
     } else {
-        if (enAnimDano) {
-            // Solo aplica gravedad y empuje, no input del jugador
-            vx = 0; // detener movimiento horizontal en DANO1/STANDUP
-            // En DANO2 vx ya viene con el empuje, no lo anulamos aquí
-        } else {
+        if (!enAnimDano) {
             if (estaAtacando || estaDefendiendo) vx = 0;
         }
     }
@@ -279,7 +303,7 @@ void Jojo::moverse() {
     actualizarAnimDano();
 
     // ── Render de daño ────────────────────────────────────────────────────
-    if (enAnimDano) {
+    if (enAnimDano && !stand) {
         QList<QPixmap>* animDano = nullptr;
         if (estadoDano == DANO1)   animDano = &spritesDANO1;
         if (estadoDano == DANO2)   animDano = &spritesDANO2;
@@ -587,7 +611,7 @@ void Jojo::defensa() {
 //  HITBOXES
 // ═══════════════════════════════════════════════════════════════════════════
 void Jojo::evaluarHitboxBasico() {
-    float anchoHit = 20, altoHit = 20; // Un poco más ancha para compensar el puño
+    float anchoHit = 20 * ESCALA, altoHit = 20 * ESCALA; // Un poco más ancha para compensar el puño
     // Si mira a la derecha: se genera adelante. Si mira a la izquierda: resta el ancho completo
     float offX = mirandoDerecha ? 45.0f : -anchoHit + 10.0f;
 
@@ -604,7 +628,7 @@ void Jojo::evaluarHitboxBasico() {
 }
 
 void Jojo::evaluarHitboxFuerte1() {
-    float anchoHit = 60, altoHit = 45;
+    float anchoHit = 60 * ESCALA, altoHit = 45 * ESCALA;
     // Star Platinum aparece más adelante, ajustamos los offsets fijos de la escena
     float offX = mirandoDerecha ? 50.0f : -anchoHit - 10.0f;
 
@@ -621,7 +645,7 @@ void Jojo::evaluarHitboxFuerte1() {
 
 void Jojo::evaluarHitboxFuerte2() {
     if (frameActualStand >= 4 && frameActualStand <= 8) {
-        float anchoHit = 55, altoHit = 40;
+        float anchoHit = 55 * ESCALA, altoHit = 40 * ESCALA;
         float offX = mirandoDerecha ? 55.0f : -anchoHit - 20.0f;
 
         QRectF rect(x() + offX, y() + 15, anchoHit, altoHit);
@@ -637,7 +661,7 @@ void Jojo::evaluarHitboxFuerte2() {
 }
 
 void Jojo::evaluarHitboxEspecial() {
-    float anchoHit = 80; // El Ora Ora Ora necesita una pared de golpes grande
+    float anchoHit = 80 * ESCALA; // El Ora Ora Ora necesita una pared de golpes grande
     float offX = mirandoDerecha ? 50.0f : -anchoHit + 5.0f;
 
     QRectF rect(x() + offX, y() - 20, anchoHit, 90);
@@ -659,21 +683,25 @@ void Jojo::procesarDano(QRectF area, int cantidad) {
     bool golpeoAAlguien = false;
 
     for (QGraphicsItem* item : items) {
-        Jojo* personajeGolpeado = dynamic_cast<Jojo*>(item);
 
+        Jojo* personajeGolpeado = dynamic_cast<Jojo*>(item);
         if (personajeGolpeado && personajeGolpeado != this) {
             golpeoAAlguien = true;
-            // Pasamos 'this->x()' para saber de qué lado vino el golpe
             personajeGolpeado->recibirDanoConOrigen(cantidad, this->x());
+            continue;
+        }
+
+        DIO* dioGolpeado = dynamic_cast<DIO*>(item);
+        if (dioGolpeado) {
+            golpeoAAlguien = true;
+            dioGolpeado->recibirDanoConOrigen(cantidad, this->x());
         }
     }
 
-    if (golpeoAAlguien) {
-        if (barradeCarga < 100) {
-            barradeCarga += 5;
-            if (barradeCarga > 100) barradeCarga = 100;
-            qDebug() << " [HIT!] Barra Especial:" << barradeCarga << "%";
-        }
+    if (golpeoAAlguien && barradeCarga < 100) {
+        barradeCarga += 5;
+        if (barradeCarga > 100) barradeCarga = 100;
+        qDebug() << " [HIT!] Barra Especial:" << barradeCarga << "%";
     }
 }
 
@@ -701,10 +729,18 @@ void Jojo::recibirDanoConOrigen(int cantidad, float atacanteX) {
 
     float direccionEmpuje = (atacanteX < this->x()) ? 0.5f : -0.5f;
 
+    if (stand && (faseCombo == 3 || faseCombo == 4 || faseCombo == 5)) {
+        // El daño se resta (ya se hizo arriba), pero conservamos el estado NORMAL para la animación
+        estadoDano = NORMAL;
+        // Aplicamos un pequeño empuje horizontal por el impacto, pero sin cancelar el ataque
+        vx = direccionEmpuje * 2.0f;
+        return;
+    }
+
     if (defendiendo) {
         if (danioAcumulado >= 22) {
             this->activarDano2(true);
-            vx = direccionEmpuje * 3.0f;
+            vx = direccionEmpuje * 8.0f;
             danioAcumulado = 0;
         }
         return;

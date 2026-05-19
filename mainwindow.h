@@ -6,6 +6,7 @@
 #include <QGraphicsScene> // Agregado
 #include <QKeyEvent>      // Agregado
 #include "jojo.h"
+#include "dio.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -27,6 +28,7 @@ private:
     QGraphicsScene *scene; // El mundo donde vive Jojo
     Jojo *jojo;            // El objeto Jojo
     Jojo *dummy;
+    DIO *dio;
     QSet<int> teclasPresionadas;
 
 protected:

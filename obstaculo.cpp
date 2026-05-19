@@ -5,5 +5,6 @@ obstaculo::obstaculo(float x, float y, float ancho, float alto, QGraphicsItem *p
 {
     setRect(0, 0, ancho, alto);
     setPos(x, y);
-    setBrush(QBrush(Qt::darkGray));
+    setBrush(Qt::NoBrush);
+    setPen(QPen(Qt::NoPen));
 }

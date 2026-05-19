@@ -8,7 +8,7 @@ Personaje::Personaje(QGraphicsItem *parent) : QGraphicsPixmapItem(parent)
     vy = 0;
     aceleracion_y = 0.8;
     enSuelo = false;
-    hitbox = QRectF(8, 5, 30, 60);
+    hitbox = QRectF(8*1.8, 5*1.8, 30*1.8, 60*1.8);
 }
 bool Personaje::verificarColision(float proximoX, float proximoY)
 {
