@@ -188,7 +188,7 @@ void Jojo::recibirDano(int cantidad) {
 
     // ── DEFENSA: ignora Daño1, solo activa Daño2 si acumulado >= 15 ──────
     if (defendiendo) {
-        if (danioAcumulado >= 20) {
+        if (danioAcumulado >= 22) {
             activarDano2(true); // mitad de empuje
             danioAcumulado = 0;
         }
@@ -197,7 +197,7 @@ void Jojo::recibirDano(int cantidad) {
     }
 
     // ── SIN DEFENSA ───────────────────────────────────────────────────────
-    if (danioAcumulado >= 20) {
+    if (danioAcumulado >= 22) {
         activarDano2(false);
         danioAcumulado = 0;
     } else {
@@ -348,7 +348,7 @@ void Jojo::moverse() {
     if (!animacionActual || animacionActual->isEmpty()) return;
 
     static int ralentizadorJ = 0;
-    if (++ralentizadorJ >= 7) {
+    if (++ralentizadorJ >= 5) {
         ralentizadorJ = 0;
         int limiteJojo;
         if (faseCombo == 3) limiteJojo = 2;
@@ -451,7 +451,7 @@ void Jojo::moverse() {
 
 void Jojo::saltar() {
     if (enSuelo && !estaDefendiendo && estadoDano == NORMAL) {
-        vy = -13;
+        vy = -15;
         enSuelo = false;
     }
 }
@@ -611,67 +611,57 @@ void Jojo::defensa() {
 //  HITBOXES
 // ═══════════════════════════════════════════════════════════════════════════
 void Jojo::evaluarHitboxBasico() {
-    float anchoHit = 20 * ESCALA, altoHit = 20 * ESCALA; // Un poco más ancha para compensar el puño
-    // Si mira a la derecha: se genera adelante. Si mira a la izquierda: resta el ancho completo
-    float offX = mirandoDerecha ? 45.0f : -anchoHit + 10.0f;
-
+    float anchoHit = 20 * ESCALA, altoHit = 20 * ESCALA;
+    // AUMENTADO: Se desplaza a 65.0f a la derecha para emparejar el alcance
+    float offX = mirandoDerecha ? 65.0f : -anchoHit + 10.0f;
     QRectF rect(x() + offX, y() + 25, anchoHit, altoHit);
     procesarDano(rect, 5);
     danoAplicado = true;
 
     if (Personaje::modoDebug) {
         QGraphicsRectItem* dr = scene()->addRect(rect, QPen(Qt::blue, 2));
-        QTimer::singleShot(100, [dr]() {
-            if (dr && dr->scene()) { dr->scene()->removeItem(dr); delete dr; }
-        });
+        QTimer::singleShot(100, [dr]() { if (dr && dr->scene()) { dr->scene()->removeItem(dr); delete dr; } });
     }
 }
 
 void Jojo::evaluarHitboxFuerte1() {
     float anchoHit = 60 * ESCALA, altoHit = 45 * ESCALA;
-    // Star Platinum aparece más adelante, ajustamos los offsets fijos de la escena
-    float offX = mirandoDerecha ? 50.0f : -anchoHit - 10.0f;
-
+    // AUMENTADO: Ajustado a 85.0f para que la ráfaga conecte justo donde se materializa el Stand
+    float offX = mirandoDerecha ? 85.0f : -anchoHit - 10.0f;
     QRectF rect(x() + offX, y() - 15, anchoHit, altoHit);
     procesarDano(rect, 2);
 
     if (Personaje::modoDebug) {
         QGraphicsRectItem* dr = scene()->addRect(rect, QPen(Qt::blue, 2));
-        QTimer::singleShot(50, [dr]() {
-            if (dr && dr->scene()) { dr->scene()->removeItem(dr); delete dr; }
-        });
+        QTimer::singleShot(50, [dr]() { if (dr && dr->scene()) { dr->scene()->removeItem(dr); delete dr; } });
     }
 }
 
 void Jojo::evaluarHitboxFuerte2() {
     if (frameActualStand >= 4 && frameActualStand <= 8) {
         float anchoHit = 55 * ESCALA, altoHit = 40 * ESCALA;
-        float offX = mirandoDerecha ? 55.0f : -anchoHit - 20.0f;
-
+        // AUMENTADO: Ajustado a 80.0f para sincronizar con la extensión máxima del brazo
+        float offX = mirandoDerecha ? 80.0f : -anchoHit - 20.0f;
         QRectF rect(x() + offX, y() + 15, anchoHit, altoHit);
         procesarDano(rect, 5);
 
         if (Personaje::modoDebug) {
             QGraphicsRectItem* dr = scene()->addRect(rect, QPen(Qt::blue, 3));
-            QTimer::singleShot(50, [dr]() {
-                if (dr && dr->scene()) { dr->scene()->removeItem(dr); delete dr; }
-            });
+            QTimer::singleShot(50, [dr]() { if (dr && dr->scene()) { dr->scene()->removeItem(dr); delete dr; } });
         }
     }
 }
 
 void Jojo::evaluarHitboxEspecial() {
-    float anchoHit = 80 * ESCALA; // El Ora Ora Ora necesita una pared de golpes grande
-    float offX = mirandoDerecha ? 50.0f : -anchoHit + 5.0f;
-
+    float anchoHit = 80 * ESCALA;
+    // AUMENTADO: Ajustado a 90.0f para cubrir toda la pantalla frontal durante la marea de puños
+    float offX = mirandoDerecha ? 90.0f : -anchoHit + 5.0f;
     QRectF rect(x() + offX, y() - 20, anchoHit, 90);
     procesarDano(rect, 2);
 
     if (Personaje::modoDebug) {
         QGraphicsRectItem* dr = scene()->addRect(rect, QPen(Qt::blue, 2));
-        QTimer::singleShot(40, [dr]() {
-            if (dr && dr->scene()) { dr->scene()->removeItem(dr); delete dr; }
-        });
+        QTimer::singleShot(40, [dr]() { if (dr && dr->scene()) { dr->scene()->removeItem(dr); delete dr; } });
     }
 }
 
@@ -683,7 +673,6 @@ void Jojo::procesarDano(QRectF area, int cantidad) {
     bool golpeoAAlguien = false;
 
     for (QGraphicsItem* item : items) {
-
         Jojo* personajeGolpeado = dynamic_cast<Jojo*>(item);
         if (personajeGolpeado && personajeGolpeado != this) {
             golpeoAAlguien = true;
@@ -698,7 +687,8 @@ void Jojo::procesarDano(QRectF area, int cantidad) {
         }
     }
 
-    if (golpeoAAlguien && barradeCarga < 100) {
+    // ── CAMBIO AQUÍ: Solo carga barra si es un combo básico (1 o 2)
+    if (golpeoAAlguien && barradeCarga < 100 && faseCombo <= 4) {
         barradeCarga += 5;
         if (barradeCarga > 100) barradeCarga = 100;
         qDebug() << " [HIT!] Barra Especial:" << barradeCarga << "%";
@@ -733,14 +723,14 @@ void Jojo::recibirDanoConOrigen(int cantidad, float atacanteX) {
         // El daño se resta (ya se hizo arriba), pero conservamos el estado NORMAL para la animación
         estadoDano = NORMAL;
         // Aplicamos un pequeño empuje horizontal por el impacto, pero sin cancelar el ataque
-        vx = direccionEmpuje * 2.0f;
+        vx = direccionEmpuje * 4.0f;
         return;
     }
 
     if (defendiendo) {
         if (danioAcumulado >= 22) {
             this->activarDano2(true);
-            vx = direccionEmpuje * 8.0f;
+            vx = direccionEmpuje * 10.0f;
             danioAcumulado = 0;
         }
         return;
@@ -748,7 +738,7 @@ void Jojo::recibirDanoConOrigen(int cantidad, float atacanteX) {
 
     if (danioAcumulado >= 22) {
         this->activarDano2(false);
-        vx = direccionEmpuje * 8.0f;
+        vx = direccionEmpuje * 10.0f;
         danioAcumulado = 0;
     } else {
         this->activarDano1();

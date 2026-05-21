@@ -40,6 +40,9 @@ public:
     void recibirDano(int cantidad);
     void saltar();
 
+    void timeStop();
+    void ejecutarCuracion();
+
     void evaluarHitboxBasico();
     void evaluarHitboxFuerte1();
     void evaluarHitboxFuerte2();
@@ -69,6 +72,17 @@ private:
     short int ralentDioEsp = 0;
     short int ralentTWEsp = 0;
 
+    short int ticksDefensaRestantes = 0;
+    bool modoDefensivoActivo = false;
+    bool estaCurando = false;
+    short int ticksCuracion = 0;
+    short int cooldownCuracionTicks;
+    short int comboTimeStopPaso;
+    short int ticksPreTimeStop = 0;
+    bool preparandoTimeStop = false;
+
+    bool ataqueExentoDeCarga = false;
+
     // --- Contenedores de Animación (The World Sheet) ---
     QList<QPixmap> spritesQUIETO;
     QList<QPixmap> spritesCAMINAR;
@@ -83,6 +97,8 @@ private:
     QList<QPixmap> spritesDANO1;
     QList<QPixmap> spritesDANO2;
     QList<QPixmap> spritesSTANDUP;
+    QList<QPixmap> spritesCURACION;
+    QList<QPixmap> spritesTIMESTOP;
 
     int frameActual;
     int contadorAnimacion;

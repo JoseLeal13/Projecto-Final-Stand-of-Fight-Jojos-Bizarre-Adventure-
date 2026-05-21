@@ -13,13 +13,13 @@ MainWindow::MainWindow(QWidget *parent)
     scene = new QGraphicsScene(this);
     scene->setSceneRect(0, 0, anchoEscena, altoEscena);
 
-    // Fondo escalado al tamaño de la escena
+    // Fondo asignado al atributo global de la clase
     QPixmap fondo(":/sprites/SpritesJojoChampionship/JoestarChampionship Jaula MMA.png");
-    QGraphicsPixmapItem* itemFondo = new QGraphicsPixmapItem(
+    itemEscenario = new QGraphicsPixmapItem(
         fondo.scaled(anchoEscena, altoEscena, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
         );
-    itemFondo->setZValue(-1);
-    scene->addItem(itemFondo);
+    itemEscenario->setZValue(-1);
+    scene->addItem(itemEscenario);
 
     ui->graphicsView->setScene(scene);
     ui->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     dummy->setEsDummy(true);
     dummy->setPos(500, yPersonaje);
     dummy->setMirandoDerecha(false);
-    scene->addItem(dummy);
+    //scene->addItem(dummy);
 
     dio = new DIO(jojo);
     dio->setPos(950, yPersonaje);
@@ -75,25 +75,80 @@ MainWindow::~MainWindow()
 
 void MainWindow::actualizar() {
     if (jojo) {
-        if (teclasPresionadas.contains(Qt::Key_A) || teclasPresionadas.contains(Qt::Key_Left)) {
-            jojo->setVelocidadX(-7);
-        } else if (teclasPresionadas.contains(Qt::Key_D) || teclasPresionadas.contains(Qt::Key_Right)) {
-            jojo->setVelocidadX(7);
-        } else {
-            jojo->setVelocidadX(0);
+        // ── SI EL TIEMPO ESTÁ DETENIDO, JOTARO SE QUEDA TOTALMENTE CONGELADO ──
+        if (Personaje::tiempoDetenido) {
+            jojo->setVelocidadX(0); // Evita que acumule velocidad inercial
+            // NOTA: No llamamos a moverse() ni a sus ataques. Queda estático.
+        }
+        else {
+            // Movimiento normal solo si el tiempo fluye
+            if (teclasPresionadas.contains(Qt::Key_A) || teclasPresionadas.contains(Qt::Key_Left)) {
+                jojo->setVelocidadX(-10);
+            } else if (teclasPresionadas.contains(Qt::Key_D) || teclasPresionadas.contains(Qt::Key_Right)) {
+                jojo->setVelocidadX(10);
+            } else {
+                jojo->setVelocidadX(0);
+            }
+
+            jojo->moverse();
+            jojo->actualizarAtaque();
+            jojo->actualizarAtaquesFuertes();
+            jojo->actualizarEspecial();
         }
 
-        jojo->moverse();
-        jojo->actualizarAtaque();
-        jojo->actualizarAtaquesFuertes();
-        jojo->actualizarEspecial();
-
-        if (dummy) {
+        // El dummy también se congela si el tiempo se detiene
+        if (dummy && !Personaje::tiempoDetenido) {
             dummy->moverse();
         }
 
+        // DIO SIEMPRE SE MUEVE (Él es el dueño del TimeStop)
         if (dio) {
             dio->moverse();
+        }
+
+        // ── CONTROL VISUAL DE ZA WARUDO ──
+        if (Personaje::tiempoDetenido) {
+            if (!efectoGrisActivo) {
+                efectoGrisActivo = true;
+                aplicarEfectoZaWarudo(true);
+            }
+        } else {
+            if (efectoGrisActivo) {
+                efectoGrisActivo = false;
+                aplicarEfectoZaWarudo(false);
+            }
+        }
+    }
+}
+
+void MainWindow::aplicarEfectoZaWarudo(bool activar) {
+    if (!itemEscenario) return;
+
+    if (activar) {
+        // 1. Efecto Negativo en el Escenario
+        QPixmap fondoActual = itemEscenario->pixmap();
+        QImage img = fondoActual.toImage();
+        img.invertPixels(QImage::InvertRgb); // Invierte los colores (Mítico en el anime)
+        itemEscenario->setPixmap(QPixmap::fromImage(img));
+
+        // 2. Apagar los colores de Jotaro (Gris/Azulado oscuro)
+        if (jojo) {
+            efectoJotaro = new QGraphicsColorizeEffect(this);
+            efectoJotaro->setColor(QColor(70, 80, 95)); // Tono frío desaturado
+            efectoJotaro->setStrength(0.85);
+            jojo->setGraphicsEffect(efectoJotaro);
+        }
+    } else {
+        // 1. Restaurar el escenario original recargando la imagen limpia
+        int anchoEscena = 1200;
+        int altoEscena  = 500;
+        QPixmap fondoOriginal(":/sprites/SpritesJojoChampionship/JoestarChampionship Jaula MMA.png");
+        itemEscenario->setPixmap(fondoOriginal.scaled(anchoEscena, altoEscena, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+
+        // 2. Quitar el efecto de Jotaro para devolverle sus colores vivos
+        if (jojo && jojo->graphicsEffect()) {
+            jojo->setGraphicsEffect(nullptr);
+            efectoJotaro = nullptr;
         }
     }
 }

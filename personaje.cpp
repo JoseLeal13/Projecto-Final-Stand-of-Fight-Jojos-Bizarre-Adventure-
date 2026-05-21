@@ -1,5 +1,8 @@
 #include "personaje.h"
 
+bool Personaje::tiempoDetenido = false;
+Personaje* Personaje::electorDelTiempo = nullptr;
+
 Personaje::Personaje(QGraphicsItem *parent) : QGraphicsPixmapItem(parent)
 {
     puntosdevida = 300;
@@ -9,6 +12,7 @@ Personaje::Personaje(QGraphicsItem *parent) : QGraphicsPixmapItem(parent)
     aceleracion_y = 0.8;
     enSuelo = false;
     hitbox = QRectF(8*1.8, 5*1.8, 30*1.8, 60*1.8);
+
 }
 bool Personaje::verificarColision(float proximoX, float proximoY)
 {

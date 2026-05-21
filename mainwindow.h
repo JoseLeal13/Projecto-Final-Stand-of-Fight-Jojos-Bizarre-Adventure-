@@ -3,8 +3,9 @@
 
 #include <QMainWindow>
 #include <QTimer>
-#include <QGraphicsScene> // Agregado
-#include <QKeyEvent>      // Agregado
+#include <QGraphicsScene>
+#include <QKeyEvent>
+#include <QGraphicsColorizeEffect>
 #include "jojo.h"
 #include "dio.h"
 
@@ -22,6 +23,7 @@ public:
 
 private slots:
     void actualizar();
+    void aplicarEfectoZaWarudo(bool activar);
 
 private:
     Ui::MainWindow *ui;
@@ -30,6 +32,9 @@ private:
     Jojo *dummy;
     DIO *dio;
     QSet<int> teclasPresionadas;
+    QGraphicsPixmapItem* itemEscenario;
+    bool efectoGrisActivo = false;
+    QGraphicsColorizeEffect* efectoJotaro = nullptr;
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;

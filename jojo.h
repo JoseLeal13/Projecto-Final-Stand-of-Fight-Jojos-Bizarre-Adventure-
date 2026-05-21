@@ -63,6 +63,8 @@ private:
     int ralentSPEsp      = 0;
     bool esDummy = false;
 
+    bool ataqueExentoDeCarga = false;
+
     // Sprites existentes
     QList<QPixmap> spritesQUIETO;
     QList<QPixmap> spritesCAMINAR;

@@ -28,6 +28,9 @@ protected:
 public:
     Personaje(QGraphicsItem *parent = nullptr);
 
+    static bool tiempoDetenido;
+    static Personaje* electorDelTiempo;
+
     // Métodos de lógica de colisión
     bool verificarColision(float proximoX, float proximoY);
 
