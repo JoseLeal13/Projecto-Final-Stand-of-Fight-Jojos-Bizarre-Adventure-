@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
+#include <QGraphicsDropShadowEffect>
 
 class DIO : public Personaje
 {
@@ -61,6 +62,7 @@ private:
     int ticksDecision = 0; // Contador para no cambiar de opinión cada frame
 
     bool estaDefendiendo;
+    int cooldownDefensaCritica = 0;
     int tiempoAtaque;
     bool stand = false;
     int frameActualStand = 0;
@@ -78,6 +80,7 @@ private:
     short int ticksCuracion = 0;
     short int cooldownCuracionTicks;
     short int comboTimeStopPaso;
+    bool amagoEspecialCorto;
     short int ticksPreTimeStop = 0;
     bool preparandoTimeStop = false;
 
@@ -116,6 +119,22 @@ private:
 
     // --- Motor de Decisiones ---
     void ejecutarCerebro(float dx, float distancia);
+
+    int ticksJugadorLejos = 0;
+    int contadorGolpesRecibidos = 0;
+    bool modoHiperagresivoActivo = false;
+    bool contraataqueActivo = false;
+    int  ticksContraataque = 0;
+
+    // ── SECUENCIA DE CURACIÓN MEJORADA ──
+    enum EstadoCuracionSeq {
+        CUR_IDLE, CUR_DEFENSA, CUR_SALTANDO, CUR_ATERRIZANDO, CUR_EJECUTANDO, CUR_TIMESTOP
+    };
+    EstadoCuracionSeq estadoCuracion = CUR_IDLE;
+    int ticksDefensaCuracion = 0;
+
+    QGraphicsDropShadowEffect* elAuraEfecto = nullptr;
+    void actualizarAuraVisual();
 };
 
 #endif // DIO_H

@@ -11,6 +11,13 @@ Jojo::Jojo() : Personaje()
     frameActual = 0;
     contadorAnimacion = 0;
     mirandoDerecha = true;
+
+    animoActual = NORMAL_ANIMO;
+    ticksSinAtacar = 0;
+    contadorGolpesRecibidos = 0;
+    proximoAtaquePotenciado = false;
+    elAuraEfecto = nullptr;
+
     cargarSprites();
     if (!spritesQUIETO.isEmpty()) {
         setPixmap(spritesQUIETO.at(0));
@@ -261,9 +268,7 @@ void Jojo::actualizarAnimDano() {
 // ═══════════════════════════════════════════════════════════════════════════
 void Jojo::moverse() {
     if (!scene()) return;
-    //if (!scene() || esDummy) return;
 
-    // ── Si está muerto: mostrar primer frame StandUp y congelar ──────────
     if (estadoDano == MUERTO) {
         if (!spritesSTANDUP.isEmpty()) {
             QPixmap f = spritesSTANDUP.at(0);
@@ -273,36 +278,78 @@ void Jojo::moverse() {
         return;
     }
 
-    // ── Física: en animaciones de daño no puede moverse ──────────────────
+    // =======================================================================
+    // LOGICA DE CONTROL DE PERSONALIDADES (TICKS)
+    // =======================================================================
+    if (!estaAtacando && !estaDefendiendo && estadoDano == NORMAL) {
+        // Si no está haciendo ninguna acción agresiva ni recibiendo daño, sube el contador
+        if (animoActual == NORMAL_ANIMO) {
+            ticksSinAtacar++;
+            if (ticksSinAtacar >= 240) {
+                animoActual = CALCULADOR;
+                ticksSinAtacar = 0;
+                actualizarAuraVisual();
+                qDebug() << "[CALCULADOR ACTIVO] Jotaro analiza los movimientos de DIO. +20% Velocidad.";
+            }
+        }
+    } else {
+        // Si ataca, defiende o es golpeado estando en modo Calculador, se rompe su concentración
+        if (animoActual == CALCULADOR) {
+            animoActual = NORMAL_ANIMO;
+            ticksSinAtacar = 0;
+            actualizarAuraVisual();
+            qDebug() << "[CALCULADOR DESACTIVADO] Concentración interrumpida.";
+        }
+    }
+
+    // Ajuste de velocidades dinámicas basadas en el Estado de Ánimo
+    float multiplicadorVelocidad = 1.0f;
+    if (animoActual == CALCULADOR) {
+        multiplicadorVelocidad = 1.2f;  // 20% más rápido
+    } else if (animoActual == ENOJADO) {
+        multiplicadorVelocidad = 0.7f;  // 30% más lento (1.0 - 0.3)
+    }
+
+    // Aplicar el multiplicador a los movimientos horizontales del jugador si no está en animación de daño
     bool enAnimDano = (estadoDano == DANO1 || estadoDano == DANO2 || estadoDano == STANDUP);
 
     if (esDummy) {
         if (!enAnimDano) vx = 0;
     } else {
         if (!enAnimDano) {
-            if (estaAtacando || estaDefendiendo) vx = 0;
+            if (estaAtacando || estaDefendiendo) {
+                vx = 0;
+            } else {
+                // Aquí es donde tus controles externos de movimiento (A/D o Flechas) asignan el vx base.
+                // Aplicamos el multiplicador directamente sobre el vx actual calculado por los inputs:
+                vx *= multiplicadorVelocidad;
+            }
         }
     }
 
-    // En Daño2 conservamos el vx del empuje hasta que toque el suelo
+    // Modificación de Gravedad/Peso: Si está enojado cae un poco más rápido (Sensación de peso)
+    float gravedadActual = aceleracion_y;
+    if (animoActual == ENOJADO) {
+        gravedadActual = aceleracion_y * 1.3f; // 30% más pesado al caer
+    }
+
+    // Procesamiento de Físicas Verticales y Horizontales (Adaptado con gravedadActual)
     if (estadoDano == DANO2) {
-        vy += aceleracion_y;
+        vy += gravedadActual;
         if (!verificarColision(x(), y() + vy)) setPos(x(), y() + vy);
         else { if (vy > 0) { enSuelo = true; vy = 0; } }
         if (!verificarColision(x() + vx, y())) setPos(x() + vx, y());
-        // una vez en suelo, detener empuje horizontal
         if (enSuelo) vx = 0;
     } else {
-        vy += aceleracion_y;
+        vy += gravedadActual;
         if (!verificarColision(x(), y() + vy)) setPos(x(), y() + vy);
         else { if (vy > 0) { enSuelo = true; vy = 0; } }
         if (!verificarColision(x() + vx, y())) setPos(x() + vx, y());
     }
 
-    // ── Actualizar animación de daño ─────────────────────────────────────
+    // --- (El resto de tu código original de renderizado de sprites de moverse() se mantiene exactamente igual...) ---
     actualizarAnimDano();
 
-    // ── Render de daño ────────────────────────────────────────────────────
     if (enAnimDano && !stand) {
         QList<QPixmap>* animDano = nullptr;
         if (estadoDano == DANO1)   animDano = &spritesDANO1;
@@ -319,7 +366,6 @@ void Jojo::moverse() {
         return;
     }
 
-    // ── Selección de animación normal ─────────────────────────────────────
     QList<QPixmap> *animacionActual = nullptr;
     bool bucle = true;
 
@@ -369,14 +415,8 @@ void Jojo::moverse() {
     else if (vx < 0) mirandoDerecha = false;
 
     if (stand) {
-
-        // ══ ESPECIAL (faseCombo 5): render con contadores independientes ══
         if (faseCombo == 5) {
-            // Jotaro: índices 0..4 de spritesESPECIAL
-            QPixmap jojoPix = spritesESPECIAL.at(
-                qBound(0, frameJotaroEsp, 4)
-                );
-            // SP: empieza en índice 6 (el 5 es Jotaro quieto/transición)
+            QPixmap jojoPix = spritesESPECIAL.at(qBound(0, frameJotaroEsp, 4));
             int idxSP = qBound(6, 6 + frameSPEsp, spritesESPECIAL.size() - 1);
             QPixmap spPix = spritesESPECIAL.at(idxSP);
 
@@ -385,8 +425,7 @@ void Jojo::moverse() {
                 spPix   = spPix.transformed(QTransform().scale(-1, 1));
             }
 
-            QPixmap combinado(jojoPix.width() + spPix.width() + 150,
-                              qMax(jojoPix.height(), spPix.height()) + 30);
+            QPixmap combinado(jojoPix.width() + spPix.width() + 150, qMax(jojoPix.height(), spPix.height()) + 30);
             combinado.fill(Qt::transparent);
             QPainter painter(&combinado);
 
@@ -401,20 +440,17 @@ void Jojo::moverse() {
 
             setPixmap(combinado);
             setOffset(mirandoDerecha ? 0 : -(spPix.width() + 10), -jojoY);
-            return;  // ← sale aquí, no toca nada de fases 3/4
+            return;
         }
 
-        // ══ FUERTES (faseCombo 3 y 4)
         int limiteJojo, offsetSP;
         if (faseCombo == 3)      { limiteJojo = 2; offsetSP = 6; }
         else if (faseCombo == 4) { limiteJojo = 3; offsetSP = 4; }
         else                     { limiteJojo = 3; offsetSP = 0; }
 
         QPixmap jojoPix = animacionActual->at(qMin(frameActual, limiteJojo));
-
         int idxSP = offsetSP + frameActualStand;
         if (idxSP >= animacionActual->size()) idxSP = animacionActual->size() - 1;
-
         QPixmap spPix = animacionActual->at(idxSP);
 
         if (!mirandoDerecha) {
@@ -423,8 +459,7 @@ void Jojo::moverse() {
         }
 
         int anchoExtra = (faseCombo == 5) ? 150 : 40;
-        QPixmap combinado(jojoPix.width() + spPix.width() + anchoExtra,
-                          qMax(jojoPix.height(), spPix.height()) + 30);
+        QPixmap combinado(jojoPix.width() + spPix.width() + anchoExtra, qMax(jojoPix.height(), spPix.height()) + 30);
         combinado.fill(Qt::transparent);
         QPainter painter(&combinado);
 
@@ -451,7 +486,12 @@ void Jojo::moverse() {
 
 void Jojo::saltar() {
     if (enSuelo && !estaDefendiendo && estadoDano == NORMAL) {
-        vy = -15;
+        // Si está enojado, el salto es menos potente
+        if (animoActual == ENOJADO) {
+            vy = -10; // Salto significativamente más bajo y pesado
+        } else {
+            vy = -15; // Salto normal
+        }
         enSuelo = false;
     }
 }
@@ -486,6 +526,13 @@ void Jojo::actualizarAtaque() {
             frameActual = 0;
             danoAplicado = false;
         } else {
+            if (animoActual == ENOJADO) {
+                animoActual = NORMAL_ANIMO;
+                contadorGolpesRecibidos = 0;
+                proximoAtaquePotenciado = false;
+                actualizarAuraVisual();
+                qDebug() << "[ENOJADO TERMINADO] La furia de Jotaro se ha disipado.";
+            }
             estaAtacando = false;
             faseCombo = 0;
         }
@@ -527,6 +574,13 @@ void Jojo::actualizarAtaquesFuertes() {
 
     int totalSpritesSP = (faseCombo == 3) ? 9 : 10;
     if (frameActualStand >= totalSpritesSP) {
+        if (animoActual == ENOJADO) {
+            animoActual = NORMAL_ANIMO;
+            contadorGolpesRecibidos = 0;
+            proximoAtaquePotenciado = false;
+            actualizarAuraVisual();
+            qDebug() << "[ENOJADO TERMINADO] La furia de Jotaro se ha disipado.";
+        }
         stand = false;
         estaAtacando = false;
         faseCombo = 0;
@@ -587,6 +641,12 @@ void Jojo::actualizarEspecial() {
 
     // ── Fin: SP terminó sus 28 frames ────────────────────────────────────
     if (frameSPEsp >= 28) {
+        if (animoActual == ENOJADO) {
+            animoActual = NORMAL_ANIMO;
+            contadorGolpesRecibidos = 0;
+            proximoAtaquePotenciado = false;
+            qDebug() << "[ENOJADO TERMINADO] La furia de Jotaro se ha disipado.";
+        }
         stand            = false;
         estaAtacando     = false;
         faseCombo        = 0;
@@ -597,6 +657,7 @@ void Jojo::actualizarEspecial() {
         ralentJotaroEsp  = 0;
         ralentSPEsp      = 0;
         setOffset(0, 0);
+        actualizarAuraVisual();
         qDebug() << ">>> ESPECIAL FINALIZADO CORRECTAMENTE <<<";
     }
 }
@@ -669,6 +730,12 @@ void Jojo::evaluarHitboxEspecial() {
 //  procesarDano
 // ═══════════════════════════════════════════════════════════════════════════
 void Jojo::procesarDano(QRectF area, int cantidad) {
+    // Si la furia está activa, incrementamos la potencia un 40%
+    if (animoActual == ENOJADO && proximoAtaquePotenciado) {
+        cantidad = static_cast<int>(cantidad * 1.4f);
+        qDebug() << "[GOLPE DE FURIA] ¡Ataque potenciado con un 40% más de daño! Cantidad final:" << cantidad;
+    }
+
     QList<QGraphicsItem*> items = scene()->items(area);
     bool golpeoAAlguien = false;
 
@@ -692,11 +759,26 @@ void Jojo::procesarDano(QRectF area, int cantidad) {
         barradeCarga += 5;
         if (barradeCarga > 100) barradeCarga = 100;
         qDebug() << " [HIT!] Barra Especial:" << barradeCarga << "%";
+
+        if (barradeCarga >= 100) {
+            actualizarAuraVisual();
+        }
     }
 }
 
 void Jojo::recibirDanoConOrigen(int cantidad, float atacanteX) {
     if (estadoDano == MUERTO) return;
+
+    // --- LÓGICA DE CONTADOR GOLPES GOLPEADOS (Aura Roja de Furia) ---
+    if (animoActual != ENOJADO) {
+        contadorGolpesRecibidos++;
+        if (contadorGolpesRecibidos >= 40) {
+            animoActual = ENOJADO;
+            proximoAtaquePotenciado = true; // Reserva el daño devastador para el siguiente combo
+            actualizarAuraVisual();
+            qDebug() << "[ENOJADO ACTIVO] ¡Jotaro ha recibido 50 golpes! Siguiente ataque hará +40% de daño. Es más lento y pesado.";
+        }
+    }
 
     bool defendiendo = estaDefendiendo;
     if (defendiendo) cantidad /= 2;
@@ -743,5 +825,35 @@ void Jojo::recibirDanoConOrigen(int cantidad, float atacanteX) {
     } else {
         this->activarDano1();
         vx = direccionEmpuje * 1.0f;
+    }
+}
+
+void Jojo::actualizarAuraVisual() {
+    if (Personaje::tiempoDetenido) return;
+
+    if (this->graphicsEffect()) {
+        this->setGraphicsEffect(nullptr);
+        elAuraEfecto = nullptr; // Qt elimina el objeto automáticamente al hacerle set(nullptr)
+    }
+    if (barradeCarga >= 100) {
+        elAuraEfecto = new QGraphicsDropShadowEffect();
+        elAuraEfecto->setBlurRadius(55);                     // Más difuminado y expansivo
+        elAuraEfecto->setColor(QColor(148, 0, 211, 255));    // Morado Eléctrico intenso (Violeta)
+        elAuraEfecto->setOffset(0, 0);
+        this->setGraphicsEffect(elAuraEfecto);
+    }
+    if (animoActual == CALCULADOR) {
+        elAuraEfecto = new QGraphicsDropShadowEffect();
+        elAuraEfecto->setBlurRadius(30);                     // Brillo del aura
+        elAuraEfecto->setColor(QColor(0, 191, 255, 200));   // Azul claro brillante (DeepSkyBlue) con opacidad
+        elAuraEfecto->setOffset(0, 0);
+        this->setGraphicsEffect(elAuraEfecto);
+    }
+    else if (animoActual == ENOJADO) {
+        elAuraEfecto = new QGraphicsDropShadowEffect();
+        elAuraEfecto->setBlurRadius(45);                     // Un aura más grande e intensa (pesada)
+        elAuraEfecto->setColor(QColor(255, 0, 0, 220));     // Rojo furioso con alta opacidad
+        elAuraEfecto->setOffset(0, 0);
+        this->setGraphicsEffect(elAuraEfecto);
     }
 }

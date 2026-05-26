@@ -15,7 +15,8 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     obstaculo.cpp \
-    personaje.cpp
+    personaje.cpp \
+    standuserstats.cpp
 
 HEADERS += \
     dio.h \
@@ -23,7 +24,8 @@ HEADERS += \
     jojobro.h \
     mainwindow.h \
     obstaculo.h \
-    personaje.h
+    personaje.h \
+    standuserstats.h
 
 FORMS += \
     mainwindow.ui

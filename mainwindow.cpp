@@ -62,6 +62,8 @@ MainWindow::MainWindow(QWidget *parent)
     dio->setPos(950, yPersonaje);
     scene->addItem(dio);
 
+    usuario = new StandUserStats(scene);
+
     // Timer del juego a 60fps
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::actualizar, Qt::UniqueConnection);
@@ -83,9 +85,9 @@ void MainWindow::actualizar() {
         else {
             // Movimiento normal solo si el tiempo fluye
             if (teclasPresionadas.contains(Qt::Key_A) || teclasPresionadas.contains(Qt::Key_Left)) {
-                jojo->setVelocidadX(-10);
+                jojo->setVelocidadX(-7);
             } else if (teclasPresionadas.contains(Qt::Key_D) || teclasPresionadas.contains(Qt::Key_Right)) {
-                jojo->setVelocidadX(10);
+                jojo->setVelocidadX(7);
             } else {
                 jojo->setVelocidadX(0);
             }
@@ -118,6 +120,9 @@ void MainWindow::actualizar() {
                 aplicarEfectoZaWarudo(false);
             }
         }
+    }
+    if (usuario) {
+        usuario->actualizarEstados(jojo, dio);
     }
 }
 

@@ -4,6 +4,7 @@
 #include <QPixmap>
 #include <QList>
 #include <QPainter>
+#include <QGraphicsDropShadowEffect>
 
 class Jojo : public Personaje
 {
@@ -96,5 +97,13 @@ private:
     void activarDano1();
     void activarDano2(bool mitadEmpuje = false);
     void actualizarAnimDano();
+
+    enum Personalidad { NORMAL_ANIMO, CALCULADOR, ENOJADO };
+    Personalidad animoActual = NORMAL_ANIMO;
+    int ticksSinAtacar = 0;
+    int contadorGolpesRecibidos = 0;
+    bool proximoAtaquePotenciado = false;
+    QGraphicsDropShadowEffect* elAuraEfecto = nullptr;
+    void actualizarAuraVisual();
 };
 #endif

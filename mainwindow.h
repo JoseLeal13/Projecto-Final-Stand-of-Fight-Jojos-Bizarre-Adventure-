@@ -8,6 +8,7 @@
 #include <QGraphicsColorizeEffect>
 #include "jojo.h"
 #include "dio.h"
+#include "standuserstats.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -35,6 +36,8 @@ private:
     QGraphicsPixmapItem* itemEscenario;
     bool efectoGrisActivo = false;
     QGraphicsColorizeEffect* efectoJotaro = nullptr;
+
+    StandUserStats *usuario;
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
