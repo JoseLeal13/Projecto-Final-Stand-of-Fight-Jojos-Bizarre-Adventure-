@@ -5,10 +5,8 @@
 #include <QTimer>
 #include <QGraphicsScene>
 #include <QKeyEvent>
-#include <QGraphicsColorizeEffect>
-#include "jojo.h"
-#include "dio.h"
-#include "standuserstats.h"
+#include <QSet>
+#include "nivel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,25 +20,17 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-    void actualizar();
-    void aplicarEfectoZaWarudo(bool activar);
-
 private:
     Ui::MainWindow *ui;
-    QGraphicsScene *scene; // El mundo donde vive Jojo
-    Jojo *jojo;            // El objeto Jojo
-    Jojo *dummy;
-    DIO *dio;
+    QGraphicsScene *scene;
+    Jojo *jojo;
     QSet<int> teclasPresionadas;
-    QGraphicsPixmapItem* itemEscenario;
-    bool efectoGrisActivo = false;
-    QGraphicsColorizeEffect* efectoJotaro = nullptr;
 
-    StandUserStats *usuario;
+    Nivel *nivelActual;
 
 protected:
+    // Eventos de teclado globales que capturan el input y se lo pasan a Jotaro
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
 };
-#endif
+#endif // MAINWINDOW_H

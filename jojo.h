@@ -46,6 +46,16 @@ public:
     void evaluarHitboxFuerte2();
     void evaluarHitboxEspecial();
 
+    // Sobrecarga de moverse: Recibe las velocidades deseadas (vx, vy) desde el input del Nivel 1
+    void moverse(float nuevoVx, float nuevoVy);
+    // Sobrecarga de atacar: Recibe un tipo de golpe o dirección para interactuar con las pelotas
+    void atacar(char tipoGolpe);
+    // Sobrecarga de habilidadEspecial: Recibe un factor de escala o porcentaje
+    void habilidadEspecial(float factorRalentizacion);
+    // Sobrecarga del Constructor
+    // Al recibir un QString, el compilador sabe que es el Jotaro del Nivel 1
+    Jojo(QString rutaHojaNivel1);
+
     // Estado de daño recibido
     enum EstadoDano { NORMAL, DANO1, DANO2, STANDUP, MUERTO };
     EstadoDano estadoDano = NORMAL;
@@ -98,6 +108,9 @@ private:
     void activarDano2(bool mitadEmpuje = false);
     void actualizarAnimDano();
 
+    // Sobrecarga de los sprites
+    void cargarSprites(QString rutaHoja);
+
     enum Personalidad { NORMAL_ANIMO, CALCULADOR, ENOJADO };
     Personalidad animoActual = NORMAL_ANIMO;
     int ticksSinAtacar = 0;
@@ -105,5 +118,6 @@ private:
     bool proximoAtaquePotenciado = false;
     QGraphicsDropShadowEffect* elAuraEfecto = nullptr;
     void actualizarAuraVisual();
+
 };
 #endif

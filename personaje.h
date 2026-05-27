@@ -44,6 +44,7 @@ public:
 
     void setVida(int v) { puntosdevida = v; }
     int getVida() { return puntosdevida; }
+    void setBarraCarga(int v) { barradeCarga = v; }
     int getCarga() { return barradeCarga; }
 
     static bool modoDebug; // Variable para activar/desactivar hitboxes

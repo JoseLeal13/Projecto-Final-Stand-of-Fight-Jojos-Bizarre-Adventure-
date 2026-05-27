@@ -25,6 +25,12 @@ private:
     QGraphicsRectItem* dioBarraCarga;
     QGraphicsTextItem* dioTexto;
 
+    // Componentes para Los Asaltos
+    QGraphicsTextItem* textoAnuncioCentral; // Para "ROUND 1", "K.O.", etc.
+    QGraphicsTextItem* textoTemporizador;   // Reloj central en la parte superior
+    QGraphicsTextItem* textoMarcadorKOs;    // Muestra "K.Os: X - Y" bajo el reloj
+    QGraphicsScene* escenaAsignada;         // Guardamos referencia de la escena
+
     // Dimensiones de las barras en píxeles
     const int ANCHO_BARRA_VIDA = 250;
     const int ALTO_BARRA_VIDA = 20;
@@ -34,6 +40,9 @@ private:
 public:
     StandUserStats(QGraphicsScene* scene);
     void actualizarEstados(Personaje* jojo, Personaje* dio);
+    void actualizarRelojYMarcador(int segundosRestantes, int kosJojo, int kosDio);
+    void mostrarAnuncioCentral(const QString& mensaje, const QColor& color = Qt::red);
+    void ocultarAnuncioCentral();
 };
 
 #endif // STANDUSERSTATS_H

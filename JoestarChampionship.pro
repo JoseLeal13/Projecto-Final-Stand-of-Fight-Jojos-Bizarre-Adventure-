@@ -14,6 +14,9 @@ SOURCES += \
     jojobro.cpp \
     main.cpp \
     mainwindow.cpp \
+    nivel.cpp \
+    nivel1.cpp \
+    nivel2.cpp \
     obstaculo.cpp \
     personaje.cpp \
     standuserstats.cpp
@@ -23,6 +26,9 @@ HEADERS += \
     jojo.h \
     jojobro.h \
     mainwindow.h \
+    nivel.h \
+    nivel1.h \
+    nivel2.h \
     obstaculo.h \
     personaje.h \
     standuserstats.h
