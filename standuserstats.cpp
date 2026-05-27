@@ -169,7 +169,7 @@ void StandUserStats::actualizarRelojYMarcador(int segundosRestantes, int kosJojo
     textoTemporizador->setPos(1060, 20);
 
     // Actualizar el marcador numérico de K.Os [cite: 25]
-    textoMarcadorKOs->setPlainText(QString("K.O.S   %1 ── %2").arg(kosJojo).arg(kosDio));
+    textoMarcadorKOs->setPlainText(QString("%1 -K.O.S─ %2").arg(kosJojo).arg(kosDio));
 
     // Centrar el contador de K.Os horizontalmente pero bajarlo en el eje Y
     // para que se alinee perfectamente abajo de la marquesina estática del sprite

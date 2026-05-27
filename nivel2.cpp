@@ -14,7 +14,7 @@ Nivel2::Nivel2(QGraphicsScene* escenaCompartida, Jojo* personajeJojo, QObject* p
 
     // Inicializar estadísticas globales del torneo
     roundActual = 1;
-    tiempoRestanteRound = 120; // 2 minutos en segundos
+    tiempoRestanteRound = 120; // Sincronizado a los 2 minutos originales de tu propuesta
     KOsJotaro = 0;
     KOsDio = 0;
     rondaEnTransicion = false;
@@ -74,25 +74,26 @@ void Nivel2::iniciarNivel() {
 }
 
 void Nivel2::cargarPosicionesIniciales() {
-    rondaEnTransicion = true; // Congela la física durante la preparación
+    rondaEnTransicion = true; // Bloquea el flujo normal de pelea durante la preparación
 
-    // Valores de escala y salud iniciales
     int yPersonaje = 400 - (80 * 1.8);
 
-    // ── REINICIO ABSOLUTO DE JOTARO ──
+    // ── REINICIO CON VARIABLES INTERNAS EXISTENTES DE JOTARO ──
     if (jojo) {
+        jojo->setVelocidadX(0);
         jojo->setPos(150, yPersonaje);
         jojo->setVida(300);
         jojo->setBarraCarga(0);
-        jojo->setVelocidadX(0);
         jojo->estadoDano = Jojo::NORMAL;
         jojo->estaAtacando = false;
         jojo->puedeAtacar = true;
         jojo->faseCombo = 0;
+        jojo->setFrameActual(0); // Forzar frame estático base
     }
 
-    // ── REINICIO ABSOLUTO DE DIO ──
+    // ── REINICIO CON VARIABLES INTERNAS EXISTENTES DE DIO ──
     if (dio) {
+        dio->setVelocidadX(0);
         dio->setPos(950, yPersonaje);
         dio->setVida(300);
         dio->setBarraCarga(0);
@@ -104,26 +105,22 @@ void Nivel2::cargarPosicionesIniciales() {
         dio->postEspecialJump = false;
     }
 
-    tiempoRestanteRound = 120; // Resetear reloj a 2 minutos
+    tiempoRestanteRound = 120; // Restablecer el reloj a 2 minutos completos
 
-    // Forzar actualización inmediata del HUD gráfico
     if (interfazHUD) {
         interfazHUD->actualizarRelojYMarcador(tiempoRestanteRound, KOsJotaro, KOsDio);
         interfazHUD->mostrarAnuncioCentral(QString("ROUND %1").arg(roundActual), QColor(255, 140, 0));
-
-        // Asegurar que las barras gráficas del HUD reflejen el 100% de vida y 0% de especial inmediatamente
         interfazHUD->actualizarEstados(jojo, dio);
     }
 
-    // Retardo de 2 segundos para que el jugador lea el número de round antes de pelear
+    // Retardo de 2 segundos de lectura previa al combate
     QTimer::singleShot(2000, this, [this]() {
         if (interfazHUD) interfazHUD->ocultarAnuncioCentral();
-        rondaEnTransicion = false; // Se reanudan las acciones físicas
+        rondaEnTransicion = false;
     });
 }
 
 void Nivel2::actualizarSegundo() {
-    // Si el tiempo del mundo está detenido por el Stand de DIO o la ronda acabó, el reloj físico no baja
     if (Personaje::tiempoDetenido || rondaEnTransicion) return;
 
     if (tiempoRestanteRound > 0) {
@@ -132,21 +129,43 @@ void Nivel2::actualizarSegundo() {
             interfazHUD->actualizarRelojYMarcador(tiempoRestanteRound, KOsJotaro, KOsDio);
         }
     } else {
-        // Se acabó el tiempo del round (Llegó a 0)
         procesarFinRound("TIEMPO");
     }
 }
 
 void Nivel2::actualizarLoop() {
-    // Si estamos mostrando un cartel de K.O o cargando posiciones, saltamos la física de este frame
-    if (rondaEnTransicion) return;
+    // ── MODO PASIVO DE TRANSICIÓN (K.O. / ESPERA) ──
+    if (rondaEnTransicion) {
+        if (jojo) {
+            jojo->setVelocidadX(0);
+            // NO llamamos a jojo->moverse() para evitar inputs accidentales.
+            // Solo dejamos correr sus ticks de animación para desvanecer ráfagas o ataques.
+            jojo->actualizarAtaque();
+            jojo->actualizarAtaquesFuertes();
+            jojo->actualizarEspecial();
+        }
+        if (dio) {
+            dio->setVelocidadX(0);
+            // SOLUCIÓN CRÍTICA: NO llamamos a dio->moverse().
+            // Al omitir moverse(), evitamos que ejecute internamente su 'ejecutarCerebro()',
+            // apagando por completo su IA ofensiva mientras dure el cartel de K.O.
+            dio->actualizarAtaque();
+            dio->actualizarAtaquesFuertes();
+            dio->actualizarEspecial();
+        }
+        if (interfazHUD && jojo && dio) {
+            interfazHUD->actualizarEstados(jojo, dio);
+        }
+        return; // Detiene el flujo de físicas y colisiones destructivas
+    }
 
+    // ── CICLO DE COMBATE ACTIVO EN TIEMPO REAL ──
     if (jojo) {
         if (Personaje::tiempoDetenido) {
             jojo->setVelocidadX(0);
         }
         else {
-            // Tope anti-hipervelocidad (con el 40% extra calculado = 9)
+            // Tope anti-hipervelocidad
             if (jojo->getVelocidadX() > 7)  jojo->setVelocidadX(9);
             if (jojo->getVelocidadX() < -7) jojo->setVelocidadX(-9);
 
@@ -157,7 +176,7 @@ void Nivel2::actualizarLoop() {
         }
 
         if (dio) {
-            dio->moverse();
+            dio->moverse(); // Aquí sí ejecuta su toma de decisiones lógicas de la IA
         }
 
         // CONTROL VISUAL DE ZA WARUDO
@@ -178,7 +197,7 @@ void Nivel2::actualizarLoop() {
         interfazHUD->actualizarEstados(jojo, dio);
     }
 
-    // Verificar si en este tick ocurrió un K.O. por vaciado de vida
+    // Verificar condiciones de K.O.
     if (jojo && jojo->getVida() <= 0) {
         procesarFinRound("DIO");
     }
@@ -188,51 +207,71 @@ void Nivel2::actualizarLoop() {
 }
 
 void Nivel2::procesarFinRound(const QString& ganador) {
-    rondaEnTransicion = true; // Pausa el juego de inmediato
+    rondaEnTransicion = true; // Activa el modo de congelamiento de IA de inmediato
 
-    if (interfazHUD) {
-        interfazHUD->mostrarAnuncioCentral("K.O.", Qt::red);
-    }
-
+    QString mensajeAnuncio = "K.O.";
+    QColor colorAnuncio = Qt::red;
     QString nombreGanador = "";
 
-    // Asignar el punto de K.O. según corresponda
     if (ganador == "JOTARO") {
         KOsJotaro++;
         nombreGanador = "KUJO JOTARO";
+        if (dio) dio->setVida(0);
     }
     else if (ganador == "DIO") {
         KOsDio++;
         nombreGanador = "DIO BRANDO";
+        if (jojo) jojo->setVida(0);
     }
     else if (ganador == "TIEMPO") {
-        // En caso de empate por tiempo, gana quien tenga más vida en ese instante
-        if (jojo->getVida() >= dio->getVida()) {
-            KOsJotaro++;
-            nombreGanador = "KUJO JOTARO";
-        } else {
-            KOsDio++;
-            nombreGanador = "DIO BRANDO";
+        mensajeAnuncio = "TIME UP";
+        colorAnuncio = Qt::yellow;
+        if (jojo && dio) {
+            if (jojo->getVida() >= dio->getVida()) {
+                KOsJotaro++;
+                nombreGanador = "KUJO JOTARO";
+            } else {
+                KOsDio++;
+                nombreGanador = "DIO BRANDO";
+            }
         }
     }
 
-    // Desactivar efectos residuales de Za Warudo por si acaso
+    if (interfazHUD) {
+        interfazHUD->mostrarAnuncioCentral(mensajeAnuncio, colorAnuncio);
+    }
+
     if (Personaje::tiempoDetenido) {
         Personaje::tiempoDetenido = false;
         aplicarEfectoZaWarudo(false);
     }
 
-    // Esperar 2 segundos mostrando "K.O." y luego anunciar al ganador del asalto
-    QTimer::singleShot(2000, this, [this, nombreGanador]() {
+    // --- PRIMER PASO: 3 SEGUNDOS DE ESPERA TRAS EL K.O. ---
+    // Ambos personajes limpian de forma pasiva sus estados gráficos remanentes sin atacarse.
+    QTimer::singleShot(3000, this, [this, ganador, nombreGanador]() {
+
+        // Forzado estricto de vuelta al estado base NORMAL
+        if (jojo) {
+            jojo->estadoDano = Jojo::NORMAL;
+            jojo->estaAtacando = false;
+            jojo->puedeAtacar = true;
+            jojo->faseCombo = 0;
+        }
+        if (dio) {
+            dio->estadoDano = DIO::NORMAL;
+            dio->estaAtacando = false;
+            dio->puedeAtacar = true;
+            dio->faseCombo = 0;
+        }
+
         if (interfazHUD) {
             interfazHUD->mostrarAnuncioCentral(QString("GANADOR: %1").arg(nombreGanador), Qt::yellow);
         }
 
-        // Esperar otros 2 segundos antes de evaluar si el juego termina o pasa al siguiente asalto
-        QTimer::singleShot(2500, this, [this]() {
+        // --- SEGUNDO PASO: 1.5 SEGUNDOS EXTRAS EN REPOSO ---
+        QTimer::singleShot(1500, this, [this]() {
             roundActual++;
 
-            // Verificar condiciones absolutas de fin de partida (3 K.Os o fin del asalto 10)
             if (verificarCondicionVictoria() || verificarCondicionDerrota()) {
                 timerUnSegundo->stop();
                 gameLoopTimer->stop();
@@ -245,7 +284,7 @@ void Nivel2::procesarFinRound(const QString& ganador) {
                     }
                 }
             } else {
-                // El combate continúa: reacomodar el mapa y los combatientes
+                // Siguiente asalto: Reposiciona los personajes completamente limpios
                 cargarPosicionesIniciales();
             }
         });
@@ -253,12 +292,10 @@ void Nivel2::procesarFinRound(const QString& ganador) {
 }
 
 bool Nivel2::verificarCondicionVictoria() {
-    // Gana el jugador si completa 3 K.Os primero
     return (KOsJotaro >= 3);
 }
 
 bool Nivel2::verificarCondicionDerrota() {
-    // Pierde si DIO hace 3 K.Os o si se llega al límite del Round 10 (Donde DIO gana por normativa)
     return (KOsDio >= 3 || roundActual > 10);
 }
 
