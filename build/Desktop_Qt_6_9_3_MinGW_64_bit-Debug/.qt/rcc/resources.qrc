@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="fondo_juego.png">C:/Users/Emmanuel/Documents/DESAFIOIII/fondo_juego.png</file>
+    <file alias="sprites_juego.png">C:/Users/Emmanuel/Documents/DESAFIOIII/sprites_juego.png</file>
+  </qresource>
+</RCC>
+

@@ -1,0 +1,4 @@
+# Hashes of file build rules.
+13147d4ea73657b5cb0789a588ee62f1 .qt/rcc/qrc_resources.cpp
+eb12cad0c44c545859fcdefea3d3736f CMakeFiles/DESAFIOIII_autogen
+39b2cbab31cd60962383980d8e674d88 DESAFIOIII_autogen/timestamp
