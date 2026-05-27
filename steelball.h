@@ -1,22 +1,57 @@
 #ifndef STEELBALL_H
 #define STEELBALL_H
-#include <QRect>
-class SteelBall
+
+#include <QGraphicsPixmapItem>
+#include <QObject>
+#include <QList>
+#include <QPixmap>
+#include <cmath>
+#include <QImage>
+
+class SteelBall : public QObject, public QGraphicsPixmapItem
 {
-private:
-    int x;
-    int y;
-
-    bool destruida;
-
+    Q_OBJECT
 public:
-    SteelBall(int x, int y);
+    enum TipoBola {
+        VerdeGolpeable,
+        RojaEsquivable
+    };
 
-    QRect getHitbox();
+    enum TipoTrayectoria {
+        Recta,
+        Parabolica,
+        Senoidal
+    };
 
-    bool estaDestruida();
+    SteelBall(TipoBola tipo, TipoTrayectoria trayectoria, qreal posX, qreal posY, int direccionX);
+
+    TipoBola getTipo() const { return tipoActual; }
+    QRectF getHitbox() { return boundingRect(); }
 
     void recibirGolpe();
+    void avanzarFisica();
+
+private:
+    TipoBola tipoActual;
+    TipoTrayectoria trayectoriaActual;
+
+    void cargarGraficos();
+    QPixmap quitarFondo(const QPixmap &original);
+
+    // Variables de movimiento y física
+    qreal velocidadX;
+    qreal velocidadY;
+    int dirX;
+
+    qreal tiempoInterno;
+    qreal posYInicial;
+
+    // ── NUEVAS VARIABLES PARA LA ANIMACIÓN DE LA BOLA ──
+    QList<QPixmap> framesAnimacion; // Contenedor para los 4 sprites de giro
+    int frameActual;                // Índice del frame que se está mostrando (0 a 3)
+    int contadorFrames;             // Tick interno de frames
+    int retardoFrames;              // Velocidad de giro
+
 };
 
 #endif // STEELBALL_H

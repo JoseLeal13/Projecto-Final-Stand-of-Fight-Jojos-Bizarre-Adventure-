@@ -1,65 +1,41 @@
-
 #include "personaje.h"
 
+// Inicialización de variables estáticas obligatorias de vuestra arquitectura
+bool Personaje::tiempoDetenido = false;
+Personaje* Personaje::electorDelTiempo = nullptr;
+bool Personaje::modoDebug = false;
 
-Personaje::Personaje()
+// Constructor corregido para que coincida con la declaración del .h
+Personaje::Personaje(QGraphicsItem *parent) : QGraphicsPixmapItem(parent)
 {
-    x = 600;
-    y = 250;
+    puntosdevida = 100;
+    barradeCarga = 0;
+    vx = 0;
+    vy = 0;
+    aceleracion_y = 0;
+    enSuelo = true;
 
     speed = 4;
-    anchoHitbox = 40;
-    altoHitbox  = 70;
     direccion = 1;
 
+    // Inicializamos una hitbox por defecto
+    hitbox = QRectF(0, 0, 70, 100);
 }
 
-void Personaje::moveUp()
+// Implementación del método de colisión lógica que declaraste en tu .h
+bool Personaje::verificarColision(float proximoX, float proximoY)
 {
-    y -= speed;
+    // Aquí puedes poner tu lógica de colisión con el mapa o los obstáculos del escenario.
+    // Por ahora, si no hay colisiones complejas, permitimos el paso retornando false (no colisiona)
+    Q_UNUSED(proximoX);
+    Q_UNUSED(proximoY);
+    return false;
 }
 
-void Personaje::moveDown()
+// Implementación obligatoria del método paint que declaraste en tu .h
+void Personaje::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    y += speed;
-}
-
-void Personaje::moveLeft()
-{
-    x -= speed;
-}
-
-void Personaje::moveRight()
-{
-    x += speed;
-}
-
-int Personaje::getX()
-{
-    return x;
-}
-
-int Personaje::getY()
-{
-    return y;
-}
-
-QRect Personaje::getHitbox()
-{
-    return QRect(x, y, anchoHitbox, altoHitbox);
-}
-
-bool Personaje::colisionaCon(QRect otraHitbox)
-{
-    return getHitbox().intersects(otraHitbox);
-}
-
-void Personaje::setDireccion(int dir)
-{
-    direccion = dir;
-}
-
-int Personaje::getDireccion()
-{
-    return direccion;
+    // Este método lo dejas llamando al paint base o vacío si tus hijos (jotaro)
+    // se encargan de su propio dibujado.
+    QGraphicsPixmapItem::paint(painter, option, widget);
 }

@@ -384,10 +384,6 @@ CMakeFiles/DESAFIOIII.dir/DESAFIOIII_autogen/mocs_compilation.cpp.obj: \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qcursor.h \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qbitmap.h \
  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabwidget.h \
- C:/Qt/6.9.3/mingw_64/include/QtGui/QPainter \
- C:/Qt/6.9.3/mingw_64/include/QtGui/qpainter.h \
- C:/Qt/6.9.3/mingw_64/include/QtGui/qtextoption.h \
- C:/Qt/6.9.3/mingw_64/include/QtGui/qpen.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/QTimer \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qtimer.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qbasictimer.h \
@@ -425,18 +421,39 @@ CMakeFiles/DESAFIOIII.dir/DESAFIOIII_autogen/mocs_compilation.cpp.obj: \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qinputmethod.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qlocale.h \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qguiapplication_platform.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsScene \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsscene.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qpen.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsView \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsview.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qpainter.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qtextoption.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qscrollarea.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractscrollarea.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qframe.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsscene.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsPixmapItem \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsitem.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qpainterpath.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/QSet \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qset.h \
+ C:/Users/Emmanuel/Documents/DESAFIOIII/jotaro.h \
+ C:/Users/Emmanuel/Documents/DESAFIOIII/personaje.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/QObject \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/QList \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/QPainter \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qpainter.h \
  C:/Qt/6.9.3/mingw_64/include/QtGui/QPixmap \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qpixmap.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/QVector \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qvector.h \
- C:/Qt/6.9.3/mingw_64/include/QtGui/QTransform \
- C:/Users/Emmanuel/Documents/DESAFIOIII/jotaro.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/QDebug \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qdebug.h \
- C:/Users/Emmanuel/Documents/DESAFIOIII/personaje.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/QRect \
- C:/Users/Emmanuel/Documents/DESAFIOIII/gyrozeppeli.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/QRectF \
+ C:/Users/Emmanuel/Documents/DESAFIOIII/steelball.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/QImage \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qimage.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qtmochelpers.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qtmocconstants.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/q20algorithm.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/q23type_traits.h
+ C:/Qt/6.9.3/mingw_64/include/QtCore/q23type_traits.h \
+ C:\Users\Emmanuel\Documents\DESAFIOIII\build\Desktop_Qt_6_9_3_MinGW_64_bit-Debug\DESAFIOIII_autogen\EWIEGA46WW/moc_personaje.cpp \
+ C:/Users/Emmanuel/Documents/DESAFIOIII/personaje.h \
+ C:\Users\Emmanuel\Documents\DESAFIOIII\build\Desktop_Qt_6_9_3_MinGW_64_bit-Debug\DESAFIOIII_autogen\EWIEGA46WW/moc_steelball.cpp \
+ C:/Users/Emmanuel/Documents/DESAFIOIII/steelball.h

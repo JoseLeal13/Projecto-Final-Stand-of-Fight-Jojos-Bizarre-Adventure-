@@ -1,13 +1,13 @@
 C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/DESAFIOIII_autogen/EWIEGA46WW/moc_mainwindow.cpp: C:/Users/Emmanuel/Documents/DESAFIOIII/mainwindow.h \
   C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/DESAFIOIII_autogen/moc_predefs.h \
-  C:/Qt/6.9.3/mingw_64/include/QtCore/QDebug \
   C:/Qt/6.9.3/mingw_64/include/QtCore/QList \
   C:/Qt/6.9.3/mingw_64/include/QtCore/QObject \
   C:/Qt/6.9.3/mingw_64/include/QtCore/QRect \
+  C:/Qt/6.9.3/mingw_64/include/QtCore/QRectF \
+  C:/Qt/6.9.3/mingw_64/include/QtCore/QSet \
   C:/Qt/6.9.3/mingw_64/include/QtCore/QSize \
   C:/Qt/6.9.3/mingw_64/include/QtCore/QSizeF \
   C:/Qt/6.9.3/mingw_64/include/QtCore/QTimer \
-  C:/Qt/6.9.3/mingw_64/include/QtCore/QVector \
   C:/Qt/6.9.3/mingw_64/include/QtCore/q17memory.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/q20functional.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/q20iterator.h \
@@ -143,10 +143,10 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug
   C:/Qt/6.9.3/mingw_64/include/QtCore/qutf8stringview.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qvariant.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qvarlengtharray.h \
-  C:/Qt/6.9.3/mingw_64/include/QtCore/qvector.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qversiontagging.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qxptype_traits.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qyieldcpu.h \
+  C:/Qt/6.9.3/mingw_64/include/QtGui/QImage \
   C:/Qt/6.9.3/mingw_64/include/QtGui/QKeyEvent \
   C:/Qt/6.9.3/mingw_64/include/QtGui/QPainter \
   C:/Qt/6.9.3/mingw_64/include/QtGui/QPixmap \
@@ -171,6 +171,7 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug
   C:/Qt/6.9.3/mingw_64/include/QtGui/qkeysequence.h \
   C:/Qt/6.9.3/mingw_64/include/QtGui/qpaintdevice.h \
   C:/Qt/6.9.3/mingw_64/include/QtGui/qpainter.h \
+  C:/Qt/6.9.3/mingw_64/include/QtGui/qpainterpath.h \
   C:/Qt/6.9.3/mingw_64/include/QtGui/qpalette.h \
   C:/Qt/6.9.3/mingw_64/include/QtGui/qpen.h \
   C:/Qt/6.9.3/mingw_64/include/QtGui/qpixelformat.h \
@@ -191,8 +192,17 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug
   C:/Qt/6.9.3/mingw_64/include/QtGui/qvectornd.h \
   C:/Qt/6.9.3/mingw_64/include/QtGui/qwindowdefs.h \
   C:/Qt/6.9.3/mingw_64/include/QtGui/qwindowdefs_win.h \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsPixmapItem \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsScene \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsView \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/QMainWindow \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractscrollarea.h \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qframe.h \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsitem.h \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsscene.h \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsview.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qmainwindow.h \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qscrollarea.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qsizepolicy.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabwidget.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgets-config.h \
@@ -412,6 +422,6 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug
   C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/time.h \
   C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/vadefs.h \
   C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/wchar.h \
-  C:/Users/Emmanuel/Documents/DESAFIOIII/gyrozeppeli.h \
   C:/Users/Emmanuel/Documents/DESAFIOIII/jotaro.h \
-  C:/Users/Emmanuel/Documents/DESAFIOIII/personaje.h
+  C:/Users/Emmanuel/Documents/DESAFIOIII/personaje.h \
+  C:/Users/Emmanuel/Documents/DESAFIOIII/steelball.h

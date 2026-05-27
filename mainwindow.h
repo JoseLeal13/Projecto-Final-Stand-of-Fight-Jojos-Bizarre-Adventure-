@@ -2,69 +2,72 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QPainter>
 #include <QTimer>
 #include <QKeyEvent>
-#include <QPixmap>
-#include <QVector>
-#include <QTransform>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QGraphicsPixmapItem>
+#include <QSet>
 #include "jotaro.h"
-#include "gyrozeppeli.h"
+#include <QList>
+// #include "gyro.h"       // Descomenta cuando agregues a Gyro
+#include "steelball.h"  // Descomenta cuando agregues la bola
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class MainWindow; } // Requerido para el puntero ui
+QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
 
 protected:
-
-    void paintEvent(QPaintEvent *event) override;
-    //void paintEvent(QPaintEvent *);//para dibujar el evento
-    void keyPressEvent(QKeyEvent *event);//para WASD
-    void keyReleaseEvent(QKeyEvent *event);
+    // Eventos de teclado estables de Qt
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 private slots:
-    void updateGame();//un loop para el juego
+    // Cambiado de updateGame() a actualizar() para que haga match con tu .cpp actual
+    void actualizar();
 
 private:
-    jotaro jotaro;
-    gyrozeppeli gyrozeppeli;
+    Ui::MainWindow *ui; // <-- Arregla el error: 'class MainWindow does not have any field named ui'
 
-    QPixmap fondo;
-    QPixmap sprites;
-    QPixmap frameJotaro;
-    // Frames jotaro
-    QVector<QPixmap> framesQuieto[4];
-    QVector<QPixmap> framesMovimiento[4];
-    QVector<QPixmap> framesAtaqueDerecha;
-    QVector<QPixmap> framesAtaqueIzquierda;
+    // El motor gráfico que usa tu amigo
+    QGraphicsScene *scene;
+    QGraphicsView *view;
+    QTimer *timer;
 
-    // Frames gyro
-    QPixmap frameGyro;
+    QGraphicsPixmapItem *itemEscenario;
+    QGraphicsPixmapItem *gyroItem;
+    QSet<int> teclasPresionadas; // Almacén de teclas activas
+    jotaro *jotaro_player;       // Puntero a tu objeto adaptado
+    QPixmap fondoPixmap;
 
-    int frameActual;
-    int contadorFrames;
-    int retardoFrames;  // cada cuántos ticks cambia el frame
+    // Instancia de tu personaje (ahora es un puntero porque se añade a la escena)
+    jotaro *player;
 
-    int direccion;      // 0=arriba 1=abajo 2=izquierda 3=derecha
-    bool enMovimiento;
-
-    QTimer *timer;//FPS
+    // Banderas de control de movimiento (Tus variables originales intactas)
     bool upPressed;
     bool downPressed;
     bool leftPressed;
     bool rightPressed;
 
-    void cargarFrames();
-    QPixmap getFrameActual();
-    QPixmap reflejarHorizontal(const QPixmap &original);
-    QPixmap quitarFondo(const QPixmap &original);
-
-    //ataques
+    // Estados de animación que sincronizan con el bucle de la ventana
+    bool enMovimiento;
     bool atacando;
     bool mostrarHitbox;
+
+    int frameActual;
+    int contadorFrames;
+    int retardoFrames;
+    // ── NUEVAS VARIABLES PARA EL SURVIVAL DE LAS STEEL BALLS ──
+    QList<SteelBall*> esferasActivas; // El almacén de las esferas que viajan por el mapa
+    int contadorSpawnBolas;          // El reloj que mide cuándo Gyro lanza otra bola
 };
 
 #endif // MAINWINDOW_H
