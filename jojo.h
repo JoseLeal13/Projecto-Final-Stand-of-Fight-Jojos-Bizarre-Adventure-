@@ -35,6 +35,11 @@ public:
             estadoDano == STANDUP || estadoDano == MUERTO) return;
         vx = v;
     }
+    void setVelocidadY(float v) {
+        if (estadoDano == DANO1 || estadoDano == DANO2 ||
+            estadoDano == STANDUP || estadoDano == MUERTO) return;
+        vy = v;
+    }
     void setDefensa(bool d) {
         estaDefendiendo = d;
         frameActual = 0;

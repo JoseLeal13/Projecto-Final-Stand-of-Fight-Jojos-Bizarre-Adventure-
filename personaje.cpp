@@ -5,7 +5,7 @@ Personaje* Personaje::electorDelTiempo = nullptr;
 
 Personaje::Personaje(QGraphicsItem *parent) : QGraphicsPixmapItem(parent)
 {
-    puntosdevida = 300;
+    puntosdevida = 500;
     barradeCarga = 0;
     vx = 0;
     vy = 0;
@@ -34,7 +34,7 @@ bool Personaje::verificarColision(float proximoX, float proximoY)
     return false;
 }
 
-bool Personaje::modoDebug = true; //Verificar hitbox
+bool Personaje::modoDebug = false; //Verificar hitbox
 
 void Personaje::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     // Dibujamos el sprite original (lo que hace QGraphicsPixmapItem normalmente)

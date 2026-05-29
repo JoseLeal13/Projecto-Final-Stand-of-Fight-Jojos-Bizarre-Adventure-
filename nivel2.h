@@ -43,6 +43,9 @@ public:
 
 protected slots:
     void actualizarLoop() override; // Aquí va la física 2D lateral y las hitboxes
+
+signals:
+    void combateTerminado(bool gano);
 };
 
 #endif // NIVEL2_H

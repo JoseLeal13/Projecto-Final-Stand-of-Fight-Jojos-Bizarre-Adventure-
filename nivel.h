@@ -29,6 +29,8 @@ public:
         }
     }
 
+    Jojo* getJugador() const { return jojo; }
+
     // ==========================================
     // INTERFAZ POLIMÓRFICA (Métodos Virtuales Puros)
     // ==========================================

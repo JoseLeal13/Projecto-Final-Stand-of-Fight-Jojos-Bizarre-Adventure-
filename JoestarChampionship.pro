@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui widgets multimedia multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     dio.cpp \
+    joestarchampionship.cpp \
     jojo.cpp \
     jojobro.cpp \
     main.cpp \
@@ -23,6 +24,7 @@ SOURCES += \
 
 HEADERS += \
     dio.h \
+    joestarchampionship.h \
     jojo.h \
     jojobro.h \
     mainwindow.h \

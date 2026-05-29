@@ -7,4 +7,7 @@
         <file>SpritesJojoChampionship/sprites extras.png</file>
         <file>SpritesJojoChampionship/JoestarChampionship Jaula MMA.png</file>
     </qresource>
+    <qresource prefix="/menú">
+        <file>VID_20260328_203406_652.mp4</file>
+    </qresource>
 </RCC>

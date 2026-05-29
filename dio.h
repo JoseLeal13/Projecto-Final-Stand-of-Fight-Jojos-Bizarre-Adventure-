@@ -40,6 +40,16 @@ public:
     void recibirDanoConOrigen(int cantidad, float atacanteX);
     void recibirDano(int cantidad);
     void saltar();
+    void setVelocidadX(float v) {
+        if (estadoDano == DANO1 || estadoDano == DANO2 ||
+            estadoDano == STANDUP || estadoDano == MUERTO) return;
+        vx = v;
+    }
+    void setVelocidadY(float v) {
+        if (estadoDano == DANO1 || estadoDano == DANO2 ||
+            estadoDano == STANDUP || estadoDano == MUERTO) return;
+        vy = v;
+    }
 
     void timeStop();
     void ejecutarCuracion();
@@ -56,6 +66,11 @@ private:
     Personaje* objetivo; // Puntero directo a Jotaro
 
     // --- Parámetros del Agente Inteligente ---
+
+    int ticksEsperaParadoLejos = 0; // Controlará los 2 segundos (120 ticks) que se queda quieto lejos
+    int cooldownAprendizajeTicks = 0; // Candado grande de tiempo para que no abuse de la defensa por aprendizaje
+    bool saltoParabolicoEvasion = 0; // Flag para saber que está en el aire escapando
+
     int distanciaDeteccion = 500;
     int distanciaAtaque = 45;
     int distanciaFuerte = 85;
