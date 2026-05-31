@@ -18,6 +18,22 @@ Jojo::Jojo() : Personaje()
     proximoAtaquePotenciado = false;
     elAuraEfecto = nullptr;
 
+    sonidoBasico = new QSoundEffect(this);
+    sonidoBasico->setSource(QUrl("qrc:/Efectos/Star platinum single ora.wav"));
+    sonidoBasico->setVolume(0.75f);
+
+    sonidoFuerte1 = new QSoundEffect(this);
+    sonidoFuerte1->setSource(QUrl("qrc:/Efectos/ORA ORA ORA - Sound effect.wav"));
+    sonidoFuerte1->setVolume(0.85f);
+
+    sonidoFuerte2 = new QSoundEffect(this);
+    sonidoFuerte2->setSource(QUrl("qrc:/Efectos/Star platinum single ora.wav"));
+    sonidoFuerte2->setVolume(0.85f);
+
+    sonidoEspecial = new QSoundEffect(this);
+    sonidoEspecial->setSource(QUrl("qrc:/Efectos/Ora Ora Ora Ora Ora sound effect.wav"));
+    sonidoEspecial->setVolume(1.0f);
+
     cargarSprites();
     if (!spritesQUIETO.isEmpty()) {
         setPixmap(spritesQUIETO.at(0));
@@ -305,24 +321,27 @@ void Jojo::moverse() {
     // Ajuste de velocidades dinámicas basadas en el Estado de Ánimo
     float multiplicadorVelocidad = 1.0f;
     if (animoActual == CALCULADOR) {
-        multiplicadorVelocidad = 1.2f;  // 20% más rápido
+        multiplicadorVelocidad = 1.2f;  // +20% Velocidad (Limpio, no acumulativo)
     } else if (animoActual == ENOJADO) {
-        multiplicadorVelocidad = 0.7f;  // 30% más lento (1.0 - 0.3)
+        multiplicadorVelocidad = 0.7f;  // -30% Velocidad (1.0 - 0.3)
     }
 
     // Aplicar el multiplicador a los movimientos horizontales del jugador si no está en animación de daño
     bool enAnimDano = (estadoDano == DANO1 || estadoDano == DANO2 || estadoDano == STANDUP);
 
+    // GUARDAMOS el valor original de vx antes de aplicar el multiplicador para procesar el frame físico
+    float vxFinal = vx;
+
     if (esDummy) {
-        if (!enAnimDano) vx = 0;
+        if (!enAnimDano) vxFinal = 0;
     } else {
         if (!enAnimDano) {
             if (estaAtacando || estaDefendiendo) {
-                vx = 0;
+                vxFinal = 0;
             } else {
-                // Aquí es donde tus controles externos de movimiento (A/D o Flechas) asignan el vx base.
-                // Aplicamos el multiplicador directamente sobre el vx actual calculado por los inputs:
-                vx *= multiplicadorVelocidad;
+                // Aplicamos el multiplicador a una variable temporal de física
+                // ESTO evita que vx crezca exponencialmente en el próximo tick del timer
+                vxFinal = vx * multiplicadorVelocidad;
             }
         }
     }
@@ -333,21 +352,20 @@ void Jojo::moverse() {
         gravedadActual = aceleracion_y * 1.3f; // 30% más pesado al caer
     }
 
-    // Procesamiento de Físicas Verticales y Horizontales (Adaptado con gravedadActual)
+    // Procesamiento de Físicas Verticales y Horizontales (Cambiado vx por vxFinal)
     if (estadoDano == DANO2) {
         vy += gravedadActual;
         if (!verificarColision(x(), y() + vy)) setPos(x(), y() + vy);
         else { if (vy > 0) { enSuelo = true; vy = 0; } }
-        if (!verificarColision(x() + vx, y())) setPos(x() + vx, y());
-        if (enSuelo) vx = 0;
+        if (!verificarColision(x() + vxFinal, y())) setPos(x() + vxFinal, y());
+        if (enSuelo) vx = 0; // Aquí sí limpiamos el input original al tocar suelo
     } else {
         vy += gravedadActual;
         if (!verificarColision(x(), y() + vy)) setPos(x(), y() + vy);
         else { if (vy > 0) { enSuelo = true; vy = 0; } }
-        if (!verificarColision(x() + vx, y())) setPos(x() + vx, y());
+        if (!verificarColision(x() + vxFinal, y())) setPos(x() + vxFinal, y());
     }
 
-    // --- (El resto de tu código original de renderizado de sprites de moverse() se mantiene exactamente igual...) ---
     actualizarAnimDano();
 
     if (enAnimDano && !stand) {
@@ -411,8 +429,10 @@ void Jojo::moverse() {
     if (frameActual >= animacionActual->size() && !stand)
         frameActual = bucle ? 0 : animacionActual->size() - 1;
 
-    if (vx > 0) mirandoDerecha = true;
-    else if (vx < 0) mirandoDerecha = false;
+    if (!estaAtacando) {
+        if (vx > 0) mirandoDerecha = true;
+        else if (vx < 0) mirandoDerecha = false;
+    }
 
     if (stand) {
         if (faseCombo == 5) {
@@ -486,14 +506,9 @@ void Jojo::moverse() {
 
 void Jojo::saltar() {
     if (enSuelo && !estaDefendiendo && estadoDano == NORMAL) {
-        // Si está enojado, el salto es menos potente
-        if (animoActual == ENOJADO) {
-            vy = -10; // Salto significativamente más bajo y pesado
-        } else {
             vy = -15; // Salto normal
         }
-        enSuelo = false;
-    }
+    enSuelo = false;
 }
 
 void Jojo::atacar() {
@@ -505,6 +520,10 @@ void Jojo::atacar() {
         faseCombo = 1;
         danioAcumulado = 0;
         qDebug() << "ORA! Iniciando combo...";
+        if (sonidoBasico) {
+            sonidoBasico->stop();
+            sonidoBasico->play();
+        }
         QTimer::singleShot(1000, [this]() {
             puedeAtacar = true;
             qDebug() << "Ataque listo de nuevo.";
@@ -519,7 +538,6 @@ void Jojo::actualizarAtaque() {
 
     if (frameActual == 2 && !danoAplicado)
         evaluarHitboxBasico();
-
     if (frameActual >= anim->size() - 1) {
         if (faseCombo == 1) {
             faseCombo = 2;
@@ -551,6 +569,14 @@ void Jojo::atacarFuerte(int tipo) {
     danioAcumulado = 0;
     faseCombo = (tipo == 1) ? 3 : 4;
 
+    if (tipo == 1 && sonidoFuerte1) {
+        sonidoFuerte1->stop();
+        sonidoFuerte1->play();
+    } else if (tipo == 2 && sonidoFuerte2) {
+        sonidoFuerte2->stop();
+        sonidoFuerte2->play();
+    }
+
     QTimer::singleShot(2000, [this]() { puedeAtacar = true; });
 }
 
@@ -560,8 +586,11 @@ void Jojo::actualizarAtaquesFuertes() {
     if (++ralentizadorStand >= 7) {
         ralentizadorStand = 0;
         frameActualStand++;
-        if (faseCombo == 3) evaluarHitboxFuerte1();
-        else if (faseCombo == 4) evaluarHitboxFuerte2();
+        if (faseCombo == 3){
+            evaluarHitboxFuerte1();
+        }else if (faseCombo == 4){
+            evaluarHitboxFuerte2();
+        }
     }
 
     int limiteJojo = (faseCombo == 3) ? 2 : 3;
@@ -611,6 +640,10 @@ void Jojo::habilidadEspecial() {
         ralentJotaroEsp  = 0;
         ralentSPEsp      = 0;
         ralentizadorStand = 0;
+        if (sonidoEspecial) {
+            sonidoEspecial->stop();
+            sonidoEspecial->play();
+        }
     } else {
         qDebug() << "Yare yare daze. Carga necesaria: 100. Actual:" << barradeCarga;
     }
@@ -793,6 +826,10 @@ void Jojo::recibirDanoConOrigen(int cantidad, float atacanteX) {
         estaAtacando = false;
         stand = false;
         vx = 0; vy = 0;
+        if (sonidoBasico && sonidoBasico->isPlaying())   sonidoBasico->stop();
+        if (sonidoFuerte1 && sonidoFuerte1->isPlaying()) sonidoFuerte1->stop();
+        if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
+        if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
         qDebug() << ">>> JOJO HA SIDO DERROTADO <<<";
         return;
     }
@@ -822,9 +859,14 @@ void Jojo::recibirDanoConOrigen(int cantidad, float atacanteX) {
         this->activarDano2(false);
         vx = direccionEmpuje * 10.0f;
         danioAcumulado = 0;
+        if (sonidoBasico && sonidoBasico->isPlaying())   sonidoBasico->stop();
+        if (sonidoFuerte1 && sonidoFuerte1->isPlaying()) sonidoFuerte1->stop();
+        if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
+        if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
     } else {
         this->activarDano1();
         vx = direccionEmpuje * 1.0f;
+        if (sonidoBasico && sonidoBasico->isPlaying()) sonidoBasico->stop();
     }
 }
 

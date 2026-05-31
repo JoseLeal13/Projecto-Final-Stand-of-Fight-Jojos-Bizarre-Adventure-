@@ -8,11 +8,12 @@
 #include <QVBoxLayout>
 #include <QMediaPlayer>
 #include <QAudioOutput>
-#include <QVideoWidget>
+#include <QVideoSink>
+#include <QVideoFrame>
 #include <QGraphicsView>
 #include <QGraphicsScene>
+#include <QSet>
 #include "nivel2.h"
-// #include "nivel1.h"
 
 class JoestarChampionship : public QMainWindow {
     Q_OBJECT
@@ -21,6 +22,10 @@ public:
     JoestarChampionship(QWidget *parent = nullptr);
     ~JoestarChampionship();
 
+public slots:
+    void pausarMusicaNivelDetenido();
+    void reanudarMusicaNivelDetenido();
+
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
@@ -28,7 +33,6 @@ protected:
 private slots:
     // Menú Principal
     void mostrarSeleccionNivel();
-    // 💡 Quitamos mostrarAyuda() y mostrarCreditos() de aquí porque ahora se manejan con Lambdas directas
 
     // Selección de Nivel
     void seleccionarDificultadNivel1();
@@ -41,6 +45,9 @@ private slots:
     void capturarFinDelJuego(bool victoria);
     void reintentarUltimoNivel();
 
+    //Otras opciones
+    void alternarMutearAudio();
+
 private:
     void crearMenuPrincipal();
     void crearPantallaSeleccion();
@@ -48,9 +55,27 @@ private:
     void crearPantallaAyuda();
     void crearPantallaCreditos();
     void configurarVideoFondo();
-    QSet<int> teclasPresionadas;
+    void reiniciarVideoFondo();
+    void detenerMultimediaMenu();
+    void reproducirMultimediaMenu();
+    void gestionarMusicaNivel(int nivel);
 
+    QSet<int> teclasPresionadas;
     QStackedWidget *controladorPantallas;
+
+    // Objetos multimedia para el Video (.MP4)
+    QLabel *lblVideoFondo;
+    QVideoSink *videoSink;
+    QMediaPlayer *reproductorVideo;
+    QAudioOutput *salidaAudio;
+
+    // Controlador para la música (.MP3)
+    QMediaPlayer *musicaMenu;
+    QAudioOutput *salidaAudioMusica;
+    QMediaPlayer *musicaNivel1;
+    QAudioOutput *salidaAudioNivel1;
+    QMediaPlayer *musicaNivel2;
+    QAudioOutput *salidaAudioNivel2;
 
     // Pantallas de interfaz
     QWidget *pantallaMenuPrincipal;
@@ -58,6 +83,9 @@ private:
     QWidget *pantallaPostJuego;
     QWidget *pantallaAyuda;
     QWidget *pantallaCreditos;
+
+    QPushButton *btnMute;
+    bool audioMutado = false;
 
     QPushButton *btnNivel2;
     QLabel *lblResultadoPostJuego;

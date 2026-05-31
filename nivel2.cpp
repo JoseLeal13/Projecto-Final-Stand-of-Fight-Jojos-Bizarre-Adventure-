@@ -127,18 +127,17 @@ void Nivel2::actualizarSegundo() {
 }
 
 void Nivel2::actualizarLoop() {
-    // ── MODO PASIVO DE TRANSICIÓN (K.O. / ESPERA DE ASALTO) ──
     if (rondaEnTransicion) {
         if (jojo) {
-            jojo->setVelocidadX(0); // Forzar quietud horizontal
-            jojo->moverse();        // <--- Dejar que se ejecute para que aplique SU propia gravedad y colisión de suelo
+            jojo->setVelocidadX(0);
+            jojo->moverse();
             jojo->actualizarAtaque();
             jojo->actualizarAtaquesFuertes();
             jojo->actualizarEspecial();
         }
         if (dio) {
-            dio->setVelocidadX(0); // Forzar quietud horizontal
-            dio->moverse();        // <--- Dejar que procese su gravedad nativa sin activar la IA ofensiva
+            dio->setVelocidadX(0);
+            dio->moverse();
             dio->actualizarAtaque();
             dio->actualizarAtaquesFuertes();
             dio->actualizarEspecial();
@@ -146,15 +145,23 @@ void Nivel2::actualizarLoop() {
         if (interfazHUD && jojo && dio) {
             interfazHUD->actualizarEstados(jojo, dio);
         }
-        return; // Bloquea el resto del ciclo de daño/combate activo
+        return;
     }
 
-    // ── CICLO DE COMBATE ACTIVO EN TIEMPO REAL ──
     if (jojo) {
         if (Personaje::tiempoDetenido) {
-            jojo->setVelocidadX(0);
+            // 1. SI EL TIEMPO ESTÁ CONGELADO:
+            jojo->setVelocidadX(0); // Jotaro se queda completamente quieto
+
+            // Forzamos a apagar las banderas de ataque activo para cortar los sonidos en seco
+            jojo->estaAtacando = false;
+            jojo->faseCombo = 0;
+
+            // NOTA: NO llamamos a actualizarAtaque() ni actualizarEspecial() aquí.
+            // Al no llamarlos, sus sonidos y animaciones se detienen por completo.
         }
         else {
+            // 2. SI EL TIEMPO CORRE NORMALMENTE:
             if (jojo->getVelocidadX() > 7)  jojo->setVelocidadX(9);
             if (jojo->getVelocidadX() < -7) jojo->setVelocidadX(-9);
 
@@ -168,16 +175,30 @@ void Nivel2::actualizarLoop() {
             dio->moverse();
         }
 
-        // CONTROL VISUAL DE ZA WARUDO
+        // CONTROL VISUAL Y MULTIMEDIA DE ZA WARUDO
         if (Personaje::tiempoDetenido) {
             if (!efectoGrisActivo) {
                 efectoGrisActivo = true;
                 aplicarEfectoZaWarudo(true);
+
+                // ACCIÓN CRÍTICA: Pausar la música del Nivel 2 a través de la ventana principal
+                QWidget* par = qobject_cast<QWidget*>(this->parent());
+                if (par) {
+                    while (par->parentWidget()) { par = par->parentWidget(); }
+                    QMetaObject::invokeMethod(par, "pausarMusicaNivelDetenido", Qt::AutoConnection);
+                }
             }
         } else {
             if (efectoGrisActivo) {
                 efectoGrisActivo = false;
                 aplicarEfectoZaWarudo(false);
+
+                // ACCIÓN CRÍTICA: Reanudar la música del Nivel 2
+                QWidget* par = qobject_cast<QWidget*>(this->parent());
+                if (par) {
+                    while (par->parentWidget()) { par = par->parentWidget(); }
+                    QMetaObject::invokeMethod(par, "reanudarMusicaNivelDetenido", Qt::AutoConnection);
+                }
             }
         }
     }
@@ -226,6 +247,12 @@ void Nivel2::procesarFinRound(const QString& ganador) {
     if (Personaje::tiempoDetenido) {
         Personaje::tiempoDetenido = false;
         aplicarEfectoZaWarudo(false);
+
+        QWidget* par = qobject_cast<QWidget*>(this->parent());
+        if (par) {
+            while (par->parentWidget()) { par = par->parentWidget(); }
+            QMetaObject::invokeMethod(par, "reanudarMusicaNivelDetenido", Qt::AutoConnection);
+        }
     }
 
     // --- 3 SEGUNDOS DE ESPERA TRAS EL FIN DEL ROUND ---

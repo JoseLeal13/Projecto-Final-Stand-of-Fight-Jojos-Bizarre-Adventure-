@@ -23,6 +23,26 @@ DIO::DIO(Personaje* jojo) : Personaje()
 
     std::srand(std::time(nullptr)); // Inicializar semilla aleatoria
 
+    sonidoBasico = new QSoundEffect(this);
+    sonidoBasico->setSource(QUrl("qrc:/Efectos/Single muda sound effect.wav"));
+    sonidoBasico->setVolume(0.75f);
+
+    sonidoFuerte1 = new QSoundEffect(this);
+    sonidoFuerte1->setSource(QUrl("qrc::/Efectos/Wryyyyy meme sound effect.wav"));
+    sonidoFuerte1->setVolume(0.85f);
+
+    sonidoFuerte2 = new QSoundEffect(this);
+    sonidoFuerte2->setSource(QUrl("qrc:/Efectos/Single muda sound effect.wav"));
+    sonidoFuerte2->setVolume(0.90f);
+
+    sonidoEspecial = new QSoundEffect(this);
+    sonidoEspecial->setSource(QUrl("qrc:/Efectos/muda muda muda sound effect.wav"));
+    sonidoEspecial->setVolume(1.0f);
+
+    sonidoZaWarudo = new QSoundEffect(this);
+    sonidoZaWarudo->setSource(QUrl("qrc:/Efectos/Za Warudo - Sound Effect.wav"));
+    sonidoZaWarudo->setVolume(1.2f);
+
     cargarSprites();
 
     if (!spritesQUIETO.isEmpty()) {
@@ -30,6 +50,12 @@ DIO::DIO(Personaje* jojo) : Personaje()
     } else {
         setPixmap(QPixmap(10,10));
         qDebug() << "ALERTA: No se cargaron los sprites de DIO.";
+    }
+}
+
+DIO::~DIO() {
+    if (sonidoZaWarudo) {
+        delete sonidoZaWarudo;
     }
 }
 
@@ -244,6 +270,10 @@ void DIO::ejecutarCerebro(float dx, float distancia) {
                 vx = 0;
 
                 qDebug() << "[EMERGENCIA] Fase C: Aterrizaje completado. DIO inicia estrictamente el amago de detener el tiempo.";
+                if (sonidoZaWarudo) {
+                    sonidoZaWarudo->stop();
+                    sonidoZaWarudo->play();
+                }
 
                 preparandoTimeStop = true;
                 stand = true;
@@ -315,6 +345,11 @@ void DIO::ejecutarCerebro(float dx, float distancia) {
         frameDioEsp = 0; frameTWEsp = 0;
         ralentDioEsp = 0; ralentTWEsp = 0;
         vx = 0;
+
+        if (sonidoZaWarudo) {
+            sonidoZaWarudo->stop();
+            sonidoZaWarudo->play();
+        }
 
         int dadoAmago = std::rand() % 100;
         if (dadoAmago < 30) {
@@ -654,7 +689,10 @@ void DIO::atacar() {
         frameActual = 0;
         faseCombo = 1;
         danioAcumulado = 0;
-
+        if (sonidoBasico) {
+            sonidoBasico->stop();
+            sonidoBasico->play();
+        }
         qDebug() << "DIO: MUDA!";
         QTimer::singleShot(1000, [this]() { puedeAtacar = true; });
     }
@@ -689,6 +727,14 @@ void DIO::atacarFuerte(int tipo) {
     danioAcumulado = 0;
     faseCombo = (tipo == 1) ? 3 : 4;
 
+    if (tipo == 1 && sonidoFuerte1) {
+        sonidoFuerte1->stop();
+        sonidoFuerte1->play();
+    } else if (tipo == 2 && sonidoFuerte2) {
+        sonidoFuerte2->stop();
+        sonidoFuerte2->play();
+    }
+
     QTimer::singleShot(2000, [this]() { puedeAtacar = true; });
 }
 
@@ -697,8 +743,11 @@ void DIO::actualizarAtaquesFuertes() {
     if (++ralentizadorStand >= 7) {
         ralentizadorStand = 0;
         frameActualStand++;
-        if (faseCombo == 3) evaluarHitboxFuerte1();
-        else if (faseCombo == 4) evaluarHitboxFuerte2();
+        if (faseCombo == 3){
+            evaluarHitboxFuerte1();
+        }else if (faseCombo == 4){
+            evaluarHitboxFuerte2();
+        }
     }
     int limiteDio = (faseCombo == 3) ? 2 : 3;
     if (frameActual < limiteDio) {
@@ -802,7 +851,10 @@ void DIO::actualizarEspecial() {
                     preparandoTimeStop = false;
                     amagoEspecialCorto = false;
                     barradeCarga = 0; // Gasta la barra
-
+                    if (sonidoEspecial) {
+                        sonidoEspecial->stop();
+                        sonidoEspecial->play();
+                    }
                     float dx = objetivo->x() - x();
                     vx = (dx > 0) ? 14.0f : -14.0f;
 
@@ -1005,6 +1057,11 @@ void DIO::recibirDano(int cantidad) {
         faseCombo = 0;
         vx = 0; vy = 0;
         setOffset(0, 0);
+        if (sonidoBasico && sonidoBasico->isPlaying())   sonidoBasico->stop();
+        if (sonidoFuerte1 && sonidoFuerte1->isPlaying()) sonidoFuerte1->stop();
+        if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
+        if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
+        if (sonidoEspecial && sonidoZaWarudo->isPlaying()) sonidoZaWarudo->stop();
         qDebug() << ">>> DIO HA SIDO ELIMINADO <<<";
         return;
     }
@@ -1024,6 +1081,8 @@ void DIO::recibirDano(int cantidad) {
             danioAcumulado = 0;
 
             vx = (objetivo->x() < this->x()) ? 8.0f : -8.0f;
+            if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
+            if (sonidoEspecial && sonidoZaWarudo->isPlaying()) sonidoZaWarudo->stop();
         }
         return; // Si sigue vivo pero en fase de amago, salimos aquí para no romper las animaciones
     }
@@ -1052,6 +1111,7 @@ void DIO::recibirDano(int cantidad) {
             this->activarDano2(true);
             vx = direccionEmpuje * 10.0f;
             danioAcumulado = 0;
+            if (sonidoBasico && sonidoBasico->isPlaying()) sonidoBasico->stop();
         }
         return;
     }
@@ -1060,9 +1120,14 @@ void DIO::recibirDano(int cantidad) {
         this->activarDano2(false);
         vx = direccionEmpuje * 10.0f;
         danioAcumulado = 0;
+        if (sonidoBasico && sonidoBasico->isPlaying())   sonidoBasico->stop();
+        if (sonidoFuerte1 && sonidoFuerte1->isPlaying()) sonidoFuerte1->stop();
+        if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
+        if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
     } else {
         this->activarDano1();
         vx = direccionEmpuje * 1.0f;
+        if (sonidoBasico && sonidoBasico->isPlaying()) sonidoBasico->stop();
     }
 }
 
@@ -1100,6 +1165,11 @@ void DIO::recibirDanoConOrigen(int cantidad, float atacanteX) {
         faseCombo = 0;
         vx = 0; vy = 0;
         setOffset(0, 0);
+        if (sonidoBasico && sonidoBasico->isPlaying())   sonidoBasico->stop();
+        if (sonidoFuerte1 && sonidoFuerte1->isPlaying()) sonidoFuerte1->stop();
+        if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
+        if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
+        if (sonidoEspecial && sonidoZaWarudo->isPlaying()) sonidoZaWarudo->stop();
         qDebug() << ">>> DIO HA SIDO ELIMINADO CON ORIGEN <<<";
         return;
     }
@@ -1117,6 +1187,8 @@ void DIO::recibirDanoConOrigen(int cantidad, float atacanteX) {
             this->activarDano2(defendiendo);
             danioAcumulado = 0;
             vx = (atacanteX < this->x()) ? 10.0f : -10.0f;
+            if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
+            if (sonidoEspecial && sonidoZaWarudo->isPlaying()) sonidoZaWarudo->stop();
         }
         return;
     }
@@ -1136,6 +1208,10 @@ void DIO::recibirDanoConOrigen(int cantidad, float atacanteX) {
         this->activarDano2(defendiendo);
         vx = direccionEmpuje * 10.0f;
         danioAcumulado = 0;
+        if (sonidoBasico && sonidoBasico->isPlaying())   sonidoBasico->stop();
+        if (sonidoFuerte1 && sonidoFuerte1->isPlaying()) sonidoFuerte1->stop();
+        if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
+        if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
     } else {
         // Si se está defendiendo, absorbe el golpe sin perder su postura (sin activar DANO1)
         if (defendiendo) {
@@ -1145,6 +1221,7 @@ void DIO::recibirDanoConOrigen(int cantidad, float atacanteX) {
                 this->activarDano1();
             }
             vx = direccionEmpuje * 1.0f;
+            if (sonidoBasico && sonidoBasico->isPlaying()) sonidoBasico->stop();
         }
     }
 }

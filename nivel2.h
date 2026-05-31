@@ -4,6 +4,7 @@
 #include "nivel.h"
 #include "standuserstats.h"
 #include "dio.h"
+#include <QWidget>
 
 class Nivel2 : public Nivel {
     Q_OBJECT

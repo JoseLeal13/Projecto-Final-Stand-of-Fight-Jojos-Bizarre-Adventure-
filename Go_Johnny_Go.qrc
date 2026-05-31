@@ -8,6 +8,22 @@
         <file>SpritesJojoChampionship/JoestarChampionship Jaula MMA.png</file>
     </qresource>
     <qresource prefix="/menú">
-        <file>VID_20260328_203406_652.mp4</file>
+        <file>Joestarchampionship.menu.mp4</file>
+        <file>Jotaro Theme but it's EPIC VERSION Star Platinum Over Heaven.mp3</file>
+        <file>Jojo Battle Tendency OST_ Overdrive [NO INTRO].mp3</file>
+        <file>JOJO Steel Ball Run OST_ Gyro Zeppeli Theme _ EPIC VERSION Fan-Made.mp3</file>
+        <file>iconoAltavoz.png</file>
+        <file>iconoAltavoz2.png</file>
+    </qresource>
+    <qresource prefix="/Efectos">
+        <file>Efecto de Sonido de RISA DE DIO BRANDO.wav</file>
+        <file>Gyros Pizza Mozzarella Cheese Song.wav</file>
+        <file>muda muda muda sound effect.wav</file>
+        <file>Nyo-ho gyro zeppeli sound.wav</file>
+        <file>ORA ORA ORA - Sound effect.wav</file>
+        <file>Ora Ora Ora Ora Ora sound effect.wav</file>
+        <file>Single muda sound effect.wav</file>
+        <file>Star platinum single ora.wav</file>
+        <file>Za Warudo - Sound Effect.wav</file>
     </qresource>
 </RCC>

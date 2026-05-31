@@ -15,6 +15,7 @@ class DIO : public Personaje
 {
 public:
     DIO(Personaje* jojo);
+    ~DIO();
 
     bool estaAtacando = false;
     bool danoAplicado = false;
@@ -150,6 +151,8 @@ private:
 
     QGraphicsDropShadowEffect* elAuraEfecto = nullptr;
     void actualizarAuraVisual();
+
+    QSoundEffect* sonidoZaWarudo = nullptr;
 };
 
 #endif // DIO_H

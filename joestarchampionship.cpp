@@ -14,12 +14,23 @@ JoestarChampionship::JoestarChampionship(QWidget *parent) : QMainWindow(parent) 
     idUltimoNivelJugado = 1;
     dificultadUltimoNivel1 = "facil";
 
-    controladorPantallas = new QStackedWidget(this);
-    setCentralWidget(controladorPantallas);
+    // Creamos contenedor base neutral para la ventana central
+    QWidget *contenedorBase = new QWidget(this);
+    setCentralWidget(contenedorBase);
 
+    // 1. Creamos el label de fondo asignándolo al CONTENEDOR BASE
+    lblVideoFondo = new QLabel(contenedorBase);
+    lblVideoFondo->setGeometry(0, 0, 1200, 550);
+    lblVideoFondo->setScaledContents(true);
+
+    // 2. El controlador de pantallas también va dentro del CONTENEDOR BASE
+    controladorPantallas = new QStackedWidget(contenedorBase);
+    controladorPantallas->setGeometry(0, 0, 1200, 550);
+
+    // 3. Inicializamos el video (ahora que las variables existen en el .h)
     configurarVideoFondo();
 
-    // Construcción de todas las interfaces como sub-pantallas
+    // 4. Construcción de todas las interfaces
     crearMenuPrincipal();        // Índice 0
     crearPantallaSeleccion();    // Índice 1
     crearPantallaPostJuego();    // Índice 2
@@ -32,7 +43,7 @@ JoestarChampionship::JoestarChampionship(QWidget *parent) : QMainWindow(parent) 
     controladorPantallas->addWidget(pantallaAyuda);
     controladorPantallas->addWidget(pantallaCreditos);
 
-    // Inicialización de estilos transparentes para capas
+    // 5. Aplicamos transparencias absolutas a los menús
     controladorPantallas->setStyleSheet("background: transparent;");
     pantallaMenuPrincipal->setStyleSheet("background: transparent;");
     pantallaSeleccionNivel->setStyleSheet("background: transparent;");
@@ -41,6 +52,11 @@ JoestarChampionship::JoestarChampionship(QWidget *parent) : QMainWindow(parent) 
     pantallaCreditos->setStyleSheet("background: transparent;");
 
     controladorPantallas->setCurrentIndex(0);
+
+    // Capas en orden estricto de software: Video atrás, botones al frente
+    lblVideoFondo->lower();
+    controladorPantallas->raise();
+
     this->setFocus();
 }
 
@@ -49,7 +65,72 @@ JoestarChampionship::~JoestarChampionship() {
 }
 
 void JoestarChampionship::configurarVideoFondo() {
-    this->setStyleSheet("QMainWindow { background-color: rgb(20, 20, 20); }");
+    reproductorVideo = new QMediaPlayer(this);
+
+    salidaAudio = new QAudioOutput(this);
+    salidaAudio->setVolume(0.0);
+    reproductorVideo->setAudioOutput(salidaAudio);
+
+    videoSink = new QVideoSink(this);
+    reproductorVideo->setVideoOutput(videoSink);
+
+    connect(videoSink, &QVideoSink::videoFrameChanged, this, [this](const QVideoFrame &frame) {
+        QImage img = frame.toImage();
+        if (!img.isNull()) {
+            lblVideoFondo->setPixmap(QPixmap::fromImage(img));
+        }
+    });
+
+    reproductorVideo->setSource(QUrl("qrc:/menú/Joestarchampionship.menu.mp4"));
+
+    connect(reproductorVideo, &QMediaPlayer::mediaStatusChanged, this, [this](QMediaPlayer::MediaStatus status){
+        if (status == QMediaPlayer::EndOfMedia) {
+            reproductorVideo->setPosition(0);
+            reproductorVideo->play();
+        }
+    });
+
+    reproductorVideo->play();
+
+    // --- Configuración de la música Overdrive (MP3) ---
+    salidaAudioMusica = new QAudioOutput(this);
+    salidaAudioMusica->setVolume(0.7);
+
+    musicaMenu = new QMediaPlayer(this);
+    musicaMenu->setAudioOutput(salidaAudioMusica);
+    musicaMenu->setSource(QUrl("qrc:/menú/Jojo Battle Tendency OST_ Overdrive [NO INTRO].mp3"));
+
+    connect(musicaMenu, &QMediaPlayer::mediaStatusChanged, this, [this](QMediaPlayer::MediaStatus status){
+        if (status == QMediaPlayer::EndOfMedia) {
+            musicaMenu->setPosition(0);
+            musicaMenu->play();
+        }
+    });
+    musicaMenu->play();
+
+    salidaAudioNivel1 = new QAudioOutput(this);
+    salidaAudioNivel1->setVolume(0.3);
+    musicaNivel1 = new QMediaPlayer(this);
+    musicaNivel1->setAudioOutput(salidaAudioNivel1);
+    musicaNivel1->setSource(QUrl("qrc:/menú/JOJO Steel Ball Run OST_ Gyro Zeppeli Theme _ EPIC VERSION Fan-Made.mp3"));
+    connect(musicaNivel1, &QMediaPlayer::mediaStatusChanged, this, [this](QMediaPlayer::MediaStatus status){
+        if (status == QMediaPlayer::EndOfMedia) {
+            musicaNivel1->setPosition(0);
+            musicaNivel1->play();
+        }
+    });
+
+    salidaAudioNivel2 = new QAudioOutput(this);
+    salidaAudioNivel2->setVolume(0.3);
+    musicaNivel2 = new QMediaPlayer(this);
+    musicaNivel2->setAudioOutput(salidaAudioNivel2);
+    musicaNivel2->setSource(QUrl("qrc:/menú/Jotaro Theme but it's EPIC VERSION Star Platinum Over Heaven.mp3"));
+    connect(musicaNivel2, &QMediaPlayer::mediaStatusChanged, this, [this](QMediaPlayer::MediaStatus status){
+        if (status == QMediaPlayer::EndOfMedia) {
+            musicaNivel2->setPosition(0);
+            musicaNivel2->play();
+        }
+    });
 }
 
 void JoestarChampionship::crearMenuPrincipal() {
@@ -79,6 +160,25 @@ void JoestarChampionship::crearMenuPrincipal() {
     layout->addWidget(btnCreditos);
     layout->addWidget(btnSalir);
 
+    btnMute = new QPushButton(pantallaMenuPrincipal);
+    btnMute->setGeometry(30, 30, 50, 50);
+    btnMute->setCheckable(true);
+    btnMute->setStyleSheet(
+        "QPushButton {"
+        "   border: none;"
+        "   background: transparent;"
+        "   border-image: url(':/menú/iconoAltavoz.png') 0 0 0 0 stretch stretch;" //Estira el PNG al tamaño exacto de 50x50
+        "}"
+        "QPushButton:checked {"
+        "   border-image: url(':/menú/iconoAltavoz2.png') 0 0 0 0 stretch stretch;" //Aplica la misma escala al mutear
+        "}"
+        "QPushButton:hover {"
+        "   background-color: rgba(255, 255, 255, 0.15);"
+        "   border-radius: 25px;"
+        "}"
+        );
+
+    connect(btnMute, &QPushButton::clicked, this, &JoestarChampionship::alternarMutearAudio);
     connect(btnJugar, &QPushButton::clicked, this, &JoestarChampionship::mostrarSeleccionNivel);
     connect(btnAyuda, &QPushButton::clicked, this, [this](){ controladorPantallas->setCurrentIndex(3); });
     connect(btnCreditos, &QPushButton::clicked, this, [this](){ controladorPantallas->setCurrentIndex(4); });
@@ -148,11 +248,13 @@ void JoestarChampionship::crearPantallaAyuda() {
 
     QLabel *contenido = new QLabel(
         "• A / D o Flechas : Desplazarse Lateralmente\n"
+        "• W / S o Flechas : Desplazarse Verticalmente\n"
         "• Espacio         : Saltar / Evadir\n"
         "• J               : Ataque Débil (Combo Rápido)\n"
         "• K               : Cubrirse / Activar Defensa\n"
-        "• W + J / S + J   : Ataques Fuertes Direccionales\n"
-        "• L               : Habilidad Especial (Star Platinum / Za Warudo)\n\n",
+        "• W + J / S + J   : Ataque Fuerte1 del nivel 2\n"
+        "• S + J           : Ataque Fuerte2 del nivel 2\n"
+        "• L               : Habilidad Especial del nivel 2\n\n",
         pantallaAyuda
         );
     contenido->setStyleSheet("font-family: 'Consolas'; font-size: 18px; color: white; line-height: 150%; background-color: rgba(10,10,10,0.8); padding: 20px; border: 1px solid #333333;");
@@ -176,10 +278,10 @@ void JoestarChampionship::crearPantallaCreditos() {
     layout->addWidget(tituloCreditos);
 
     QLabel *contenido = new QLabel(
-        "JOESTAR CHAMPIONSHIP ENGINE\n\n"
+        "JOESTAR CHAMPIONSHIP\n\n"
         "Desarrollado de manera nativa utilizando C++ y Qt Framework.\n"
         "Arquitectura de físicas y renderizado basado en QGraphicsScene.\n\n"
-        "Todos los derechos de personajes reservados a Hirohiko Araki y David Production.\n"
+        "Todos los derechos de personajes reservados a Hirohiko Araki y David Production.\n\n"
         "Videojuego creado por José Alejandro Pabón Leal y Emanuel Guerra Tuberquia.",
         pantallaCreditos
         );
@@ -214,6 +316,10 @@ void JoestarChampionship::intentarJugarNivel2() {
 }
 
 void JoestarChampionship::comenzarNivel1(const QString& dificultad) {
+
+    detenerMultimediaMenu();
+    gestionarMusicaNivel(1);
+
     idUltimoNivelJugado = 1;
     dificultadUltimoNivel1 = dificultad;
     nivel1Completado = true;
@@ -223,8 +329,11 @@ void JoestarChampionship::comenzarNivel1(const QString& dificultad) {
 void JoestarChampionship::comenzarNivel2() {
     idUltimoNivelJugado = 2;
 
+    detenerMultimediaMenu();
+    gestionarMusicaNivel(2);
+
     if (nivel2Activo) {
-        delete nivel2Activo;
+        nivel2Activo->deleteLater();
         nivel2Activo = nullptr;
     }
 
@@ -250,19 +359,27 @@ void JoestarChampionship::comenzarNivel2() {
 }
 
 void JoestarChampionship::capturarFinDelJuego(bool victoria) {
+    gestionarMusicaNivel(0);
+    reproducirMultimediaMenu();
+
     if (idUltimoNivelJugado == 1 && victoria) {
         nivel1Completado = true;
     }
 
-    QWidget* vistaABorrar = controladorPantallas->currentWidget();
+    if (idUltimoNivelJugado == 2) {
+        QWidget* vistaABorrar = controladorPantallas->currentWidget();
+        controladorPantallas->setCurrentIndex(2);
 
-    controladorPantallas->setCurrentIndex(2);
-
-    controladorPantallas->removeWidget(vistaABorrar);
-    vistaABorrar->deleteLater();
+        if (vistaABorrar) {
+            controladorPantallas->removeWidget(vistaABorrar);
+            vistaABorrar->deleteLater();
+        }
+    } else {
+        controladorPantallas->setCurrentIndex(2);
+    }
 
     if (nivel2Activo) {
-        delete nivel2Activo;
+        nivel2Activo->deleteLater();
         nivel2Activo = nullptr;
     }
 
@@ -284,8 +401,73 @@ void JoestarChampionship::reintentarUltimoNivel() {
 }
 
 void JoestarChampionship::regresarAlMenuPrincipal() {
+    reproducirMultimediaMenu();
+
     controladorPantallas->setCurrentIndex(0);
     this->setFocus();
+}
+
+void JoestarChampionship::reiniciarVideoFondo() {
+    reproductorVideo->setPosition(0);
+    reproductorVideo->play();
+}
+
+void JoestarChampionship::detenerMultimediaMenu() {
+    if (reproductorVideo) reproductorVideo->stop();
+    if (musicaMenu) musicaMenu->stop();
+    if (lblVideoFondo) lblVideoFondo->hide();
+}
+
+void JoestarChampionship::reproducirMultimediaMenu() {
+    if (lblVideoFondo) lblVideoFondo->show();
+
+    if (reproductorVideo && reproductorVideo->playbackState() != QMediaPlayer::PlayingState) {
+        reproductorVideo->play();
+    }
+    if (musicaMenu && musicaMenu->playbackState() != QMediaPlayer::PlayingState) {
+        musicaMenu->play();
+    }
+}
+
+void JoestarChampionship::gestionarMusicaNivel(int nivel) {
+    if (musicaNivel1) musicaNivel1->stop();
+    if (musicaNivel2) musicaNivel2->stop();
+
+    if (salidaAudioNivel1) salidaAudioNivel1->setVolume(audioMutado ? 0.0 : 0.7);
+    if (salidaAudioNivel2) salidaAudioNivel2->setVolume(audioMutado ? 0.0 : 0.7);
+
+    if (nivel == 1 && musicaNivel1) {
+        musicaNivel1->play();
+    } else if (nivel == 2 && musicaNivel2) {
+        musicaNivel2->play();
+    }
+}
+
+void JoestarChampionship::alternarMutearAudio() {
+    // Si el botón está "checked", significa que el usuario quiere mutar el juego
+    audioMutado = btnMute->isChecked();
+
+    if (audioMutado) {
+        if (salidaAudioMusica) salidaAudioMusica->setVolume(0.0);
+        if (salidaAudioNivel1) salidaAudioNivel1->setVolume(0.0);
+        if (salidaAudioNivel2) salidaAudioNivel2->setVolume(0.0);
+    } else {
+        if (salidaAudioMusica) salidaAudioMusica->setVolume(0.8);
+        if (salidaAudioNivel1) salidaAudioNivel1->setVolume(0.7);
+        if (salidaAudioNivel2) salidaAudioNivel2->setVolume(0.7);
+    }
+}
+
+void JoestarChampionship::pausarMusicaNivelDetenido() {
+    if (musicaNivel2 && musicaNivel2->playbackState() == QMediaPlayer::PlayingState) {
+        musicaNivel2->pause();
+    }
+}
+
+void JoestarChampionship::reanudarMusicaNivelDetenido() {
+    if (musicaNivel2 && !audioMutado) {
+        musicaNivel2->play();
+    }
 }
 
 void JoestarChampionship::keyPressEvent(QKeyEvent *event) {
@@ -371,10 +553,15 @@ void JoestarChampionship::keyReleaseEvent(QKeyEvent *event) {
         Jojo* jojo = nivel2Activo->getJugador();
         if (jojo) {
             int key = event->key();
-            if ((key == Qt::Key_A || key == Qt::Key_Left) && jojo->getVelocidadX() < 0) {
-                jojo->setVelocidadX(0);
-            } else if ((key == Qt::Key_D || key == Qt::Key_Right) && jojo->getVelocidadX() > 0) {
-                jojo->setVelocidadX(0);
+            if (key == Qt::Key_A || key == Qt::Key_Left) {
+                if (!teclasPresionadas.contains(Qt::Key_D) && !teclasPresionadas.contains(Qt::Key_Right)) {
+                    jojo->setVelocidadX(0);
+                }
+            }
+            else if (key == Qt::Key_D || key == Qt::Key_Right) {
+                if (!teclasPresionadas.contains(Qt::Key_A) && !teclasPresionadas.contains(Qt::Key_Left)) {
+                    jojo->setVelocidadX(0);
+                }
             }
 
             if (key == Qt::Key_K) {
