@@ -94,8 +94,6 @@ void JoestarChampionship::configurarVideoFondo() {
 
     // --- Configuración de la música Overdrive (MP3) ---
     salidaAudioMusica = new QAudioOutput(this);
-    salidaAudioMusica->setVolume(0.7);
-
     musicaMenu = new QMediaPlayer(this);
     musicaMenu->setAudioOutput(salidaAudioMusica);
     musicaMenu->setSource(QUrl("qrc:/menú/Jojo Battle Tendency OST_ Overdrive [NO INTRO].mp3"));
@@ -109,7 +107,6 @@ void JoestarChampionship::configurarVideoFondo() {
     musicaMenu->play();
 
     salidaAudioNivel1 = new QAudioOutput(this);
-    salidaAudioNivel1->setVolume(0.3);
     musicaNivel1 = new QMediaPlayer(this);
     musicaNivel1->setAudioOutput(salidaAudioNivel1);
     musicaNivel1->setSource(QUrl("qrc:/menú/JOJO Steel Ball Run OST_ Gyro Zeppeli Theme _ EPIC VERSION Fan-Made.mp3"));
@@ -121,7 +118,6 @@ void JoestarChampionship::configurarVideoFondo() {
     });
 
     salidaAudioNivel2 = new QAudioOutput(this);
-    salidaAudioNivel2->setVolume(0.3);
     musicaNivel2 = new QMediaPlayer(this);
     musicaNivel2->setAudioOutput(salidaAudioNivel2);
     musicaNivel2->setSource(QUrl("qrc:/menú/Jotaro Theme but it's EPIC VERSION Star Platinum Over Heaven.mp3"));
@@ -452,9 +448,9 @@ void JoestarChampionship::alternarMutearAudio() {
         if (salidaAudioNivel1) salidaAudioNivel1->setVolume(0.0);
         if (salidaAudioNivel2) salidaAudioNivel2->setVolume(0.0);
     } else {
-        if (salidaAudioMusica) salidaAudioMusica->setVolume(0.8);
-        if (salidaAudioNivel1) salidaAudioNivel1->setVolume(0.7);
-        if (salidaAudioNivel2) salidaAudioNivel2->setVolume(0.7);
+        if (salidaAudioMusica) salidaAudioMusica->setVolume(0.7);
+        if (salidaAudioNivel1) salidaAudioNivel1->setVolume(0.5);
+        if (salidaAudioNivel2) salidaAudioNivel2->setVolume(0.5);
     }
 }
 
