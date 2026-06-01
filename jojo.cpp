@@ -19,19 +19,19 @@ Jojo::Jojo() : Personaje()
     elAuraEfecto = nullptr;
 
     sonidoBasico = new QSoundEffect(this);
-    sonidoBasico->setSource(QUrl("qrc:/Efectos/Star platinum single ora.wav"));
+    sonidoBasico->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Star platinum single ora.wav"));
     sonidoBasico->setVolume(0.75f);
 
     sonidoFuerte1 = new QSoundEffect(this);
-    sonidoFuerte1->setSource(QUrl("qrc:/Efectos/ORA ORA ORA - Sound effect.wav"));
+    sonidoFuerte1->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/ORA ORA ORA - Sound effect.wav"));
     sonidoFuerte1->setVolume(0.85f);
 
     sonidoFuerte2 = new QSoundEffect(this);
-    sonidoFuerte2->setSource(QUrl("qrc:/Efectos/Star platinum single ora.wav"));
+    sonidoFuerte2->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Star platinum single ora.wav"));
     sonidoFuerte2->setVolume(0.85f);
 
     sonidoEspecial = new QSoundEffect(this);
-    sonidoEspecial->setSource(QUrl("qrc:/Efectos/Ora Ora Ora Ora Ora sound effect.wav"));
+    sonidoEspecial->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Ora Ora Ora Ora Ora sound effect.wav"));
     sonidoEspecial->setVolume(1.0f);
 
     cargarSprites();

@@ -24,23 +24,23 @@ DIO::DIO(Personaje* jojo) : Personaje()
     std::srand(std::time(nullptr)); // Inicializar semilla aleatoria
 
     sonidoBasico = new QSoundEffect(this);
-    sonidoBasico->setSource(QUrl("qrc:/Efectos/Single muda sound effect.wav"));
+    sonidoBasico->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Single muda sound effect.wav"));
     sonidoBasico->setVolume(0.75f);
 
     sonidoFuerte1 = new QSoundEffect(this);
-    sonidoFuerte1->setSource(QUrl("qrc::/Efectos/Wryyyyy meme sound effect.wav"));
-    sonidoFuerte1->setVolume(0.85f);
+    sonidoFuerte1->setSource(QUrl("qrc::/Efectos/EfectosdeAudio/Wryyyyy meme sound effect.wav"));
+    sonidoFuerte1->setVolume(0.90f);
 
     sonidoFuerte2 = new QSoundEffect(this);
-    sonidoFuerte2->setSource(QUrl("qrc:/Efectos/Single muda sound effect.wav"));
+    sonidoFuerte2->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Single muda sound effect.wav"));
     sonidoFuerte2->setVolume(0.90f);
 
     sonidoEspecial = new QSoundEffect(this);
-    sonidoEspecial->setSource(QUrl("qrc:/Efectos/muda muda muda sound effect.wav"));
+    sonidoEspecial->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/muda muda muda sound effect.wav"));
     sonidoEspecial->setVolume(1.0f);
 
     sonidoZaWarudo = new QSoundEffect(this);
-    sonidoZaWarudo->setSource(QUrl("qrc:/Efectos/Za Warudo - Sound Effect.wav"));
+    sonidoZaWarudo->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Za Warudo - Sound Effect.wav"));
     sonidoZaWarudo->setVolume(1.2f);
 
     cargarSprites();
@@ -71,7 +71,7 @@ void DIO::cargarSprites() {
 
     // ── WALK (x4) ────────────────────────────────────────────────────────
     for(int i = 0; i < 4; i++)
-        spritesCAMINAR.append(hoja.copy(7 + (i * 55), 140, 55, 64));
+        spritesCAMINAR.append(hoja.copy(7 + (i * 66), 140, 55, 64));
 
     // ── JUMP (x3 + x2 + x3 = x8) ─────────────────────────────────────────
     for(int i = 0; i < 3; i++)
@@ -83,14 +83,13 @@ void DIO::cargarSprites() {
 
     // ── DEFENSA/GUARD (x6) ───────────────────────────────────────────────
     for(int i = 0; i < 6; i++)
-        spritesDEFENSA.append(hoja.copy(61 + (i * 51), 596, 51, 71));
+        spritesDEFENSA.append(hoja.copy(61 + (i * 58), 598, 50, 71));
 
-    // ── BASICO 1 (x1 + x2 + x1 + x1 = x5... verificar) ──────────────────
+    // ── BASICO 1 (x1 + x2 + x1 +  = x4... verificar) ──────────────────
     spritesBASICO1.append(hoja.copy(16, 370, 31, 68));
     for(int i = 0; i < 2; i++)
         spritesBASICO1.append(hoja.copy(42 + (i * 55), 370, 55, 68));
     spritesBASICO1.append(hoja.copy(144, 370, 35, 68));
-    spritesBASICO1.append(hoja.copy(179, 370, 35, 68));
 
     // ── BASICO 2 (x5 + x4 = x9) ──────────────────────────────────────────
     for(int i = 0; i < 5; i++)
@@ -104,7 +103,9 @@ void DIO::cargarSprites() {
     for(int i = 0; i < 2; i++)
         spritesFUERTE1.append(hoja.copy(207 + (i * 46), 1225, 46, 66));
     for(int i = 0; i < 5; i++)
-        spritesFUERTE1.append(hoja.copy(203 + (i * 64), 1666, 64, 67));
+        spritesFUERTE1.append(hoja.copy(200 + (i * 68), 1666, 63, 67));
+    for(int i = 0; i < 5; i++)
+        spritesFUERTE1.append(hoja.copy(200 + (i * 68), 1666, 63, 67));
     spritesFUERTE1.append(hoja.copy(552, 1666, 34, 67));
 
     // ── FUERTE 2 ─────────────────────────────────────────────────────────
@@ -125,33 +126,34 @@ void DIO::cargarSprites() {
     spritesESPECIAL.append(hoja.copy(193 + (5 * 48), 2537, 48, 67));
     spritesESPECIAL.append(hoja.copy(174, 2291, 52, 71));
     for(int i = 0; i < 3; i++)
-        spritesESPECIAL.append(hoja.copy(229 + (i * 82), 2268, 82, 94));
+        spritesESPECIAL.append(hoja.copy(229 + (i * 82), 2268, 80, 94));
     for(int i = 0; i < 4; i++)
-        spritesESPECIAL.append(hoja.copy(133 + (i * 146), 2366, 146, 74));
+        spritesESPECIAL.append(hoja.copy(133 + (i * 110), 2366, 100, 74));
     for(int i = 0; i < 2; i++)
-        spritesESPECIAL.append(hoja.copy(172 + (i * 95), 2454, 95, 73));
+        spritesESPECIAL.append(hoja.copy(172 + (i * 95), 2454, 90, 73));
 
     // ── DAÑO 1 (x5) ──────────────────────────────────────────────────────
     for(int i = 0; i < 5; i++)
-        spritesDANO1.append(hoja.copy(23 + (i * 40), 3327, 40, 70));
+        spritesDANO1.append(hoja.copy(22 + (i * 45), 3327, 40, 65));
 
     // ── DAÑO 2 (x4 + x3 = x7) ────────────────────────────────────────────
     for(int i = 0; i < 4; i++)
-        spritesDANO2.append(hoja.copy(22 + (i * 49), 3342, 49, 70));
+        spritesDANO2.append(hoja.copy(22 + (i * 47), 3415, 45, 58));
     for(int i = 0; i < 3; i++)
-        spritesDANO2.append(hoja.copy(296 + (i * 53), 3342, 53, 70));
+        spritesDANO2.append(hoja.copy(295 + (i * 45), 3415, 45, 58));
 
     // ── STANDUP (x1 + x2 + ... = x5?) ────────────────────────────────────
-    spritesSTANDUP.append(hoja.copy(25, 3439, 68, 107));
+    spritesSTANDUP.append(hoja.copy(25, 3439, 68, 60));
     for(int i = 0; i < 2; i++)
-        spritesSTANDUP.append(hoja.copy(93 + (i * 48), 3439, 48, 107));
+        spritesSTANDUP.append(hoja.copy(93 + (i * 45), 3484, 45, 60));
     for(int i = 0; i < 2; i++)
-        spritesSTANDUP.append(hoja.copy(93 + (i * 48), 3490, 48, 56));
+        spritesSTANDUP.append(hoja.copy(93 + (i * 45), 3484, 45, 60));
+
+    // ── CURACION (x1 + x2 + ... = x5?)
     for(int i = 0; i < 2; i++)
-        spritesCURACION.append(hoja.copy(26 + (i * 35), 3037, 36, 69));
+        spritesCURACION.append(hoja.copy(26 + (i * 35), 3037, 30, 68));
     for(int i = 0; i < 9; i++) {
-        int anchoFrame = (i == 8) ? 39 : 44;
-        spritesCURACION.append(hoja.copy(100 + (i * 44), 3038, anchoFrame, 68));
+        spritesCURACION.append(hoja.copy(100 + (i * 44), 3038, 40, 68));
     }
     for(int i = 0; i < 2; i++)
         spritesCURACION.append(hoja.copy(27 + (i * 35), 3119, 35, 69));
@@ -791,6 +793,10 @@ void DIO::habilidadEspecial() {
     float dx = objetivo->x() - x();
     float distancia = std::abs(dx);
     mirandoDerecha = (dx > 0);
+
+    if (sonidoEspecial && !sonidoEspecial->isPlaying()) {
+        sonidoEspecial->play();
+    }
 
     if (distancia > 60) {
         vx = mirandoDerecha ? 13.0f : -13.0f;

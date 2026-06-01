@@ -17,6 +17,7 @@ Nivel2::Nivel2(QGraphicsScene* escenaCompartida, Jojo* personajeJojo, QObject* p
     KOsJotaro = 0;
     KOsDio = 0;
     rondaEnTransicion = false;
+    finRoundProcesado = false;
 
     timerUnSegundo = new QTimer(this);
 }
@@ -67,7 +68,7 @@ void Nivel2::iniciarNivel() {
 
 void Nivel2::cargarPosicionesIniciales() {
     rondaEnTransicion = true;
-
+    finRoundProcesado = false;
     int yPersonaje = 400 - (80 * 1.8);
 
     // ── REINICIO JOTARO (Vida Máxima 500) ──
@@ -217,6 +218,8 @@ void Nivel2::actualizarLoop() {
 }
 
 void Nivel2::procesarFinRound(const QString& ganador) {
+    if (finRoundProcesado) return;
+    finRoundProcesado = true;
     rondaEnTransicion = true;
 
     QString mensajeAnuncio = "K.O.";

@@ -18,12 +18,13 @@
     <qresource prefix="/Efectos">
         <file>EfectosdeAudio/Efecto de Sonido de RISA DE DIO BRANDO.wav</file>
         <file>EfectosdeAudio/Gyros Pizza Mozzarella Cheese Song.wav</file>
-        <file>EfectosdeAudio/muda muda muda sound effect.wav</file>
         <file>EfectosdeAudio/Nyo-ho gyro zeppeli sound.wav</file>
         <file>EfectosdeAudio/ORA ORA ORA - Sound effect.wav</file>
         <file>EfectosdeAudio/Ora Ora Ora Ora Ora sound effect.wav</file>
         <file>EfectosdeAudio/Single muda sound effect.wav</file>
         <file>EfectosdeAudio/Star platinum single ora.wav</file>
         <file>EfectosdeAudio/Za Warudo - Sound Effect.wav</file>
+        <file>EfectosdeAudio/Wryyyyy meme sound effect.mp3</file>
+        <file>EfectosdeAudio/muda muda muda sound effect.wav</file>
     </qresource>
 </RCC>

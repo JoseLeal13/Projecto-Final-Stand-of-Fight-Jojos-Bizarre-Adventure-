@@ -81,7 +81,7 @@ void JoestarChampionship::configurarVideoFondo() {
         }
     });
 
-    reproductorVideo->setSource(QUrl("qrc:/menú/Joestarchampionship.menu.mp4"));
+    reproductorVideo->setSource(QUrl("qrc:/menú/Video,Imagenes,Sonido/Joestarchampionship.menu.mp4"));
 
     connect(reproductorVideo, &QMediaPlayer::mediaStatusChanged, this, [this](QMediaPlayer::MediaStatus status){
         if (status == QMediaPlayer::EndOfMedia) {
@@ -96,7 +96,7 @@ void JoestarChampionship::configurarVideoFondo() {
     salidaAudioMusica = new QAudioOutput(this);
     musicaMenu = new QMediaPlayer(this);
     musicaMenu->setAudioOutput(salidaAudioMusica);
-    musicaMenu->setSource(QUrl("qrc:/menú/Jojo Battle Tendency OST_ Overdrive [NO INTRO].mp3"));
+    musicaMenu->setSource(QUrl("qrc:/menú/Video,Imagenes,Sonido/Jojo Battle Tendency OST_ Overdrive [NO INTRO].mp3"));
 
     connect(musicaMenu, &QMediaPlayer::mediaStatusChanged, this, [this](QMediaPlayer::MediaStatus status){
         if (status == QMediaPlayer::EndOfMedia) {
@@ -109,7 +109,7 @@ void JoestarChampionship::configurarVideoFondo() {
     salidaAudioNivel1 = new QAudioOutput(this);
     musicaNivel1 = new QMediaPlayer(this);
     musicaNivel1->setAudioOutput(salidaAudioNivel1);
-    musicaNivel1->setSource(QUrl("qrc:/menú/JOJO Steel Ball Run OST_ Gyro Zeppeli Theme _ EPIC VERSION Fan-Made.mp3"));
+    musicaNivel1->setSource(QUrl("qrc:/menú/Video,Imagenes,Sonido/JOJO Steel Ball Run OST_ Gyro Zeppeli Theme _ EPIC VERSION Fan-Made.mp3"));
     connect(musicaNivel1, &QMediaPlayer::mediaStatusChanged, this, [this](QMediaPlayer::MediaStatus status){
         if (status == QMediaPlayer::EndOfMedia) {
             musicaNivel1->setPosition(0);
@@ -120,7 +120,7 @@ void JoestarChampionship::configurarVideoFondo() {
     salidaAudioNivel2 = new QAudioOutput(this);
     musicaNivel2 = new QMediaPlayer(this);
     musicaNivel2->setAudioOutput(salidaAudioNivel2);
-    musicaNivel2->setSource(QUrl("qrc:/menú/Jotaro Theme but it's EPIC VERSION Star Platinum Over Heaven.mp3"));
+    musicaNivel2->setSource(QUrl("qrc:/menú/Video,Imagenes,Sonido/Jotaro Theme but it's EPIC VERSION Star Platinum Over Heaven.mp3"));
     connect(musicaNivel2, &QMediaPlayer::mediaStatusChanged, this, [this](QMediaPlayer::MediaStatus status){
         if (status == QMediaPlayer::EndOfMedia) {
             musicaNivel2->setPosition(0);
@@ -163,10 +163,10 @@ void JoestarChampionship::crearMenuPrincipal() {
         "QPushButton {"
         "   border: none;"
         "   background: transparent;"
-        "   border-image: url(':/menú/iconoAltavoz.png') 0 0 0 0 stretch stretch;" //Estira el PNG al tamaño exacto de 50x50
+        "   border-image: url(':/menú/Video,Imagenes,Sonido/iconoAltavoz.png') 0 0 0 0 stretch stretch;" //Estira el PNG al tamaño exacto de 50x50
         "}"
         "QPushButton:checked {"
-        "   border-image: url(':/menú/iconoAltavoz2.png') 0 0 0 0 stretch stretch;" //Aplica la misma escala al mutear
+        "   border-image: url(':/menú/Video,Imagenes,Sonido/iconoAltavoz2.png') 0 0 0 0 stretch stretch;" //Aplica la misma escala al mutear
         "}"
         "QPushButton:hover {"
         "   background-color: rgba(255, 255, 255, 0.15);"
@@ -490,6 +490,12 @@ void JoestarChampionship::keyPressEvent(QKeyEvent *event) {
     }
 
     if (nivel2Activo && controladorPantallas->currentIndex() > 4) {
+
+        if (nivel2Activo->isRondaEnTransicion()) {
+            event->accept();
+            return;
+        }
+
         teclasPresionadas.insert(event->key());
 
         Jojo* jojo = nivel2Activo->getJugador();
@@ -544,6 +550,12 @@ void JoestarChampionship::keyReleaseEvent(QKeyEvent *event) {
     if (event->isAutoRepeat()) return;
 
     if (nivel2Activo && controladorPantallas->currentIndex() > 4) {
+
+        if (nivel2Activo->isRondaEnTransicion()) {
+            event->accept();
+            return;
+        }
+
         teclasPresionadas.remove(event->key());
 
         Jojo* jojo = nivel2Activo->getJugador();

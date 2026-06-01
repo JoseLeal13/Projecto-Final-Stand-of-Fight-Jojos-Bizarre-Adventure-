@@ -26,6 +26,7 @@ private:
     int KOsDio;                 // Contador de victorias de DIO (Max 3)
     bool rondaEnTransicion;     // Evita actualizaciones físicas en las pausas de K.O.
     QTimer* timerUnSegundo;     // El reloj secundario que descuenta de 1s en 1s
+    bool finRoundProcesado;
 
     void procesarFinRound(const QString& ganador);
     void cargarPosicionesIniciales();
@@ -41,6 +42,7 @@ public:
     bool verificarCondicionVictoria() override;
     bool verificarCondicionDerrota() override;
     void limpiarNivel() override;
+    bool isRondaEnTransicion() const { return rondaEnTransicion; }
 
 protected slots:
     void actualizarLoop() override; // Aquí va la física 2D lateral y las hitboxes
