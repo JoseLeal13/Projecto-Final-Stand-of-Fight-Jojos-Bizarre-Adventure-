@@ -56,11 +56,14 @@ private:
     void crearPantallaAyuda();
     void crearPantallaCreditos();
     void configurarVideoFondo();
-    void crearPantallaEpilogoFinal();
     void reiniciarVideoFondo();
     void detenerMultimediaMenu();
     void reproducirMultimediaMenu();
     void gestionarMusicaNivel(int nivel);
+    void mostrarEpilogoNivel1(bool victoria);
+    void mostrarEpilogoNivel2(bool victoria);
+    void crearPantallaEpilogoFinal();
+    void crearPantallaDificultadNivel1();
 
     QSet<int> teclasPresionadas;
     QStackedWidget *controladorPantallas;
@@ -85,6 +88,7 @@ private:
     QWidget *pantallaPostJuego;
     QWidget *pantallaAyuda;
     QWidget *pantallaCreditos;
+    QWidget *pantallaDificultadNivel1;
 
     QPushButton *btnMute;
     bool audioMutado = false;
@@ -102,6 +106,7 @@ private:
     QLabel *lblImagenGanador;
     QLabel *lblTextoFinal;
     QPushButton *btnAceptarFinal;
-    QMediaPlayer *audioRisaDio;
-    QAudioOutput *salidaAudioRisa;
+    QSoundEffect *audioRisaDio;
+    QSoundEffect *sonidoVictoriaGyro;
+    QSoundEffect *sonidoVictoriaJojo;
 };

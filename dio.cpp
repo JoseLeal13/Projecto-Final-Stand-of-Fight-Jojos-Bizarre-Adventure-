@@ -956,7 +956,7 @@ void DIO::ejecutarCuracion() {
     }
     if (frameActual >= 2 && frameActual <= 10) {
         if (puntosdevida < 300) {
-            puntosdevida += 1;
+            puntosdevida += 2;
         }
     }
     if (frameActual >= spritesCURACION.size() - 1) {

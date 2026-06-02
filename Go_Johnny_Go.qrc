@@ -10,6 +10,7 @@
         <file>SpritesJojoChampionship/onomatopeyaJojo2.png</file>
         <file>SpritesJojoChampionship/Jojovictoria.png</file>
         <file>SpritesJojoChampionship/Diovictoria.png</file>
+        <file>SpritesJojoChampionship/gyrovictoria.png</file>
     </qresource>
     <qresource prefix="/menú">
         <file>Video,Imagenes,Sonido/iconoAltavoz.png</file>
@@ -30,5 +31,6 @@
         <file>EfectosdeAudio/Za Warudo - Sound Effect.wav</file>
         <file>EfectosdeAudio/muda muda muda sound effect.wav</file>
         <file>EfectosdeAudio/Wryyyyy meme sound effect.wav</file>
+        <file>EfectosdeAudio/Yare Yare Daze Jotaro Kujo - [HQ] Sound Effect.wav</file>
     </qresource>
 </RCC>

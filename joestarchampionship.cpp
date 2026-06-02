@@ -39,6 +39,7 @@ JoestarChampionship::JoestarChampionship(QWidget *parent) : QMainWindow(parent) 
     crearPantallaAyuda();        // Índice 3
     crearPantallaCreditos();     // Índice 4
     crearPantallaEpilogoFinal(); // Índice 5
+    crearPantallaDificultadNivel1(); // Índice 6
 
     controladorPantallas->addWidget(pantallaMenuPrincipal);
     controladorPantallas->addWidget(pantallaSeleccionNivel);
@@ -46,6 +47,7 @@ JoestarChampionship::JoestarChampionship(QWidget *parent) : QMainWindow(parent) 
     controladorPantallas->addWidget(pantallaAyuda);
     controladorPantallas->addWidget(pantallaCreditos);
     controladorPantallas->addWidget(pantallaEpilogoFinal);
+    controladorPantallas->addWidget(pantallaDificultadNivel1);
 
     // 5. Aplicamos transparencias absolutas a los menús
     controladorPantallas->setStyleSheet("background: transparent;");
@@ -55,6 +57,7 @@ JoestarChampionship::JoestarChampionship(QWidget *parent) : QMainWindow(parent) 
     pantallaAyuda->setStyleSheet("background: transparent;");
     pantallaCreditos->setStyleSheet("background: transparent;");
     pantallaEpilogoFinal->setStyleSheet("background: transparent;");
+    pantallaDificultadNivel1->setStyleSheet("background: transparent;");
 
     controladorPantallas->setCurrentIndex(0);
 
@@ -307,7 +310,41 @@ void JoestarChampionship::mostrarSeleccionNivel() {
 }
 
 void JoestarChampionship::seleccionarDificultadNivel1() {
-    comenzarNivel1("facil");
+
+    controladorPantallas->setCurrentWidget(pantallaDificultadNivel1);
+}
+
+void JoestarChampionship::crearPantallaDificultadNivel1() {
+    pantallaDificultadNivel1 = new QWidget(this);
+    QVBoxLayout *layout = new QVBoxLayout(pantallaDificultadNivel1);
+    layout->setAlignment(Qt::AlignCenter);
+
+    QLabel *tituloDificultad = new QLabel("SELECCIONA LA DIFICULTAD - NIVEL 1", pantallaDificultadNivel1);
+    tituloDificultad->setStyleSheet("font-family: 'Impact'; font-size: 35px; color: gold; margin-bottom: 25px;");
+    layout->addWidget(tituloDificultad);
+
+    QPushButton *btnFacil = new QPushButton("MODO FÁCIL", pantallaDificultadNivel1);
+    QPushButton *btnDificil = new QPushButton("MODO DIFÍCIL", pantallaDificultadNivel1);
+    QPushButton *btnCancelar = new QPushButton("CANCELAR Y VOLVER", pantallaDificultadNivel1);
+
+    QString estiloFacil = "QPushButton { font-family: 'Impact'; font-size: 22px; background-color: rgba(20,40,20,0.85); color: white; border: 2px solid #4CAF50; padding: 10px; margin: 5px; min-width: 280px; } QPushButton::hover { background-color: #4CAF50; color: black; }";
+    QString estiloDificil = "QPushButton { font-family: 'Impact'; font-size: 22px; background-color: rgba(40,20,20,0.85); color: white; border: 2px solid #FF5252; padding: 10px; margin: 5px; min-width: 280px; } QPushButton::hover { background-color: #FF5252; color: black; }";
+    QString estiloVolver = "QPushButton { font-family: 'Impact'; font-size: 20px; background-color: rgba(15,15,15,0.85); color: white; border: 2px solid white; padding: 8px; margin-top: 15px; min-width: 280px; } QPushButton::hover { background-color: white; color: black; }";
+
+    btnFacil->setStyleSheet(estiloFacil);
+    btnDificil->setStyleSheet(estiloDificil);
+    btnCancelar->setStyleSheet(estiloVolver);
+
+    layout->addWidget(btnFacil);
+    layout->addWidget(btnDificil);
+    layout->addWidget(btnCancelar);
+
+    // Al hacer click, llaman a comenzarNivel1 pasando el texto "facil" o "dificil"
+    connect(btnFacil, &QPushButton::clicked, this, [this]() { comenzarNivel1("facil"); });
+    connect(btnDificil, &QPushButton::clicked, this, [this]() { comenzarNivel1("dificil"); });
+
+    // Si cancela, vuelve al menú de selección de niveles anterior
+    connect(btnCancelar, &QPushButton::clicked, this, &JoestarChampionship::mostrarSeleccionNivel);
 }
 
 void JoestarChampionship::intentarJugarNivel2() {
@@ -360,135 +397,24 @@ void JoestarChampionship::comenzarNivel2() {
 
 void JoestarChampionship::capturarFinDelJuego(bool victoria) {
     try {
-        // 1. Detenemos multimedia del menú y música de niveles
+        // 1. Detener audio general y de niveles inmediatamente
         detenerMultimediaMenu();
         gestionarMusicaNivel(0);
 
+        // 2. Registrar el progreso si el nivel 1 fue completado con victoria
         if (idUltimoNivelJugado == 1 && victoria) {
             nivel1Completado = true;
         }
 
-        // 2. Lógica para el Nivel 2 (Jaula MMA)
-        if (idUltimoNivelJugado == 2) {
-            // VERIFICACIÓN EXCEPCIONAL: Limpiar buffer de comandos de desarrollo inmediatamente
-            teclasPresionadas.clear();
-
-            // Removemos de forma segura la vista del juego del StackedWidget
-            QWidget* vistaABorrar = controladorPantallas->currentWidget();
-            if (vistaABorrar && vistaABorrar != pantallaMenuPrincipal) {
-                controladorPantallas->removeWidget(vistaABorrar);
-                vistaABorrar->deleteLater();
-            }
-
-            if (nivel2Activo) {
-                nivel2Activo->deleteLater();
-                nivel2Activo = nullptr;
-            }
-
-            // Ocultamos temporalmente la ventana principal para evitar destellos del menú
-            this->hide();
-
-            // 3. Crear un QDialog independiente y MODAL
-            QDialog* ventanaEpilogo = new QDialog(nullptr); // Sin padre para control absoluto de jerarquía externa
-            ventanaEpilogo->setWindowTitle("Fin del Destino - Joestar Championship");
-            ventanaEpilogo->setFixedSize(1200, 550);
-            ventanaEpilogo->setStyleSheet("background-color: #121212;");
-
-            QVBoxLayout *layoutPrincipal = new QVBoxLayout(ventanaEpilogo);
-            layoutPrincipal->setAlignment(Qt::AlignCenter);
-
-            // 4. Elementos de la interfaz interna
-            QLabel *lblTextoFinal = new QLabel(ventanaEpilogo);
-            lblTextoFinal->setAlignment(Qt::AlignCenter);
-
-            QLabel *lblImagenGanador = new QLabel(ventanaEpilogo);
-            lblImagenGanador->setAlignment(Qt::AlignCenter);
-
-            // CAMBIO 1: Aumentamos el tamaño para que sea imponente (Gran Tamaño)
-            lblImagenGanador->setFixedSize(600, 400);
-            lblImagenGanador->setScaledContents(true);
-
-            // 5. SOLUCIÓN DE AUDIO: Asociados a 'this' (MainWindow)
-            QAudioOutput* salidaAudioRisaLocal = new QAudioOutput(this);
-            QMediaPlayer* audioRisaDioLocal = new QMediaPlayer(this);
-            audioRisaDioLocal->setAudioOutput(salidaAudioRisaLocal);
-            salidaAudioRisaLocal->setVolume(audioMutado ? 0.0 : 0.9);
-
-            // 6. Asignación de Textos y Sprites Corregidos (Rutas y extensiones)
-            if (!victoria) {
-                // CASO: Gana DIO
-                lblTextoFinal->setText("DIO HA CONQUISTADO EL MUNDO... ¡WRYYYYY!");
-                lblTextoFinal->setStyleSheet("font-family: 'Impact'; font-size: 42px; color: #FF3333; margin-bottom: 15px;");
-                QPixmap pixDio(":/sprites/SpritesJojoChampionship/Diovictoria.png");
-
-                if (pixDio.isNull()) {
-                    // Si tu .qrc no usa la carpeta /sprites/, intenta la ruta directa:
-                    pixDio = QPixmap(":/sprites/Diovictoria.png");
-                }
-                lblImagenGanador->setPixmap(pixDio);
-
-                audioRisaDioLocal->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Efecto de Sonido de RISA DE DIO BRANDO.wav"));
-                audioRisaDioLocal->play();
-            } else {
-                // CASO: Gana Jotaro
-                lblTextoFinal->setText("¡EL DESTINO HA SIDO SALVADO POR JOTARO KUJO!");
-                lblTextoFinal->setStyleSheet("font-family: 'Impact'; font-size: 42px; color: #FFD700; margin-bottom: 15px;");
-                QPixmap pixJojo(":/sprites/SpritesJojoChampionship/Jojovictoria.png");
-
-                if (pixJojo.isNull()) {
-                    pixJojo = QPixmap(":/sprites/Jojovictoria.png");
-                }
-                lblImagenGanador->setPixmap(pixJojo);
-            }
-
-            layoutPrincipal->addWidget(lblTextoFinal);
-            layoutPrincipal->addWidget(lblImagenGanador, 0, Qt::AlignHCenter);
-
-            // 7. Botón Aceptar para salir del epílogo de forma segura
-            QPushButton *btnAceptarFinal = new QPushButton("ACEPTAR EL DESTINO", ventanaEpilogo);
-            btnAceptarFinal->setStyleSheet(
-                "QPushButton { font-family: 'Impact'; font-size: 22px; background-color: #222222; color: white; border: 2px solid #555555; padding: 10px; margin-top: 25px; min-width: 280px; }"
-                "QPushButton::hover { background-color: #FFD700; color: black; border-color: #FFD700; }"
-                );
-            layoutPrincipal->addWidget(btnAceptarFinal);
-
-            // 8. Conectar el botón para cerrar el Dialog actual de manera ordenada
-            connect(btnAceptarFinal, &QPushButton::clicked, ventanaEpilogo, &QDialog::accept);
-
-            // Ejecución MODAL: Detiene el hilo de la UI aquí, pero el audio sigue reproduciéndose en el padre
-            ventanaEpilogo->exec();
-
-            // 9. LÓGICA POST-CIERRE: Limpieza de la memoria dinámica local de forma explícita
-            audioRisaDioLocal->stop();
-            audioRisaDioLocal->deleteLater();
-            salidaAudioRisaLocal->deleteLater();
-            ventanaEpilogo->deleteLater();
-
-            // EDICIÓN DE FLUJO CRÍTICO: Restauramos la ventana asegurando foco absoluto del OS
-            controladorPantallas->setCurrentIndex(0);
-            this->show();
-            this->raise();
-            this->activateWindow();
-            reproducirMultimediaMenu(); // Reactiva el video mp4 y la música Overdrive
-
-            // Ejecución asíncrona controlada para garantizar la respuesta de clics del mouse
-            QTimer::singleShot(50, this, [this]() {
-                this->setFocus(Qt::ActiveWindowFocusReason);
-            });
-
-        } else {
-            // Flujo original para el Nivel 1 (Se mantiene en el StackedWidget secundario)
-            controladorPantallas->setCurrentIndex(2);
-            if (victoria) {
-                lblResultadoPostJuego->setText("¡VICTORIA ABSOLUTA!");
-                lblResultadoPostJuego->setStyleSheet("font-family: 'Impact'; font-size: 55px; color: #00FF00;");
-            } else {
-                lblResultadoPostJuego->setText("¡GAME OVER!");
-                lblResultadoPostJuego->setStyleSheet("font-family: 'Impact'; font-size: 55px; color: #FF0000;");
-            }
+        if (idUltimoNivelJugado == 1) {
+            mostrarEpilogoNivel1(victoria);
         }
+        else if (idUltimoNivelJugado == 2) {
+            mostrarEpilogoNivel2(victoria);
+        }
+
     } catch (const std::exception& e) {
-        // Excepción atrapada: Restaurar el flujo para que el juego no falle catastróficamente
+        // En caso de fallas graves, el juego se recupera devolviendo al usuario al menú
         this->show();
         controladorPantallas->setCurrentIndex(0);
         reproducirMultimediaMenu();
@@ -496,40 +422,145 @@ void JoestarChampionship::capturarFinDelJuego(bool victoria) {
     }
 }
 
+void JoestarChampionship::mostrarEpilogoNivel1(bool victoria) {
+    // 1. Detener por completo el contenido del menú (video y audio base)
+    detenerMultimediaMenu();
+
+    // 2. Pintar un fondo sólido oscuro en la pantalla de epílogo para tapar el vacío del video
+    pantallaEpilogoFinal->setStyleSheet("background-color: #0e1a14;"); // Tono verdoso sutil de SBR
+
+    // 3. Carga dinámica de textos y texturas en los punteros que ya tienes en el .h
+    if (victoria) {
+        lblTextoFinal->setText("¡Nyo-ho! Pasaste la prueba de Gyro");
+        lblTextoFinal->setStyleSheet("font-family: 'Impact'; font-size: 42px; color: #4CAF50; margin-bottom: 15px;");
+
+        QPixmap pixGyro(":/sprites/SpritesJojoChampionship/gyrovictoria.png");
+        if (pixGyro.isNull()) pixGyro = QPixmap(":/sprites/gyrovictoria.png");
+        if (pixGyro.isNull()) pixGyro = QPixmap(":/SpritesJojoChampionship/gyrovictoria.png");
+
+        lblImagenGanador->setPixmap(pixGyro);
+        sonidoVictoriaGyro->play();
+    } else {
+        lblTextoFinal->setText("No lograste pasar la prueba de Gyro...");
+        lblTextoFinal->setStyleSheet("font-family: 'Impact'; font-size: 42px; color: #FF5252; margin-bottom: 15px;");
+
+        QPixmap pixGyro(":/sprites/SpritesJojoChampionship/gyrovictoria.png");
+        if (pixGyro.isNull()) pixGyro = QPixmap(":/sprites/gyrovictoria.png");
+        if (pixGyro.isNull()) pixGyro = QPixmap(":/SpritesJojoChampionship/gyrovictoria.png");
+
+        lblImagenGanador->setPixmap(pixGyro);
+    }
+
+    // Estilo adaptado para el botón continuar de Gyro
+    btnAceptarFinal->setStyleSheet(
+        "QPushButton { font-family: 'Impact'; font-size: 22px; background-color: #1b2e24; color: white; border: 2px solid #386b52; padding: 10px; margin-top: 25px; min-width: 280px; }"
+        "QPushButton::hover { background-color: #4CAF50; color: black; border-color: #4CAF50; }"
+        );
+
+    // 4. Cambiar de pantalla dentro de la MISMA ventana de forma limpia
+    controladorPantallas->setCurrentWidget(pantallaEpilogoFinal);
+    this->setFocus();
+}
+
+void JoestarChampionship::mostrarEpilogoNivel2(bool victoria) {
+    // Limpieza preventiva de comandos del teclado del combate anterior
+    teclasPresionadas.clear();
+
+    // Desvincular de manera segura el View del Nivel 2 del stacked widget central
+    QWidget* vistaABorrar = controladorPantallas->currentWidget();
+    if (vistaABorrar && vistaABorrar != pantallaMenuPrincipal && vistaABorrar != pantallaEpilogoFinal) {
+        controladorPantallas->removeWidget(vistaABorrar);
+        vistaABorrar->deleteLater();
+    }
+
+    if (nivel2Activo) {
+        nivel2Activo->deleteLater();
+        nivel2Activo = nullptr;
+    }
+
+    // 1. Detener por completo el contenido multimedia del menú
+    detenerMultimediaMenu();
+
+    // 2. Cambiar a fondo sólido oscuro para el desenlace final de la jaula
+    pantallaEpilogoFinal->setStyleSheet("background-color: #121212;");
+
+    // 3. Hilado de lógicas y recursos multimedia en la interfaz compartida
+    if (!victoria) {
+        lblTextoFinal->setText("壓制 DIO HA CONQUISTADO EL MUNDO... ¡WRYYYYY!");
+        lblTextoFinal->setStyleSheet("font-family: 'Impact'; font-size: 42px; color: #FF3333; margin-bottom: 15px;");
+
+        QPixmap pixDio(":/sprites/SpritesJojoChampionship/Diovictoria.png");
+        if (pixDio.isNull()) pixDio = QPixmap(":/sprites/Diovictoria.png");
+        if (pixDio.isNull()) pixDio = QPixmap(":/SpritesJojoChampionship/Diovictoria.png");
+
+        lblImagenGanador->setPixmap(pixDio);
+        audioRisaDio->play();
+    } else {
+        lblTextoFinal->setText("¡EL DESTINO HA SIDO SALVADO!");
+        lblTextoFinal->setStyleSheet("font-family: 'Impact'; font-size: 42px; color: #FFD700; margin-bottom: 15px;");
+
+        QPixmap pixJojo(":/sprites/SpritesJojoChampionship/Jojovictoria.png");
+        if (pixJojo.isNull()) pixJojo = QPixmap(":/sprites/Jojovictoria.png");
+        if (pixJojo.isNull()) pixJojo = QPixmap(":/SpritesJojoChampionship/Jojovictoria.png");
+
+        lblImagenGanador->setPixmap(pixJojo);
+        sonidoVictoriaJojo->play();
+    }
+
+    // Estilo adaptado para el botón del destino final de DIO/Jotaro
+    btnAceptarFinal->setStyleSheet(
+        "QPushButton { font-family: 'Impact'; font-size: 22px; background-color: #222222; color: white; border: 2px solid #555555; padding: 10px; margin-top: 25px; min-width: 280px; }"
+        "QPushButton::hover { background-color: #FFD700; color: black; border-color: #FFD700; }"
+        );
+
+    // 4. Cambiar a la pantalla interna de forma nativa sin parpadeos
+    controladorPantallas->setCurrentWidget(pantallaEpilogoFinal);
+    this->setFocus();
+}
+
 void JoestarChampionship::crearPantallaEpilogoFinal() {
     pantallaEpilogoFinal = new QWidget(this);
     QVBoxLayout *layoutPrincipal = new QVBoxLayout(pantallaEpilogoFinal);
     layoutPrincipal->setAlignment(Qt::AlignCenter);
 
-    // 1. Texto de la Crónica / Desenlace
     lblTextoFinal = new QLabel("", pantallaEpilogoFinal);
     lblTextoFinal->setAlignment(Qt::AlignCenter);
-    lblTextoFinal->setWordWrap(true); // Permite múltiples líneas de texto de forma ordenada
+    lblTextoFinal->setWordWrap(true);
     layoutPrincipal->addWidget(lblTextoFinal);
 
-    // 2. Imagen del Vencedor Centrada
     lblImagenGanador = new QLabel(pantallaEpilogoFinal);
     lblImagenGanador->setAlignment(Qt::AlignCenter);
-    lblImagenGanador->setFixedSize(400, 300); // Tamaño ideal para el Sprite/Arte central
+    lblImagenGanador->setFixedSize(600, 400);
     lblImagenGanador->setScaledContents(true);
-    layoutPrincipal->addWidget(lblImagenGanador);
+    layoutPrincipal->addWidget(lblImagenGanador, 0, Qt::AlignHCenter);
 
-    // 3. Botón de Aceptar (Regresar al menú con estilo JOJO)
     btnAceptarFinal = new QPushButton("ACEPTAR EL DESTINO", pantallaEpilogoFinal);
-    QString estiloBoton = "QPushButton { font-family: 'Impact'; font-size: 22px; background-color: rgba(15,15,15,0.9); color: white; border: 2px solid white; padding: 10px; margin-top: 20px; min-width: 250px; }"
-                          "QPushButton::hover { background-color: gold; color: black; border-color: gold; }";
-    btnAceptarFinal->setStyleSheet(estiloBoton);
     layoutPrincipal->addWidget(btnAceptarFinal);
 
-    // Inicialización del audio para la risa de DIO
-    salidaAudioRisa = new QAudioOutput(this);
-    audioRisaDio = new QMediaPlayer(this);
-    audioRisaDio->setAudioOutput(salidaAudioRisa);
-    audioRisaDio->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Efecto de Sonido de RISA DE DIO BRANDON.wav"));
+    // ==========================================
+    // INICIALIZACIÓN DE EFECTOS (QSoundEffect)
+    // ==========================================
+    audioRisaDio = new QSoundEffect(this);
+    audioRisaDio->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Efecto de Sonido de RISA DE DIO BRANDO.wav"));
+    audioRisaDio->setVolume(0.9);
 
-    // Conexión del botón para regresar al Menú Principal limpiando el audio
+    sonidoVictoriaGyro = new QSoundEffect(this);
+    sonidoVictoriaGyro->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Gyros Pizza Mozzarella Cheese Song.wav"));
+    sonidoVictoriaGyro->setVolume(0.85);
+
+    sonidoVictoriaJojo = new QSoundEffect(this);
+    sonidoVictoriaJojo->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Yare Yare Daze Jotaro Kujo - [HQ] Sound Effect.wav"));
+    sonidoVictoriaJojo->setVolume(0.85);
+
+    // Conexión del botón para regresar deteniendo los efectos instantáneos
     connect(btnAceptarFinal, &QPushButton::clicked, this, [this]() {
-        if (audioRisaDio) audioRisaDio->stop();
+        if (audioRisaDio->isPlaying()) audioRisaDio->stop();
+        if (sonidoVictoriaGyro->isPlaying()) sonidoVictoriaGyro->stop();
+        if (sonidoVictoriaJojo->isPlaying()) sonidoVictoriaJojo->stop();
+
+        // Al regresar al menú principal, se vuelve a activar el stylesheet transparente
+        // para que se pueda apreciar el video de fondo perfectamente.
+        pantallaEpilogoFinal->setStyleSheet("background: transparent;");
         regresarAlMenuPrincipal();
     });
 }
@@ -636,21 +667,38 @@ void JoestarChampionship::keyPressEvent(QKeyEvent *event) {
         return;
     }
 
-    // EDICIÓN DE FLUJO DIRECTA: Evita la retención de eventos del teclado en F6 y F7
+    if (event->key() == Qt::Key_F5) {
+        event->accept();
+        idUltimoNivelJugado = 2;
+        capturarFinDelJuego(true); // true = Victoria de Jotaro (Yare Yare Daze)
+        return;
+    }
+
+    // F6: Forzar VICTORIA de DIO en el NIVEL 2
     if (event->key() == Qt::Key_F6) {
         event->accept();
         idUltimoNivelJugado = 2;
-        capturarFinDelJuego(true);
+        capturarFinDelJuego(false); // false = Victoria de DIO / Derrota del Jugador (Risa WRYYY)
         return;
     }
 
+    // F7: Forzar VICTORIA de JOJO en el NIVEL 1
     if (event->key() == Qt::Key_F7) {
         event->accept();
-        idUltimoNivelJugado = 2;
-        capturarFinDelJuego(false);
+        idUltimoNivelJugado = 1;
+        capturarFinDelJuego(true); // true = Pasa la prueba de Gyro (Nyo-ho / Pizza Mozzarella)
         return;
     }
 
+    // F8: Forzar PANTALLA de GYRO (Fallo de prueba) en el NIVEL 1
+    if (event->key() == Qt::Key_F8) {
+        event->accept();
+        idUltimoNivelJugado = 1;
+        capturarFinDelJuego(false); // false = No pasó la prueba de Gyro
+        return;
+    }
+
+    // --- Control de captura de físicas de entrada estándar para el combate activo ---
     QGraphicsView* vistaActual = qobject_cast<QGraphicsView*>(controladorPantallas->currentWidget());
     if (nivel2Activo && vistaActual) {
 
