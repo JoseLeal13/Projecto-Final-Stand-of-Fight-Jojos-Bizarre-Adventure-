@@ -76,7 +76,15 @@ void jotaro::habilidadEspecial() {
 QRectF jotaro::boundingRect() const
 {
     // Define el área rectangular máxima que puede ocupar el sprite al redibujarse
-    return QRectF(-100, 0, 300, 120);
+    return QRectF(0, 0, 70, 100);
+}
+
+QPainterPath jotaro::shape() const
+{
+    QPainterPath path;
+    // Hitbox corporal real: offset 18 en X, 10 en Y, 34 ancho, 85 alto
+    path.addRect(QRectF(18, 10, 34, 85));
+    return path;
 }
 
 void jotaro::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

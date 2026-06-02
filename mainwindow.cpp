@@ -113,11 +113,11 @@ void MainWindow::actualizar()
     // 2. Procesar direcciones según los controles activos
     if (teclasPresionadas.contains(Qt::Key_S)) {
         jotaro_player->moveDown();
-        jotaro_player->setDireccion(1); // Modificado a 1 según tu Y_DIR real (Abajo)
+        jotaro_player->setDireccion(0); // Modificado a 1 según tu Y_DIR real (Abajo)
     }
     else if (teclasPresionadas.contains(Qt::Key_W)) {
         jotaro_player->moveUp();
-        jotaro_player->setDireccion(0); // Modificado a 0 según tu Y_DIR real (Arriba)
+        jotaro_player->setDireccion(1); // Modificado a 0 según tu Y_DIR real (Arriba)
     }
     else if (teclasPresionadas.contains(Qt::Key_A)) {
         jotaro_player->moveLeft();
@@ -158,10 +158,9 @@ void MainWindow::actualizar()
 
         // ── DETECCIÓN TOTALMENTE INMUNE A ERRORES DE TRASLACIÓN ──
         // Le preguntamos a la escena qué ítems están colisionando directamente con Jotaro
-        QList<QGraphicsItem*> itemsColisionando = scene->collidingItems(jotaro_player);
+        QList<QGraphicsItem*> itemsColisionando = scene->collidingItems(ball);
 
-        // Si la lista contiene esta bola específica, ¡es un golpe real en pantalla!
-        if (itemsColisionando.contains(ball)) {
+        if (itemsColisionando.contains(jotaro_player)) {
 
             if (ball->getTipo() == SteelBall::RojaEsquivable) {
                 qDebug() << "💥 ¡IMPACTO REAL! Bola ROJA inflige daño (-20).";
@@ -205,12 +204,12 @@ void MainWindow::actualizar()
 
     // 6. LÓGICA DE SPAWN: GYRO SE TELETRANSPORTA Y LANZA LAS ESFERAS
     contadorSpawnBolas++;
-    if (contadorSpawnBolas >= 90) { // Cada 1.5 segundos
+    if (contadorSpawnBolas >= 45) { // (90) Cada 1.5 segundos
         contadorSpawnBolas = 0;
 
         int posicionesY[3] = {150, 300, 450};
         int nuevaY = posicionesY[std::rand() % 3];
-        int nuevaX = (std::rand() % 2 == 0) ? 50 : 50;
+        int nuevaX = (std::rand() % 2 == 0) ? 700 : 700;//50
         gyroItem->setPos(nuevaX, nuevaY);
 
         int dirDisparo = (nuevaX < 400) ? 1 : -1;

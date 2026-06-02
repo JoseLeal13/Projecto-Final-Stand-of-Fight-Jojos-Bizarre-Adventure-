@@ -74,6 +74,7 @@ private:
     void cargarFrames();
     QPixmap quitarFondo(const QPixmap &original);
     QPixmap reflejarHorizontal(const QPixmap &original);
+    QPainterPath shape() const override;
 };
 
 #endif // JOTARO_H

@@ -18,7 +18,7 @@ SteelBall::SteelBall(TipoBola tipo, TipoTrayectoria trayectoria, qreal posX, qre
     // ── INICIALIZACIÓN DE LA ANIMACIÓN ──
     frameActual = 0;
     contadorFrames = 0;
-    retardoFrames = 6;
+    retardoFrames = 7;
 
     cargarGraficos();
 }
@@ -131,41 +131,60 @@ QPixmap SteelBall::quitarFondo(const QPixmap &original)
 
 }
 
-// Agrega esto en tu steelball.cpp (Asegúrate de incluir <QPainter> arriba si no está)
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  SISTEMA DE COLISIONES CORREGIDO (Para que Qt NO ignore los impactos)
+// ═══════════════════════════════════════════════════════════════════════════
+// 1. EL RECTÁNGULO LÍMITE (Obliga a Qt a saber cuánto mide tu pelota)
+QRectF SteelBall::boundingRect() const
+{
+    // Tus sprites miden 78 de ancho y 37 de alto.
+    // Esto le dice al motor el tamaño físico real de la caja.
+    return QRectF(0, 0, 78, 37);
+}
+
+// 2. EL MÉTODO PAINT (¡Sigue aquí! Dibuja el contorno para que lo veas avanzar)
 void SteelBall::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    // 1. Esto le dice a Qt que pinte la bola girando tal y como ya lo hace de forma nativa
+    // 1. Pinta el sprite animado
     QGraphicsPixmapItem::paint(painter, option, widget);
 
-    // 2. Dibujar contorno verde o amarillo para ver la hitbox de la bola
-    // Buscaremos la ventana principal para saber si la 'H' está activa
-    bool mostrarH = false;
-    if (scene() && !scene()->views().isEmpty()) {
-        QWidget *topWidget = scene()->views().first()->window();
-        QMainWindow *mainWin = qobject_cast<QMainWindow*>(topWidget);
-        if (mainWin) {
-            // Evaluamos la bandera de la ventana
-            mostrarH = mainWin->property("mostrarHitbox").toBool();
-        }
+    // 2. FIANZA DE SEGURIDAD: Si no hay escena todavía, salimos para evitar el crash
+    if (!scene() || scene()->views().isEmpty()) {
+        return;
     }
 
-    // Si la 'H' está activa en el juego, pintamos el borde de la pelotita
-    if (mostrarH || true) { // Reemplaza por true temporalmente si quieres verlas SIEMPRE de entrada
-        painter->setPen(QPen(Qt::yellow, 2, Qt::SolidLine));
-        painter->drawRect(boundingRect()); // Dibuja la caja exacta que colisiona
+    // 3. Comprobar si debemos mostrar la hitbox (Depuración)
+    bool mostrarH = false;
+    QWidget *topWidget = scene()->views().first()->window();
+    QMainWindow *mainWin = qobject_cast<QMainWindow*>(topWidget);
+    if (mainWin) {
+        mostrarH = mainWin->property("mostrarHitbox").toBool();
+    }
+
+    // Dibujamos la hitbox visual si corresponde
+    if (mostrarH || true) {
+        painter->save();
+        if (tipoActual == VerdeGolpeable) {
+            painter->setPen(QPen(Qt::green, 2, Qt::DashLine));
+        } else {
+            painter->setPen(QPen(Qt::red, 2, Qt::SolidLine));
+        }
+        painter->drawRect(this->boundingRect());
+        painter->restore();
     }
 }
 
+// 3. LA SINCRONIZACIÓN DE LA COLISIÓN (Muda la hitbox matemática al mismo lugar que el paint)
 bool SteelBall::collidesWithItem(const QGraphicsItem *other, Qt::ItemSelectionMode mode) const
 {
-    Q_UNUSED(mode);
-    if (!other) return false;
+    return QGraphicsItem::collidesWithItem(other, mode);
+}
 
-    // Hitbox global de la bola
-    QRectF miHitboxGlobal = this->getHitbox().translated(this->pos());
-
-    // Compara contra las coordenadas que tiene el otro objeto en la escena
-    QRectF otraHitboxGlobal = other->boundingRect().translated(other->pos());
-
-    return miHitboxGlobal.intersects(otraHitboxGlobal);
+QPainterPath SteelBall::shape() const
+{
+    QPainterPath path;
+    // Usa el boundingRect completo como hitbox sólida, ignorando transparencia
+    path.addRect(boundingRect());
+    return path;
 }

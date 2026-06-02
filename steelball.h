@@ -63,7 +63,11 @@ private:
     QList<QPixmap> framesAnimacion; // Contenedor para los 4 sprites de giro
     int frameActual;                // Índice del frame que se está mostrando (0 a 3)
     int contadorFrames;             // Tick interno de frames
-    int retardoFrames;              // Velocidad de giro
+    int retardoFrames;
+    // Velocidad de giro
+    QRectF boundingRect() const override;
+    QPainterPath shape() const override;
+
 };
 
 #endif // STEELBALL_H
