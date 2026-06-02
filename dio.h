@@ -63,6 +63,12 @@ public:
     enum EstadoDano { NORMAL, DANO1, DANO2, STANDUP, MUERTO };
     EstadoDano estadoDano = NORMAL;
 
+    bool estaDefendiendo = false;
+    int frameActual = 0;
+    int contadorAnimacion = 0;
+    bool mirandoDerecha;
+    QList<QPixmap> spritesQUIETO;
+
 private:
     Personaje* objetivo; // Puntero directo a Jotaro
 
@@ -77,7 +83,6 @@ private:
     int distanciaFuerte = 85;
     int ticksDecision = 0; // Contador para no cambiar de opinión cada frame
 
-    bool estaDefendiendo;
     int cooldownDefensaCritica = 0;
     int tiempoAtaque;
     bool stand = false;
@@ -103,7 +108,6 @@ private:
     bool ataqueExentoDeCarga = false;
 
     // --- Contenedores de Animación (The World Sheet) ---
-    QList<QPixmap> spritesQUIETO;
     QList<QPixmap> spritesCAMINAR;
     QList<QPixmap> spritesSALTO;
     QList<QPixmap> spritesDEFENSA;
@@ -118,10 +122,6 @@ private:
     QList<QPixmap> spritesSTANDUP;
     QList<QPixmap> spritesCURACION;
     QList<QPixmap> spritesTIMESTOP;
-
-    int frameActual;
-    int contadorAnimacion;
-    bool mirandoDerecha;
 
     // --- Sistema de Daño Recibido ---
     int danioAcumulado = 0;

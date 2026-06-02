@@ -24,6 +24,7 @@ SOURCES += \
 
 HEADERS += \
     dio.h \
+    efectovisual.h \
     joestarchampionship.h \
     jojo.h \
     jojobro.h \

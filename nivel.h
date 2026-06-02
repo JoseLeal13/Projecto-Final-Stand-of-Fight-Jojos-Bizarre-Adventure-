@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QObject>
 #include "jojo.h"
+#include "efectovisual.h"
 
 class Nivel : public QObject {
     Q_OBJECT

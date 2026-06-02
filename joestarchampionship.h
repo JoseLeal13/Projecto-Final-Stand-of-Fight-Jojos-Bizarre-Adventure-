@@ -13,6 +13,7 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QSet>
+#include <QDialog>
 #include "nivel2.h"
 
 class JoestarChampionship : public QMainWindow {
@@ -55,6 +56,7 @@ private:
     void crearPantallaAyuda();
     void crearPantallaCreditos();
     void configurarVideoFondo();
+    void crearPantallaEpilogoFinal();
     void reiniciarVideoFondo();
     void detenerMultimediaMenu();
     void reproducirMultimediaMenu();
@@ -95,4 +97,11 @@ private:
     int idUltimoNivelJugado;
     QString dificultadUltimoNivel1;
     bool nivel1Completado;
+
+    QWidget *pantallaEpilogoFinal;
+    QLabel *lblImagenGanador;
+    QLabel *lblTextoFinal;
+    QPushButton *btnAceptarFinal;
+    QMediaPlayer *audioRisaDio;
+    QAudioOutput *salidaAudioRisa;
 };

@@ -128,6 +128,7 @@ void Nivel2::actualizarSegundo() {
 }
 
 void Nivel2::actualizarLoop() {
+    // 1. SI LA RONDA ESTÁ EN TRANSICIÓN (Se mantiene tal cual tu GitHub original)
     if (rondaEnTransicion) {
         if (jojo) {
             jojo->setVelocidadX(0);
@@ -149,20 +150,26 @@ void Nivel2::actualizarLoop() {
         return;
     }
 
+    short int probabilidad = rand() % 1000;
+    if (probabilidad < 7) {
+        short int randomX = (rand() % 1000) + 100;
+        short int randomY = (rand() % 250) + 100;
+        QString rutaEfecto = (rand() % 2 == 0)
+                                 ? ":/sprites/SpritesJojoChampionship/onomatopeyaJojo.png"
+                                 : ":/sprites/SpritesJojoChampionship/onomatopeyaJojo2.png";
+
+        new EfectoVisual(randomX, randomY, rutaEfecto, escena);
+    }
+
+    // 3. FLUJO NORMAL DEL JUEGO (Copiado de tu GitHub que funciona perfecto)
     if (jojo) {
         if (Personaje::tiempoDetenido) {
-            // 1. SI EL TIEMPO ESTÁ CONGELADO:
-            jojo->setVelocidadX(0); // Jotaro se queda completamente quieto
-
-            // Forzamos a apagar las banderas de ataque activo para cortar los sonidos en seco
+            jojo->setVelocidadX(0);
             jojo->estaAtacando = false;
             jojo->faseCombo = 0;
-
-            // NOTA: NO llamamos a actualizarAtaque() ni actualizarEspecial() aquí.
-            // Al no llamarlos, sus sonidos y animaciones se detienen por completo.
         }
         else {
-            // 2. SI EL TIEMPO CORRE NORMALMENTE:
+            // SI EL TIEMPO CORRE NORMALMENTE:
             if (jojo->getVelocidadX() > 7)  jojo->setVelocidadX(9);
             if (jojo->getVelocidadX() < -7) jojo->setVelocidadX(-9);
 
@@ -176,13 +183,12 @@ void Nivel2::actualizarLoop() {
             dio->moverse();
         }
 
-        // CONTROL VISUAL Y MULTIMEDIA DE ZA WARUDO
+        // CONTROL VISUAL Y MULTIMEDIA DE ZA WARUDO (Tu lógica original de GitHub)
         if (Personaje::tiempoDetenido) {
             if (!efectoGrisActivo) {
                 efectoGrisActivo = true;
                 aplicarEfectoZaWarudo(true);
 
-                // ACCIÓN CRÍTICA: Pausar la música del Nivel 2 a través de la ventana principal
                 QWidget* par = qobject_cast<QWidget*>(this->parent());
                 if (par) {
                     while (par->parentWidget()) { par = par->parentWidget(); }
@@ -194,7 +200,6 @@ void Nivel2::actualizarLoop() {
                 efectoGrisActivo = false;
                 aplicarEfectoZaWarudo(false);
 
-                // ACCIÓN CRÍTICA: Reanudar la música del Nivel 2
                 QWidget* par = qobject_cast<QWidget*>(this->parent());
                 if (par) {
                     while (par->parentWidget()) { par = par->parentWidget(); }

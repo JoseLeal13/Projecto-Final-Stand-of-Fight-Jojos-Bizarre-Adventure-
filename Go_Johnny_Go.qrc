@@ -6,6 +6,10 @@
         <file>SpritesJojoChampionship/Jotaro Kujo sprites.png</file>
         <file>SpritesJojoChampionship/sprites extras.png</file>
         <file>SpritesJojoChampionship/JoestarChampionship Jaula MMA.png</file>
+        <file>SpritesJojoChampionship/onomatopeyaJojo.png</file>
+        <file>SpritesJojoChampionship/onomatopeyaJojo2.png</file>
+        <file>SpritesJojoChampionship/Jojovictoria.png</file>
+        <file>SpritesJojoChampionship/Diovictoria.png</file>
     </qresource>
     <qresource prefix="/menú">
         <file>Video,Imagenes,Sonido/iconoAltavoz.png</file>
@@ -24,7 +28,7 @@
         <file>EfectosdeAudio/Single muda sound effect.wav</file>
         <file>EfectosdeAudio/Star platinum single ora.wav</file>
         <file>EfectosdeAudio/Za Warudo - Sound Effect.wav</file>
-        <file>EfectosdeAudio/Wryyyyy meme sound effect.mp3</file>
         <file>EfectosdeAudio/muda muda muda sound effect.wav</file>
+        <file>EfectosdeAudio/Wryyyyy meme sound effect.wav</file>
     </qresource>
 </RCC>

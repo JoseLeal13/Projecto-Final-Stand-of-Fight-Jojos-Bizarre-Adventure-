@@ -20,7 +20,7 @@ Jojo::Jojo() : Personaje()
 
     sonidoBasico = new QSoundEffect(this);
     sonidoBasico->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Star platinum single ora.wav"));
-    sonidoBasico->setVolume(0.75f);
+    sonidoBasico->setVolume(0.85f);
 
     sonidoFuerte1 = new QSoundEffect(this);
     sonidoFuerte1->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/ORA ORA ORA - Sound effect.wav"));
@@ -286,10 +286,27 @@ void Jojo::moverse() {
     if (!scene()) return;
 
     if (estadoDano == MUERTO) {
+        vx = 0;
+        float gravedadActual = aceleracion_y;
+        if (animoActual == ENOJADO) {
+            gravedadActual = aceleracion_y * 1.3f;
+        }
+        vy += gravedadActual;
+        if (!verificarColision(x(), y() + vy)) {
+            setPos(x(), y() + vy);
+        } else if (vy > 0) {
+            enSuelo = true;
+            vy = 0;
+        }
         if (!spritesSTANDUP.isEmpty()) {
-            QPixmap f = spritesSTANDUP.at(0);
-            if (!mirandoDerecha) f = f.transformed(QTransform().scale(-1,1));
+            int idx = qBound(0, frameDano, spritesSTANDUP.size() - 1);
+            QPixmap f = spritesSTANDUP.at(idx);
+
+            if (!mirandoDerecha) {
+                f = f.transformed(QTransform().scale(-1, 1));
+            }
             setPixmap(f);
+            setOffset(0, 0);
         }
         return;
     }

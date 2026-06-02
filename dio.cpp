@@ -12,6 +12,10 @@ DIO::DIO(Personaje* jojo) : Personaje()
     mirandoDerecha = false; // DIO arranca mirando a la izquierda hacia Jotaro
     estaCurando = false;
     comboTimeStopPaso = 0;
+    frameActual = 0;
+    contadorAnimacion = 0;
+    estaDefendiendo = false;
+    mirandoDerecha = false;
 
     ticksJugadorLejos = 0;
     contadorGolpesRecibidos = 0;
@@ -28,7 +32,7 @@ DIO::DIO(Personaje* jojo) : Personaje()
     sonidoBasico->setVolume(0.75f);
 
     sonidoFuerte1 = new QSoundEffect(this);
-    sonidoFuerte1->setSource(QUrl("qrc::/Efectos/EfectosdeAudio/Wryyyyy meme sound effect.wav"));
+    sonidoFuerte1->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Wryyyyy meme sound effect.wav"));
     sonidoFuerte1->setVolume(0.90f);
 
     sonidoFuerte2 = new QSoundEffect(this);
@@ -41,7 +45,7 @@ DIO::DIO(Personaje* jojo) : Personaje()
 
     sonidoZaWarudo = new QSoundEffect(this);
     sonidoZaWarudo->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Za Warudo - Sound Effect.wav"));
-    sonidoZaWarudo->setVolume(1.2f);
+    sonidoZaWarudo->setVolume(1.0f);
 
     cargarSprites();
 
@@ -143,7 +147,7 @@ void DIO::cargarSprites() {
         spritesDANO2.append(hoja.copy(295 + (i * 45), 3415, 45, 58));
 
     // ── STANDUP (x1 + x2 + ... = x5?) ────────────────────────────────────
-    spritesSTANDUP.append(hoja.copy(25, 3439, 68, 60));
+    spritesSTANDUP.append(hoja.copy(25, 3484, 60, 60));
     for(int i = 0; i < 2; i++)
         spritesSTANDUP.append(hoja.copy(93 + (i * 45), 3484, 45, 60));
     for(int i = 0; i < 2; i++)
@@ -192,7 +196,6 @@ void DIO::ejecutarCerebro(float dx, float distancia) {
         contraataqueActivo = false;
         return;
     }
-
     bool enAnimDano = (estadoDano == DANO1 || estadoDano == DANO2 || estadoDano == STANDUP);
     if (enAnimDano || estadoDano == MUERTO) return;
 
@@ -445,10 +448,20 @@ void DIO::moverse() {
         ticksEsperaParadoLejos--;
     }
     if (estadoDano == MUERTO) {
+        vx = 0;
+        vy += aceleracion_y;
+        if (!verificarColision(x(), y() + vy)) {
+            setPos(x(), y() + vy);
+        } else if (vy > 0) {
+            enSuelo = true;
+            vy = 0;
+        }
         if (!spritesSTANDUP.isEmpty()) {
-            QPixmap f = spritesSTANDUP.at(0);
+            int idx = qBound(0, frameDano, spritesSTANDUP.size() - 1);
+            QPixmap f = spritesSTANDUP.at(idx);
             if (!mirandoDerecha) f = f.transformed(QTransform().scale(-1,1));
             setPixmap(f);
+            setOffset(0, 0);
         }
         return;
     }
