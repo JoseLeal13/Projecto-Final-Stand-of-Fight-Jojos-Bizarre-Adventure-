@@ -10,12 +10,22 @@
 #include <QSet>
 #include "jotaro.h"
 #include <QList>
-// #include "gyro.h"       // Descomenta cuando agregues a Gyro
-#include "steelball.h"  // Descomenta cuando agregues la bola
+#include "steelball.h"
+// Sin clase EfectoVisual -- la explosion dorada la manejamos con un struct simple aqui mismo
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; } // Requerido para el puntero ui
 QT_END_NAMESPACE
+
+// Struct para la explosion dorada cuando una bola golpea a Jotaro.
+// Guardamos los frames, en cual vamos, el contador de ticks y el item en la escena.
+// Es más simple que crear una clase entera para esto.
+struct EfectoExplosion {
+    QList<QPixmap> frames;
+    int frameActual;
+    int contadorFrames;
+    QGraphicsPixmapItem *item; // El item que vive en la escena y muestra el pixmap
+};
 
 class MainWindow : public QMainWindow
 {
@@ -69,10 +79,19 @@ private:
     int retardoFrames;
 
     // ── NUEVAS VARIABLES PARA EL SURVIVAL DE LAS STEEL BALLS ──
-    QList<SteelBall*> esferasActivas; // El almacén de las esferas que viajan por el mapa
-    int contadorSpawnBolas;           // El reloj que mide cuándo Gyro lanza otra bola
-    int tiempoSurvival;               // Segundos que faltan para ganar (ej: 30)
-    int framesParaSegundo;            // Cuenta los ticks hasta llegar a 60 (1 segundo real)
+    QList<SteelBall*> esferasActivas;
+    int contadorSpawnBolas;
+    int tiempoSurvival;
+    int framesParaSegundo;
+
+    // Lista de explosiones doradas activas (cuando una bola golpea a Jotaro)
+    // Cada explosion es un struct simple con sus frames y un QGraphicsPixmapItem en la escena
+    QList<EfectoExplosion> explosionesActivas;
+
+    // Frames de la explosion dorada, los cargamos una vez en el constructor
+    // y los reutilizamos para cada explosion que aparezca
+    QList<QPixmap> framesExplosion;
+    void cargarFramesExplosion(); // Carga los 4 frames dorados del sprite sheet
 
 };
 

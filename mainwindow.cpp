@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <cstdlib> // Necesario para rand() y srand()
-#include <ctime>   // Necesario para time()
+#include <cstdlib>
+#include <ctime>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -61,7 +61,11 @@ MainWindow::MainWindow(QWidget *parent)
     frameActual    = 0;
     contadorFrames = 0;
     retardoFrames  = 8;
-    contadorSpawnBolas = 0; // Inicializamos el contador de esferas de forma segura
+    contadorSpawnBolas = 0;
+
+    // Cargar los frames de la explosion dorada una sola vez al inicio
+    // (los reutilizamos para cada explosion que aparezca en pantalla)
+    cargarFramesExplosion();
 
     // ── TIMER DEL JUEGO SINCRONIZADO A 60 FPS ──
     timer = new QTimer(this);
@@ -80,6 +84,29 @@ void MainWindow::actualizar()
 
     // ── A. PROCESAR ESTADOS DE INMUNIDAD Y TIEMPOS SURVIVAL ──
     jotaro_player->actualizarInvulnerabilidad();
+
+    // ── B. ACTUALIZAR EXPLOSIONES DORADAS ACTIVAS ──
+    // Recorremos al revés para poder borrar sin problema de índices
+    for (int i = explosionesActivas.size() - 1; i >= 0; --i) {
+        EfectoExplosion &ef = explosionesActivas[i];
+        ef.contadorFrames++;
+
+        // Cada 9 ticks avanzamos un frame de la explosion
+        if (ef.contadorFrames >= 9) {
+            ef.contadorFrames = 0;
+            ef.frameActual++;
+
+            if (ef.frameActual < ef.frames.size()) {
+                // Actualizar el pixmap del item en la escena con el nuevo frame
+                ef.item->setPixmap(ef.frames[ef.frameActual]);
+            } else {
+                // Ya terminó la animacion: sacamos el item de la escena y lo borramos
+                scene->removeItem(ef.item);
+                delete ef.item;
+                explosionesActivas.removeAt(i);
+            }
+        }
+    }
 
     framesParaSegundo++;
     if (framesParaSegundo >= 60) { // Si el temporizador contó 60 ticks, pasó 1 segundo real
@@ -170,7 +197,24 @@ void MainWindow::actualizar()
                 jotaro_player->recibirDanio(10);
             }
 
-            // Borrar la bola inmediatamente para que no deje "zonas fantasmas" de daño
+            // Crear la explosion dorada como un QGraphicsPixmapItem simple en la escena
+            // No necesitamos una clase, solo un item que cambia de pixmap cada N ticks
+            if (!framesExplosion.isEmpty()) {
+                EfectoExplosion ef;
+                ef.frames        = framesExplosion; // copia de los frames ya cargados
+                ef.frameActual   = 0;
+                ef.contadorFrames = 0;
+
+                // Crear el item y centrarlo en Jotaro (el offset 35,50 es el centro aprox)
+                ef.item = new QGraphicsPixmapItem(ef.frames[0]);
+                ef.item->setPos(jotaro_player->x() + 35 - ef.frames[0].width()  / 2.0,
+                                jotaro_player->y() + 50 - ef.frames[0].height() / 2.0);
+                ef.item->setZValue(10); // Que aparezca encima de todo
+                scene->addItem(ef.item);
+                explosionesActivas.append(ef);
+            }
+
+            // Borrar la bola para que no siga dando daño
             scene->removeItem(ball);
             esferasActivas.removeAt(i);
             delete ball;
@@ -183,20 +227,20 @@ void MainWindow::actualizar()
     if (atacando) {
         for (int i = 0; i < esferasActivas.size(); ++i) {
             SteelBall *ball = esferasActivas[i];
-            if (ball->getTipo() == SteelBall::VerdeGolpeable) {
 
-                //  CORRECCIÓN DE HITBOX DE ATAQUE: Pasar a coordenadas globales
-                QRectF attackGlobal = jotaro_player->getAttackHitbox().translated(jotaro_player->pos());
+            // Solo golpear bolas que NO esten ya cayendo (para no golpearla dos veces)
+            if (ball->getTipo() == SteelBall::VerdeGolpeable && !ball->estaCayendo()) {
+
+                // getAttackHitbox() ya viene en coordenadas globales, sin translated()
+                QRectF attackGlobal = jotaro_player->getAttackHitbox();
                 QRectF hitboxBolaGlobal = ball->getHitbox().translated(ball->pos());
 
                 if (attackGlobal.intersects(hitboxBolaGlobal)) {
-                    qDebug() << " ¡ORA! Bola verde destruida con éxito.";
+                    qDebug() << "👊 ¡ORA! Bola verde golpeada, inicia caida.";
+
+                    // El destello morado lo maneja la propia SteelBall en su paint()
+                    // cuando activamos la caida con recibirGolpe()
                     ball->recibirGolpe();
-
-                    // TODO: Aquí es donde pintaremos el "EFECTO DE IMPACTO" antes de borrar la bola
-
-                    esferasActivas.removeAt(i);
-                    --i;
                 }
             }
         }
@@ -241,6 +285,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         atacando = true;
     }
 
+
     if (event->key() == Qt::Key_H) {
         mostrarHitbox = !mostrarHitbox;
     }
@@ -254,6 +299,41 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 
     if (event->key() == Qt::Key_J) {
         atacando = false;
+    }
+}
+
+// Carga los 4 frames de la explosion dorada una sola vez al iniciar el juego.
+// Los guardamos en framesExplosion y los copiamos cada vez que haya un impacto.
+// Coordenadas sacadas midiendo el sprite sheet con Python.
+void MainWindow::cargarFramesExplosion()
+{
+    QPixmap sprites(":/sprites_juego.png");
+
+    // Fila de explosion dorada: y=811 a y=899, 4 frames de humo y destello
+    struct { int x, w; } data[] = {
+        {1099,  53},   // frame 0: humo pequeño
+        {1170,  81},   // frame 1: humo creciendo
+        {1266, 102},   // frame 2: explosion grande
+        {1370, 126},   // frame 3: destello final dorado
+    };
+
+    QColor fondoColor(30, 27, 60);
+    for (auto &d : data) {
+        QPixmap frame = sprites.copy(d.x, 811, d.w, 88);
+
+        // Quitar el fondo oscuro del sprite sheet
+        QImage img = frame.toImage().convertToFormat(QImage::Format_ARGB32);
+        for (int y = 0; y < img.height(); y++) {
+            for (int x = 0; x < img.width(); x++) {
+                QColor px = img.pixelColor(x, y);
+                if (abs(px.red()   - fondoColor.red())   < 10 &&
+                    abs(px.green() - fondoColor.green()) < 10 &&
+                    abs(px.blue()  - fondoColor.blue())  < 10) {
+                    img.setPixelColor(x, y, QColor(0,0,0,0));
+                }
+            }
+        }
+        framesExplosion.append(QPixmap::fromImage(img));
     }
 }
 //gongori

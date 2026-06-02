@@ -15,12 +15,22 @@ SteelBall::SteelBall(TipoBola tipo, TipoTrayectoria trayectoria, qreal posX, qre
     velocidadX = 5.0 * dirX;
     velocidadY = 0.0;
 
+    // La bola empieza en modo normal, no cayendo
+    cayendo = false;
+    velocidadCaidaY = 0.0;
+
+    // El efecto morado empieza desactivado, se activa al recibir golpe
+    mostrandoEfecto = false;
+    frameEfecto     = 0;
+    contadorEfecto  = 0;
+
     // ── INICIALIZACIÓN DE LA ANIMACIÓN ──
     frameActual = 0;
     contadorFrames = 0;
     retardoFrames = 7;
 
     cargarGraficos();
+    cargarEfectoGolpe(); // Cargamos los frames del destello morado también
 }
 
 void SteelBall::cargarGraficos()
@@ -69,7 +79,34 @@ void SteelBall::avanzarFisica()
         }
     }
 
-    // 2. ── CÁLCULO DE LAS TRAYECTORIAS MATEMÁTICAS ──
+    // 2. ── MODO CAÍDA (cuando Jotaro golpea la bola) ──
+    // Si estamos cayendo ignoramos la trayectoria normal y aplicamos gravedad simple
+    if (cayendo) {
+        // La gravedad la acelera hacia abajo cada frame
+        // El 0.6 es la aceleracion de caida, si se ve muy lento subir ese valor
+        velocidadCaidaY += 0.6;
+
+        qreal nuevoX = x() + velocidadX * 0.4; // Va perdiendo velocidad horizontal
+        qreal nuevoY = y() + velocidadCaidaY;
+        setPos(nuevoX, nuevoY);
+
+        // Avanzar el destello morado mientras este activo
+        // Cada 6 ticks salta al siguiente frame; cuando se acaban se desactiva solo
+        if (mostrandoEfecto) {
+            contadorEfecto++;
+            if (contadorEfecto >= 6) {
+                contadorEfecto = 0;
+                frameEfecto++;
+                if (frameEfecto >= framesEfectoGolpe.size()) {
+                    mostrandoEfecto = false; // Ya termino, dejamos de dibujarlo
+                }
+            }
+            update(); // Pedir redibujado para que se vea el cambio de frame
+        }
+        return; // No ejecutar la fisica normal
+    }
+
+    // 3. ── CÁLCULO DE LAS TRAYECTORIAS MATEMÁTICAS (modo normal) ──
     tiempoInterno += 0.05;
 
     qreal nuevoX = x() + velocidadX;
@@ -100,10 +137,40 @@ void SteelBall::avanzarFisica()
 void SteelBall::recibirGolpe()
 {
     if (tipoActual == VerdeGolpeable) {
-        if (scene()) {
-            scene()->removeItem(this);
-            delete this;
-        }
+        // Activar fisica de caida: sale hacia arriba primero, luego cae
+        cayendo = true;
+        velocidadCaidaY = -5.0;
+        velocidadX = (dirX > 0) ? 2.0 : -2.0;
+
+        // Activar el destello morado que se dibuja encima de la bola
+        // (los frames ya estan cargados desde el constructor)
+        mostrandoEfecto = true;
+        frameEfecto    = 0;
+        contadorEfecto = 0;
+
+        qDebug() << "🥊 Bola verde golpeada, iniciando caida + efecto morado";
+    }
+}
+
+// Cargamos los 6 frames del destello morado del sprite sheet
+// Coordenadas sacadas midiendo el PNG con Python
+void SteelBall::cargarEfectoGolpe()
+{
+    QPixmap sprites(":/sprites_juego.png");
+
+    // Fila de estrellas moradas: y=97 a y=191, 6 frames encogiendo
+    struct { int x, w; } data[] = {
+        {1108, 92},  // frame 0: estrella grande
+        {1217, 80},  // frame 1: un poco mas chica
+        {1313, 68},  // frame 2: mediana
+        {1397, 51},  // frame 3: más pequeña
+        {1461, 33},  // frame 4: pequeña
+        {1506,  8},  // frame 5: casi nada
+    };
+
+    for (auto &d : data) {
+        QPixmap frame = sprites.copy(d.x, 97, d.w, 94);
+        framesEfectoGolpe.append(quitarFondo(frame));
     }
 }
 
@@ -135,26 +202,43 @@ QPixmap SteelBall::quitarFondo(const QPixmap &original)
 // ═══════════════════════════════════════════════════════════════════════════
 //  SISTEMA DE COLISIONES CORREGIDO (Para que Qt NO ignore los impactos)
 // ═══════════════════════════════════════════════════════════════════════════
-// 1. EL RECTÁNGULO LÍMITE (Obliga a Qt a saber cuánto mide tu pelota)
+// 1. EL RECTÁNGULO LÍMITE
+// Cuando hay efecto activo lo hacemos más grande para que Qt redibuje bien el destello
+// que sobresale del tamaño normal de la bola (92x94 vs 78x37)
 QRectF SteelBall::boundingRect() const
 {
-    // Tus sprites miden 78 de ancho y 37 de alto.
-    // Esto le dice al motor el tamaño físico real de la caja.
+    if (mostrandoEfecto) {
+        // El efecto morado mide hasta 92x94, lo centramos respecto a la bola
+        // offset: (92-78)/2 = 7 en x, (94-37)/2 = 28 en y
+        return QRectF(-7, -28, 92, 94);
+    }
     return QRectF(0, 0, 78, 37);
 }
 
-// 2. EL MÉTODO PAINT (¡Sigue aquí! Dibuja el contorno para que lo veas avanzar)
+// 2. EL MÉTODO PAINT
 void SteelBall::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    // 1. Pinta el sprite animado
+    // Primero dibujamos el efecto morado SI está activo (va DEBAJO de la bola visualmente
+    // pero como es grande se ve alrededor)
+    if (mostrandoEfecto && frameEfecto < framesEfectoGolpe.size()) {
+        painter->save();
+        const QPixmap &ef = framesEfectoGolpe[frameEfecto];
+        // Centramos el efecto respecto al centro de la bola (39, 18)
+        qreal ox = 39.0 - ef.width()  / 2.0;
+        qreal oy = 18.0 - ef.height() / 2.0;
+        painter->drawPixmap(ox, oy, ef);
+        painter->restore();
+    }
+
+    // Luego dibujamos la bola encima
     QGraphicsPixmapItem::paint(painter, option, widget);
 
-    // 2. FIANZA DE SEGURIDAD: Si no hay escena todavía, salimos para evitar el crash
+    // Seguridad: si no hay escena todavia, salimos
     if (!scene() || scene()->views().isEmpty()) {
         return;
     }
 
-    // 3. Comprobar si debemos mostrar la hitbox (Depuración)
+    // Hitbox de debug
     bool mostrarH = false;
     QWidget *topWidget = scene()->views().first()->window();
     QMainWindow *mainWin = qobject_cast<QMainWindow*>(topWidget);
@@ -162,7 +246,6 @@ void SteelBall::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         mostrarH = mainWin->property("mostrarHitbox").toBool();
     }
 
-    // Dibujamos la hitbox visual si corresponde
     if (mostrarH || true) {
         painter->save();
         if (tipoActual == VerdeGolpeable) {
@@ -170,7 +253,7 @@ void SteelBall::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         } else {
             painter->setPen(QPen(Qt::red, 2, Qt::SolidLine));
         }
-        painter->drawRect(this->boundingRect());
+        painter->drawRect(QRectF(0, 0, 78, 37)); // Siempre la hitbox real, no el bounding grande
         painter->restore();
     }
 }

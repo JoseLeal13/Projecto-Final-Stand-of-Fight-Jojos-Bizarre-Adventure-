@@ -92,32 +92,59 @@ void jotaro::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
+    // ── IMPORTANTE: guardamos el estado del painter antes de tocar nada ──
+    // Esto evita que configuraciones previas de Qt (del QGraphicsPixmapItem base)
+    // causen ese bug visual donde el sprite se ve raro cuando la hitbox está oculta.
+    // Básicamente "limpiamos la pizarra" antes de dibujar encima.
+    painter->save();
+
     // 1. CONTROL DEL EFECTO VISUAL DE DAÑO (Parpadeo)
     if (invencible && (contadorInvencible % 8 > 4)) {
-        // Si está invencible, en algunos frames saltamos el dibujo del sprite,
-        // pero SIEMPRE permitimos que se procese el código de abajo si se activa la hitbox
+        // En estos frames del parpadeo no dibujamos el sprite (efecto de daño)
+        // pero igual llegamos al restore() de abajo para no dejar el painter sucio
     } else {
         QPixmap spriteADibujar;
 
         // Seleccionar el Frame correcto según el estado interno
         if(atacando) {
+            // Si los frames de ataque están vacíos por algún error de carga, no crashear
+            if(framesAtaqueDerecha.isEmpty()) {
+                painter->restore();
+                return;
+            }
             int idx = frameActual % framesAtaqueDerecha.size();
             spriteADibujar = (direccion == 2) ? framesAtaqueIzquierda[idx] : framesAtaqueDerecha[idx];
         } else if(enMovimiento) {
+            // Misma protección para frames de movimiento
+            if(framesMovimiento[direccion].isEmpty()) {
+                painter->restore();
+                return;
+            }
             int idx = frameActual % framesMovimiento[direccion].size();
             spriteADibujar = framesMovimiento[direccion][idx];
         } else {
+            // Frame quieto, el más básico
+            if(framesQuieto[direccion].isEmpty()) {
+                painter->restore();
+                return;
+            }
             spriteADibujar = framesQuieto[direccion][0];
         }
 
-        int drawX = 0;
-        if(atacando && direccion == 2) {
-            drawX -= 100;
+        // Solo dibujar si el pixmap es válido (no está nulo/vacío)
+        if(!spriteADibujar.isNull()) {
+            int drawX = 0;
+            if(atacando && direccion == 2) {
+                drawX -= 100; // corrimiento para el ataque izquierda
+            }
+            // Dibujamos el sprite manualmente, ignorando el pixmap del item base
+            painter->drawPixmap(drawX, 0, spriteADibujar);
         }
-
-        // Dibujar el personaje
-        painter->drawPixmap(drawX, 0, spriteADibujar);
     }
+
+    // Restauramos el painter a como estaba antes de que llegáramos
+    // Esto es lo que faltaba y causaba el bug visual
+    painter->restore();
 
     // ── 2. DIBUJAR HITBOXES VISUALES CUANDO SE PRESIONA LA 'H' ──
     if (mostrarHitboxInterna) {
