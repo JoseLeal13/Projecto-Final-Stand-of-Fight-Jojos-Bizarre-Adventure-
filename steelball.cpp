@@ -1,6 +1,8 @@
 #include "steelball.h"
 #include <QPainter>
 #include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QMainWindow>
 
 SteelBall::SteelBall(TipoBola tipo, TipoTrayectoria trayectoria, qreal posX, qreal posY, int direccionX)
     : tipoActual(tipo), trayectoriaActual(trayectoria), dirX(direccionX)
@@ -126,4 +128,44 @@ QPixmap SteelBall::quitarFondo(const QPixmap &original)
         }
     }
     return QPixmap::fromImage(img);
+
+}
+
+// Agrega esto en tu steelball.cpp (Asegúrate de incluir <QPainter> arriba si no está)
+void SteelBall::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    // 1. Esto le dice a Qt que pinte la bola girando tal y como ya lo hace de forma nativa
+    QGraphicsPixmapItem::paint(painter, option, widget);
+
+    // 2. Dibujar contorno verde o amarillo para ver la hitbox de la bola
+    // Buscaremos la ventana principal para saber si la 'H' está activa
+    bool mostrarH = false;
+    if (scene() && !scene()->views().isEmpty()) {
+        QWidget *topWidget = scene()->views().first()->window();
+        QMainWindow *mainWin = qobject_cast<QMainWindow*>(topWidget);
+        if (mainWin) {
+            // Evaluamos la bandera de la ventana
+            mostrarH = mainWin->property("mostrarHitbox").toBool();
+        }
+    }
+
+    // Si la 'H' está activa en el juego, pintamos el borde de la pelotita
+    if (mostrarH || true) { // Reemplaza por true temporalmente si quieres verlas SIEMPRE de entrada
+        painter->setPen(QPen(Qt::yellow, 2, Qt::SolidLine));
+        painter->drawRect(boundingRect()); // Dibuja la caja exacta que colisiona
+    }
+}
+
+bool SteelBall::collidesWithItem(const QGraphicsItem *other, Qt::ItemSelectionMode mode) const
+{
+    Q_UNUSED(mode);
+    if (!other) return false;
+
+    // Hitbox global de la bola
+    QRectF miHitboxGlobal = this->getHitbox().translated(this->pos());
+
+    // Compara contra las coordenadas que tiene el otro objeto en la escena
+    QRectF otraHitboxGlobal = other->boundingRect().translated(other->pos());
+
+    return miHitboxGlobal.intersects(otraHitboxGlobal);
 }

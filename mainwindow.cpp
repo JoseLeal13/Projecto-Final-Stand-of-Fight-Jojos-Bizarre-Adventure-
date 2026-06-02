@@ -12,6 +12,10 @@ MainWindow::MainWindow(QWidget *parent)
     // Inicializar la semilla para los números aleatorios de Gyro
     std::srand(std::time(nullptr));
 
+    // ── INICIALIZACIÓN DEL CONTROL SURVIVAL POR TIEMPO ──
+    tiempoSurvival = 60;     // Sobrevive 30 segundos para ganar
+    framesParaSegundo = 0;
+
     // ── CONFIGURACIÓN DEL ESCENARIO ──
     int anchoEscena = 800;
     int altoEscena  = 600;
@@ -20,8 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     scene->setSceneRect(0, 0, anchoEscena, altoEscena);
 
     // Fondo asignado como un ítem de la escena
-    //fondoPixmap = QPixmap(":/fondo_juego.png");
-    fondoPixmap = QPixmap(":/zona_entrenamiento.png");
+    fondoPixmap = QPixmap(":/fondo_juego.png");
     itemEscenario = new QGraphicsPixmapItem(
         fondoPixmap.scaled(anchoEscena, altoEscena, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
         );
@@ -75,6 +78,29 @@ void MainWindow::actualizar()
 {
     if (!jotaro_player) return;
 
+    // ── A. PROCESAR ESTADOS DE INMUNIDAD Y TIEMPOS SURVIVAL ──
+    jotaro_player->actualizarInvulnerabilidad();
+
+    framesParaSegundo++;
+    if (framesParaSegundo >= 60) { // Si el temporizador contó 60 ticks, pasó 1 segundo real
+        framesParaSegundo = 0;
+        if (tiempoSurvival > 0) {
+            tiempoSurvival--;
+            qDebug() << "TIEMPO RESTANTE:" << tiempoSurvival << "s | VIDA DE JOTARO:" << jotaro_player->getVida();
+        } else {
+            qDebug() << "¡¡VICTORIA!! Jotaro sobrevivió al combate de Steel Balls.";
+            timer->stop(); // Congela el juego al ganar
+            return;
+        }
+    }
+
+    // Terminar juego inmediatamente si Jotaro se queda sin vida
+    if (jotaro_player->getVida() <= 0) {
+        qDebug() << "── GAME OVER ── Jotaro se quedó sin energía.";
+        timer->stop(); // Congela el juego
+        return;
+    }
+
     // 1. Detectar si hay movimiento revisando el contenedor de teclas
     enMovimiento = teclasPresionadas.contains(Qt::Key_W) ||
                    teclasPresionadas.contains(Qt::Key_S) ||
@@ -84,14 +110,14 @@ void MainWindow::actualizar()
     jotaro_player->setEnMovimiento(enMovimiento);
     jotaro_player->setAtacando(atacando);
 
-    // 2. Procesar direcciones según los controles activos (Corregido el eje arriba/abajo)
+    // 2. Procesar direcciones según los controles activos
     if (teclasPresionadas.contains(Qt::Key_S)) {
         jotaro_player->moveDown();
-        jotaro_player->setDireccion(0); // Abajo según tu Y_DIR
+        jotaro_player->setDireccion(1); // Modificado a 1 según tu Y_DIR real (Abajo)
     }
     else if (teclasPresionadas.contains(Qt::Key_W)) {
         jotaro_player->moveUp();
-        jotaro_player->setDireccion(1); // Arriba según tu Y_DIR
+        jotaro_player->setDireccion(0); // Modificado a 0 según tu Y_DIR real (Arriba)
     }
     else if (teclasPresionadas.contains(Qt::Key_A)) {
         jotaro_player->moveLeft();
@@ -115,13 +141,14 @@ void MainWindow::actualizar()
         jotaro_player->actualizarFrame(frameActual);
     }
 
-    // 4. ACTUALIZAR LAS FÍSICAS DE TODAS LAS BOLAS EN PANTALLA
+    // 4. ACTUALIZAR LAS FÍSICAS DE TODAS LAS BOLAS EN PANTALLA Y VERIFICAR DAÑO
+    // 4. ACTUALIZAR LAS FÍSICAS DE TODAS LAS BOLAS Y VERIFICAR DAÑO (VERSIÓN ESCENA)
     for (int i = 0; i < esferasActivas.size(); ++i) {
         SteelBall *ball = esferasActivas[i];
         ball->avanzarFisica();
 
-        // Verificar si la bola salió de los límites para borrarla
-        if (ball->x() < -50 || ball->x() > 850 || ball->y() < -50 || ball->y() > 650) {
+        // Verificar si la bola salió de los límites para borrarla de forma segura
+        if (ball->x() < -100 || ball->x() > 900 || ball->y() < -100 || ball->y() > 700) {
             scene->removeItem(ball);
             esferasActivas.removeAt(i);
             delete ball;
@@ -129,19 +156,28 @@ void MainWindow::actualizar()
             continue;
         }
 
-        // DETECTAR COLISIONES CONTRA JOTARO
-        if (jotaro_player->collidesWithItem(ball)) {
+        // ── DETECCIÓN TOTALMENTE INMUNE A ERRORES DE TRASLACIÓN ──
+        // Le preguntamos a la escena qué ítems están colisionando directamente con Jotaro
+        QList<QGraphicsItem*> itemsColisionando = scene->collidingItems(jotaro_player);
+
+        // Si la lista contiene esta bola específica, ¡es un golpe real en pantalla!
+        if (itemsColisionando.contains(ball)) {
+
             if (ball->getTipo() == SteelBall::RojaEsquivable) {
-                qDebug() << "¡Daño inevitable! Golpeado por bola ROJA.";
+                qDebug() << "💥 ¡IMPACTO REAL! Bola ROJA inflige daño (-20).";
+                jotaro_player->recibirDanio(20);
             } else {
-                qDebug() << "¡No la golpeaste a tiempo! Daño por bola VERDE.";
+                qDebug() << "🟢 ¡IMPACTO REAL! Bola VERDE inflige daño (-10).";
+                jotaro_player->recibirDanio(10);
             }
 
+            // Borrar la bola inmediatamente para que no deje "zonas fantasmas" de daño
             scene->removeItem(ball);
             esferasActivas.removeAt(i);
             delete ball;
             --i;
         }
+
     }
 
     // 5. DETECTAR SI JOTARO ESTÁ ATACANDO Y GOLPEA UNA BOLA VERDE
@@ -149,9 +185,17 @@ void MainWindow::actualizar()
         for (int i = 0; i < esferasActivas.size(); ++i) {
             SteelBall *ball = esferasActivas[i];
             if (ball->getTipo() == SteelBall::VerdeGolpeable) {
-                if (jotaro_player->getAttackHitbox().intersects(ball->getHitbox())) {
-                    qDebug() << "¡ORA! Bola verde destruida.";
+
+                //  CORRECCIÓN DE HITBOX DE ATAQUE: Pasar a coordenadas globales
+                QRectF attackGlobal = jotaro_player->getAttackHitbox().translated(jotaro_player->pos());
+                QRectF hitboxBolaGlobal = ball->getHitbox().translated(ball->pos());
+
+                if (attackGlobal.intersects(hitboxBolaGlobal)) {
+                    qDebug() << " ¡ORA! Bola verde destruida con éxito.";
                     ball->recibirGolpe();
+
+                    // TODO: Aquí es donde pintaremos el "EFECTO DE IMPACTO" antes de borrar la bola
+
                     esferasActivas.removeAt(i);
                     --i;
                 }
@@ -161,30 +205,30 @@ void MainWindow::actualizar()
 
     // 6. LÓGICA DE SPAWN: GYRO SE TELETRANSPORTA Y LANZA LAS ESFERAS
     contadorSpawnBolas++;
-    if (contadorSpawnBolas >= 90) { // Cada 1.5 segundos (90 frames / 60 fps) para más dinamismo
+    if (contadorSpawnBolas >= 90) { // Cada 1.5 segundos
         contadorSpawnBolas = 0;
 
-        // Cambiar a Gyro de lugar en posiciones fijas del mapa
         int posicionesY[3] = {150, 300, 450};
         int nuevaY = posicionesY[std::rand() % 3];
-        int nuevaX = (std::rand() % 2 == 0) ? 50 : 700;
+        int nuevaX = (std::rand() % 2 == 0) ? 50 : 50;
         gyroItem->setPos(nuevaX, nuevaY);
 
-        // Si aparece a la izquierda (50), dispara a la derecha (1). Si no, a la izquierda (-1)
         int dirDisparo = (nuevaX < 400) ? 1 : -1;
 
-        // Elegir Tipo y Trayectoria Aleatoria Matemáticamente Segura
         SteelBall::TipoBola tipoRandom = (std::rand() % 2 == 0) ? SteelBall::VerdeGolpeable : SteelBall::RojaEsquivable;
         SteelBall::TipoTrayectoria trayectRandom = static_cast<SteelBall::TipoTrayectoria>(std::rand() % 3);
 
-        // Crear la bola e ingresarla al motor físico de la escena
         SteelBall *nuevaBola = new SteelBall(tipoRandom, trayectRandom, nuevaX, nuevaY + 30, dirDisparo);
         scene->addItem(nuevaBola);
         esferasActivas.append(nuevaBola);
     }
 
+    // Asegurar que se le avise a Jotaro si dibuja o no sus cajas al presionar 'H'
     if (mostrarHitbox) {
+        jotaro_player->setMostrarHitbox(true);
         scene->update();
+    } else {
+        jotaro_player->setMostrarHitbox(false);
     }
 }
 

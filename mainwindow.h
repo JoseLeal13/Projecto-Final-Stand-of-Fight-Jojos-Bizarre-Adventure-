@@ -35,7 +35,7 @@ private slots:
     void actualizar();
 
 private:
-    Ui::MainWindow *ui; // <-- Arregla el error: 'class MainWindow does not have any field named ui'
+    Ui::MainWindow *ui;
 
     // El motor gráfico que usa tu amigo
     QGraphicsScene *scene;
@@ -45,11 +45,13 @@ private:
     QGraphicsPixmapItem *itemEscenario;
     QGraphicsPixmapItem *gyroItem;
     QSet<int> teclasPresionadas; // Almacén de teclas activas
+
+
     jotaro *jotaro_player;       // Puntero a tu objeto adaptado
     QPixmap fondoPixmap;
 
-    // Instancia de tu personaje (ahora es un puntero porque se añade a la escena)
-    jotaro *player;
+
+
 
     // Banderas de control de movimiento (Tus variables originales intactas)
     bool upPressed;
@@ -65,9 +67,13 @@ private:
     int frameActual;
     int contadorFrames;
     int retardoFrames;
+
     // ── NUEVAS VARIABLES PARA EL SURVIVAL DE LAS STEEL BALLS ──
     QList<SteelBall*> esferasActivas; // El almacén de las esferas que viajan por el mapa
-    int contadorSpawnBolas;          // El reloj que mide cuándo Gyro lanza otra bola
+    int contadorSpawnBolas;           // El reloj que mide cuándo Gyro lanza otra bola
+    int tiempoSurvival;               // Segundos que faltan para ganar (ej: 30)
+    int framesParaSegundo;            // Cuenta los ticks hasta llegar a 60 (1 segundo real)
+
 };
 
 #endif // MAINWINDOW_H

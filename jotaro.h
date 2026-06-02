@@ -12,7 +12,7 @@ class jotaro : public Personaje
 public:
     jotaro();
 
-    // Identificador único de tipo (Estilo de tu amigo para detectar quién es quién)
+    // Identificador único de tipo
     enum { Type = UserType + 2 };
     int type() const override { return Type; }
 
@@ -28,17 +28,26 @@ public:
     void moveRight();
 
     // Getters lógicos para tus hitboxes y estados
-    QRectF getHitbox();
-    QRectF getAttackHitbox();
+    QRectF getHitbox();        // Devuelve la hitbox corporal precisa para colisiones
+    QRectF getAttackHitbox();  // Devuelve la hitbox de los puños
 
     void setDireccion(int dir);
     void setAtacando(bool status);
     void setEnMovimiento(bool status);
     void actualizarFrame(int frameActualIndex);
 
+    // ── NUEVOS MÉTODOS DE SALUD Y CONTROL DEL SURVIVAL ──
+    int getVida() const { return vida; }
+    bool esInvencible() const { return invencible; }
+    void recibirDanio(int cantidad);
+    void actualizarInvulnerabilidad();
+
     // Métodos obligatorios de Qt para que el personaje se dibuje SOLO en la escena
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+
+    void setMostrarHitbox(bool status) { mostrarHitboxInterna = status; update(); }
+
 
 private:
     // Variables de estado de animación
@@ -48,6 +57,12 @@ private:
     bool enMovimiento;
     bool atacando;
     int frameActual;
+
+    // ── NUEVAS VARIABLES PARA EL DAÑO POR TIEMPO ──
+    int vida;
+    bool invencible;
+    int contadorInvencible; // Controla cuánto tiempo dura el parpadeo en frames
+    bool mostrarHitboxInterna = false;
 
     // Contenedores de tus sprites (Mudados desde MainWindow)
     QList<QPixmap> framesQuieto[4];

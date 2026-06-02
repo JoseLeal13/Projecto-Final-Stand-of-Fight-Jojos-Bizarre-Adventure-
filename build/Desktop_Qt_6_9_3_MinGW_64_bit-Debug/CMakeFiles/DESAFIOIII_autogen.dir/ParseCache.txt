@@ -17,6 +17,7 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/mainwindow.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/q20utility.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/q23utility.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qabstracteventdispatcher.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qabstractitemmodel.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qalgorithms.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qanystringview.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qarraydata.h
@@ -93,6 +94,7 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/mainwindow.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qprocessordetection.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qrect.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qrefcount.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qregularexpression.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qscopedpointer.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qscopeguard.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qset.h
@@ -189,6 +191,7 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/mainwindow.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qtguiexports.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qtguiglobal.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qtransform.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qvalidator.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qvector2d.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qvectornd.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qwindowdefs.h
@@ -197,14 +200,22 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/mainwindow.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsScene
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsView
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/QMainWindow
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/QStyleOptionGraphicsItem
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractscrollarea.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractslider.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractspinbox.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qframe.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsitem.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsscene.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsview.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qmainwindow.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qrubberband.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qscrollarea.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qsizepolicy.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qslider.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qstyle.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qstyleoption.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabbar.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabwidget.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgets-config.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgetsexports.h
@@ -811,8 +822,8 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/personaje.h
  mdp:C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/wchar.h
  mdp:C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/DESAFIOIII_autogen/moc_predefs.h
  mdp:C:/Users/Emmanuel/Documents/DESAFIOIII/personaje.h
-C:/Users/Emmanuel/Documents/DESAFIOIII/main.cpp
 C:/Users/Emmanuel/Documents/DESAFIOIII/gyrozeppeli.h
+C:/Users/Emmanuel/Documents/DESAFIOIII/main.cpp
 C:/Users/Emmanuel/Documents/DESAFIOIII/mainwindow.cpp
  uic:ui_mainwindow.h
 C:/Users/Emmanuel/Documents/DESAFIOIII/personaje.cpp
@@ -830,6 +841,7 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/steelball.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/q20type_traits.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/q20utility.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/q23utility.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qabstractitemmodel.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qalgorithms.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qanystringview.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qarraydata.h
@@ -858,6 +870,7 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/steelball.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qdarwinhelpers.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qdatastream.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qdebug.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qendian.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qexceptionhandling.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qflags.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qfloat16.h
@@ -875,6 +888,7 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/steelball.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qlatin1stringview.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qline.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qlist.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qlocale.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qlogging.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qmalloc.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qmap.h
@@ -895,6 +909,7 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/steelball.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qprocessordetection.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qrect.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qrefcount.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qregularexpression.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qscopedpointer.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qscopeguard.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qset.h
@@ -948,28 +963,62 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/steelball.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qxptype_traits.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtCore/qyieldcpu.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/QImage
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/QPainter
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/QPixmap
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qaction.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qbitmap.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qbrush.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qcolor.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qcursor.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qfont.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qfontinfo.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qfontmetrics.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qfontvariableaxis.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qicon.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qimage.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qkeysequence.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qpaintdevice.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qpainter.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qpainterpath.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qpalette.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qpen.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qpixelformat.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qpixmap.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qpolygon.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qregion.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qrgb.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qrgba64.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qtextoption.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qtgui-config.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qtguiexports.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qtguiglobal.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qtransform.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qvalidator.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qwindowdefs.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtGui/qwindowdefs_win.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsPixmapItem
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsScene
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsView
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/QStyleOptionGraphicsItem
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractscrollarea.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractslider.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractspinbox.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qframe.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsitem.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsscene.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsview.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qrubberband.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qscrollarea.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qsizepolicy.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qslider.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qstyle.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qstyleoption.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabbar.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabwidget.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgets-config.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgetsexports.h
  mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgetsglobal.h
+ mdp:C:/Qt/6.9.3/mingw_64/include/QtWidgets/qwidget.h
  mdp:C:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/algorithm
  mdp:C:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/array
  mdp:C:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/atomic

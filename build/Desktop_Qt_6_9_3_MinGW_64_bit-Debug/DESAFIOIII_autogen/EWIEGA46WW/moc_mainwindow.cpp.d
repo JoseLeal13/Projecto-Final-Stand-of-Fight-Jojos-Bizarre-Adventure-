@@ -16,6 +16,7 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug
   C:/Qt/6.9.3/mingw_64/include/QtCore/q20utility.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/q23utility.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qabstracteventdispatcher.h \
+  C:/Qt/6.9.3/mingw_64/include/QtCore/qabstractitemmodel.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qalgorithms.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qanystringview.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qarraydata.h \
@@ -92,6 +93,7 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug
   C:/Qt/6.9.3/mingw_64/include/QtCore/qprocessordetection.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qrect.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qrefcount.h \
+  C:/Qt/6.9.3/mingw_64/include/QtCore/qregularexpression.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qscopedpointer.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qscopeguard.h \
   C:/Qt/6.9.3/mingw_64/include/QtCore/qset.h \
@@ -188,6 +190,7 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug
   C:/Qt/6.9.3/mingw_64/include/QtGui/qtguiexports.h \
   C:/Qt/6.9.3/mingw_64/include/QtGui/qtguiglobal.h \
   C:/Qt/6.9.3/mingw_64/include/QtGui/qtransform.h \
+  C:/Qt/6.9.3/mingw_64/include/QtGui/qvalidator.h \
   C:/Qt/6.9.3/mingw_64/include/QtGui/qvector2d.h \
   C:/Qt/6.9.3/mingw_64/include/QtGui/qvectornd.h \
   C:/Qt/6.9.3/mingw_64/include/QtGui/qwindowdefs.h \
@@ -196,14 +199,22 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsScene \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsView \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/QMainWindow \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/QStyleOptionGraphicsItem \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractscrollarea.h \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractslider.h \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractspinbox.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qframe.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsitem.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsscene.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsview.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qmainwindow.h \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qrubberband.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qscrollarea.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qsizepolicy.h \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qslider.h \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qstyle.h \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qstyleoption.h \
+  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabbar.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabwidget.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgets-config.h \
   C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgetsexports.h \

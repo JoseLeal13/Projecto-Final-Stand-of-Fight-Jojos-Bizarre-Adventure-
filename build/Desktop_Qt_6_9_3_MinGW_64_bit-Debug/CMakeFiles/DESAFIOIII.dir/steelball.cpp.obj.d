@@ -388,4 +388,34 @@ CMakeFiles/DESAFIOIII.dir/steelball.cpp.obj: \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qfontvariableaxis.h \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qfontmetrics.h \
  C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsScene \
- C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsscene.h
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsscene.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsView \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsview.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qpainter.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qscrollarea.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractscrollarea.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qframe.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qwidget.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qaction.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qkeysequence.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qicon.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qpalette.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qsizepolicy.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qcursor.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qbitmap.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsscene.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/QStyleOptionGraphicsItem \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qstyleoption.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qlocale.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractspinbox.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qvalidator.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qregularexpression.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qslider.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractslider.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qstyle.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabbar.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabwidget.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qrubberband.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qabstractitemmodel.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/QMainWindow \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qmainwindow.h

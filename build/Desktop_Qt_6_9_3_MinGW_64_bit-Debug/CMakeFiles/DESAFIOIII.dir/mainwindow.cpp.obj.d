@@ -448,6 +448,17 @@ CMakeFiles/DESAFIOIII.dir/mainwindow.cpp.obj: \
  C:\Users\Emmanuel\Documents\DESAFIOIII\steelball.h \
  C:/Qt/6.9.3/mingw_64/include/QtGui/QImage \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qimage.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/QStyleOptionGraphicsItem \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qstyleoption.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractspinbox.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qvalidator.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qregularexpression.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qslider.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractslider.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qstyle.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabbar.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qrubberband.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qabstractitemmodel.h \
  C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/DESAFIOIII_autogen/include/ui_mainwindow.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/QVariant \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qvariant.h \
