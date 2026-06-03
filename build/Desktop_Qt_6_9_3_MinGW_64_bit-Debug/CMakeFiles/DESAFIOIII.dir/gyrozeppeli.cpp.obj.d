@@ -1,11 +1,10 @@
 CMakeFiles/DESAFIOIII.dir/gyrozeppeli.cpp.obj: \
  C:\Users\Emmanuel\Documents\DESAFIOIII\gyrozeppeli.cpp \
  C:\Users\Emmanuel\Documents\DESAFIOIII\gyrozeppeli.h \
- C:\Users\Emmanuel\Documents\DESAFIOIII\personaje.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/QObject \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qobject.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qobjectdefs.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qnamespace.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsPixmapItem \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsitem.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgetsglobal.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qtguiglobal.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qglobal.h \
  C:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/type_traits \
  C:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32/bits/c++config.h \
@@ -152,6 +151,13 @@ CMakeFiles/DESAFIOIII.dir/gyrozeppeli.cpp.obj: \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qtresource.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qttranslation.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qversiontagging.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qtgui-config.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qtguiexports.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgets-config.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgetsexports.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qobject.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qobjectdefs.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qnamespace.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qcompare.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qstdlibdetection.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qcomparehelpers.h \
@@ -322,15 +328,6 @@ CMakeFiles/DESAFIOIII.dir/gyrozeppeli.cpp.obj: \
  C:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/chrono.h \
  C:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/ratio \
  C:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/ctime \
- C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsPixmapItem \
- C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsitem.h \
- C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgetsglobal.h \
- C:/Qt/6.9.3/mingw_64/include/QtGui/qtguiglobal.h \
- C:/Qt/6.9.3/mingw_64/include/QtGui/qtgui-config.h \
- C:/Qt/6.9.3/mingw_64/include/QtGui/qtguiexports.h \
- C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgets-config.h \
- C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtwidgetsexports.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qobject.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qvariant.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qdebug.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qtextstream.h \
@@ -372,24 +369,54 @@ CMakeFiles/DESAFIOIII.dir/gyrozeppeli.cpp.obj: \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qrgba64.h \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qimage.h \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qpixelformat.h \
- C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsScene \
- C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsscene.h \
- C:/Qt/6.9.3/mingw_64/include/QtGui/qbrush.h \
- C:/Qt/6.9.3/mingw_64/include/QtGui/qfont.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qendian.h \
- C:/Qt/6.9.3/mingw_64/include/QtGui/qpen.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/QList \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qlist.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/QTimer \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qtimer.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qbasictimer.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qabstracteventdispatcher.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qeventloop.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qdeadlinetimer.h \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qelapsedtimer.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/QPixmap \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qpixmap.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/QImage \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qimage.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/QTransform \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qtransform.h \
+ C:\Users\Emmanuel\Documents\DESAFIOIII\steelball.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/QObject \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qobject.h \
  C:/Qt/6.9.3/mingw_64/include/QtGui/QPainter \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qpainter.h \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qtextoption.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qpen.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qbrush.h \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qfontinfo.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qfont.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qendian.h \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qfontvariableaxis.h \
- C:/Qt/6.9.3/mingw_64/include/QtGui/qfontmetrics.h
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qfontmetrics.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsScene \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsscene.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsView \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsview.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qpainter.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qscrollarea.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractscrollarea.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qframe.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qwidget.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qaction.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qkeysequence.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qicon.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qpalette.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qsizepolicy.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qcursor.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qbitmap.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicsscene.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/QStyleOptionGraphicsItem \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qstyleoption.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qlocale.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractspinbox.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/qvalidator.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qregularexpression.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qslider.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qabstractslider.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qstyle.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabbar.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabwidget.h \
+ C:/Qt/6.9.3/mingw_64/include/QtWidgets/qrubberband.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qabstractitemmodel.h

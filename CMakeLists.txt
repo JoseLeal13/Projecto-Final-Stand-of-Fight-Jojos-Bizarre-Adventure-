@@ -29,6 +29,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         jotaro.h jotaro.cpp
         gyrozeppeli.h gyrozeppeli.cpp
         steelball.h steelball.cpp
+        item.h item.cpp
     )
 qt_add_resources(DESAFIOIII "resources"
         PREFIX "/"

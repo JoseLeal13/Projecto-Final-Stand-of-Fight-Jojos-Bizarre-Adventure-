@@ -12,6 +12,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/DESAFIOIII_autogen/mocs_compilation.cpp" "CMakeFiles/DESAFIOIII.dir/DESAFIOIII_autogen/mocs_compilation.cpp.obj" "gcc" "CMakeFiles/DESAFIOIII.dir/DESAFIOIII_autogen/mocs_compilation.cpp.obj.d"
   "C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp" "CMakeFiles/DESAFIOIII.dir/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp.obj" "gcc" "CMakeFiles/DESAFIOIII.dir/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp.obj.d"
   "C:/Users/Emmanuel/Documents/DESAFIOIII/gyrozeppeli.cpp" "CMakeFiles/DESAFIOIII.dir/gyrozeppeli.cpp.obj" "gcc" "CMakeFiles/DESAFIOIII.dir/gyrozeppeli.cpp.obj.d"
+  "C:/Users/Emmanuel/Documents/DESAFIOIII/item.cpp" "CMakeFiles/DESAFIOIII.dir/item.cpp.obj" "gcc" "CMakeFiles/DESAFIOIII.dir/item.cpp.obj.d"
   "C:/Users/Emmanuel/Documents/DESAFIOIII/jotaro.cpp" "CMakeFiles/DESAFIOIII.dir/jotaro.cpp.obj" "gcc" "CMakeFiles/DESAFIOIII.dir/jotaro.cpp.obj.d"
   "C:/Users/Emmanuel/Documents/DESAFIOIII/main.cpp" "CMakeFiles/DESAFIOIII.dir/main.cpp.obj" "gcc" "CMakeFiles/DESAFIOIII.dir/main.cpp.obj.d"
   "C:/Users/Emmanuel/Documents/DESAFIOIII/mainwindow.cpp" "CMakeFiles/DESAFIOIII.dir/mainwindow.cpp.obj" "gcc" "CMakeFiles/DESAFIOIII.dir/mainwindow.cpp.obj.d"

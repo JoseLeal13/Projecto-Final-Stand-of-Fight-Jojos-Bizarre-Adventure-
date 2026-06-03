@@ -437,15 +437,17 @@ CMakeFiles/DESAFIOIII.dir/DESAFIOIII_autogen/mocs_compilation.cpp.obj: \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qpainterpath.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/QSet \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qset.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/QList \
  C:/Users/Emmanuel/Documents/DESAFIOIII/jotaro.h \
  C:/Users/Emmanuel/Documents/DESAFIOIII/personaje.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/QObject \
- C:/Qt/6.9.3/mingw_64/include/QtCore/QList \
  C:/Qt/6.9.3/mingw_64/include/QtGui/QPainter \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qpainter.h \
  C:/Qt/6.9.3/mingw_64/include/QtGui/QPixmap \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qpixmap.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/QRectF \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/QDebug \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qdebug.h \
  C:/Users/Emmanuel/Documents/DESAFIOIII/steelball.h \
  C:/Qt/6.9.3/mingw_64/include/QtGui/QImage \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qimage.h \
@@ -460,6 +462,9 @@ CMakeFiles/DESAFIOIII.dir/DESAFIOIII_autogen/mocs_compilation.cpp.obj: \
  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qtabbar.h \
  C:/Qt/6.9.3/mingw_64/include/QtWidgets/qrubberband.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qabstractitemmodel.h \
+ C:/Users/Emmanuel/Documents/DESAFIOIII/gyrozeppeli.h \
+ C:/Qt/6.9.3/mingw_64/include/QtGui/QTransform \
+ C:/Users/Emmanuel/Documents/DESAFIOIII/item.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qtmochelpers.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/qtmocconstants.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/q20algorithm.h \

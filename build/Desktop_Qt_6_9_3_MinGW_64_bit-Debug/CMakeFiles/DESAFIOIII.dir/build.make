@@ -187,11 +187,26 @@ CMakeFiles/DESAFIOIII.dir/steelball.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/DESAFIOIII.dir/steelball.cpp.s"
 	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Emmanuel\Documents\DESAFIOIII\steelball.cpp -o CMakeFiles\DESAFIOIII.dir\steelball.cpp.s
 
+CMakeFiles/DESAFIOIII.dir/item.cpp.obj: CMakeFiles/DESAFIOIII.dir/flags.make
+CMakeFiles/DESAFIOIII.dir/item.cpp.obj: CMakeFiles/DESAFIOIII.dir/includes_CXX.rsp
+CMakeFiles/DESAFIOIII.dir/item.cpp.obj: C:/Users/Emmanuel/Documents/DESAFIOIII/item.cpp
+CMakeFiles/DESAFIOIII.dir/item.cpp.obj: CMakeFiles/DESAFIOIII.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\Emmanuel\Documents\DESAFIOIII\build\Desktop_Qt_6_9_3_MinGW_64_bit-Debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/DESAFIOIII.dir/item.cpp.obj"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/DESAFIOIII.dir/item.cpp.obj -MF CMakeFiles\DESAFIOIII.dir\item.cpp.obj.d -o CMakeFiles\DESAFIOIII.dir\item.cpp.obj -c C:\Users\Emmanuel\Documents\DESAFIOIII\item.cpp
+
+CMakeFiles/DESAFIOIII.dir/item.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/DESAFIOIII.dir/item.cpp.i"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Emmanuel\Documents\DESAFIOIII\item.cpp > CMakeFiles\DESAFIOIII.dir\item.cpp.i
+
+CMakeFiles/DESAFIOIII.dir/item.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/DESAFIOIII.dir/item.cpp.s"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Emmanuel\Documents\DESAFIOIII\item.cpp -o CMakeFiles\DESAFIOIII.dir\item.cpp.s
+
 CMakeFiles/DESAFIOIII.dir/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp.obj: CMakeFiles/DESAFIOIII.dir/flags.make
 CMakeFiles/DESAFIOIII.dir/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp.obj: CMakeFiles/DESAFIOIII.dir/includes_CXX.rsp
 CMakeFiles/DESAFIOIII.dir/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp.obj: .qt/rcc/qrc_resources.cpp
 CMakeFiles/DESAFIOIII.dir/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp.obj: CMakeFiles/DESAFIOIII.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\Emmanuel\Documents\DESAFIOIII\build\Desktop_Qt_6_9_3_MinGW_64_bit-Debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/DESAFIOIII.dir/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\Emmanuel\Documents\DESAFIOIII\build\Desktop_Qt_6_9_3_MinGW_64_bit-Debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/DESAFIOIII.dir/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp.obj"
 	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/DESAFIOIII.dir/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp.obj -MF CMakeFiles\DESAFIOIII.dir\build\Desktop_Qt_6_9_3_MinGW_64_bit-Debug\.qt\rcc\qrc_resources.cpp.obj.d -o CMakeFiles\DESAFIOIII.dir\build\Desktop_Qt_6_9_3_MinGW_64_bit-Debug\.qt\rcc\qrc_resources.cpp.obj -c C:\Users\Emmanuel\Documents\DESAFIOIII\build\Desktop_Qt_6_9_3_MinGW_64_bit-Debug\.qt\rcc\qrc_resources.cpp
 
 CMakeFiles/DESAFIOIII.dir/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp.i: cmake_force
@@ -211,6 +226,7 @@ DESAFIOIII_OBJECTS = \
 "CMakeFiles/DESAFIOIII.dir/jotaro.cpp.obj" \
 "CMakeFiles/DESAFIOIII.dir/gyrozeppeli.cpp.obj" \
 "CMakeFiles/DESAFIOIII.dir/steelball.cpp.obj" \
+"CMakeFiles/DESAFIOIII.dir/item.cpp.obj" \
 "CMakeFiles/DESAFIOIII.dir/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp.obj"
 
 # External object files for target DESAFIOIII
@@ -223,6 +239,7 @@ DESAFIOIII.exe: CMakeFiles/DESAFIOIII.dir/personaje.cpp.obj
 DESAFIOIII.exe: CMakeFiles/DESAFIOIII.dir/jotaro.cpp.obj
 DESAFIOIII.exe: CMakeFiles/DESAFIOIII.dir/gyrozeppeli.cpp.obj
 DESAFIOIII.exe: CMakeFiles/DESAFIOIII.dir/steelball.cpp.obj
+DESAFIOIII.exe: CMakeFiles/DESAFIOIII.dir/item.cpp.obj
 DESAFIOIII.exe: CMakeFiles/DESAFIOIII.dir/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp.obj
 DESAFIOIII.exe: CMakeFiles/DESAFIOIII.dir/build.make
 DESAFIOIII.exe: C:/Qt/6.9.3/mingw_64/lib/libQt6Widgets.a
@@ -232,7 +249,7 @@ DESAFIOIII.exe: C:/Qt/6.9.3/mingw_64/lib/libQt6EntryPoint.a
 DESAFIOIII.exe: CMakeFiles/DESAFIOIII.dir/linkLibs.rsp
 DESAFIOIII.exe: CMakeFiles/DESAFIOIII.dir/objects1.rsp
 DESAFIOIII.exe: CMakeFiles/DESAFIOIII.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\Users\Emmanuel\Documents\DESAFIOIII\build\Desktop_Qt_6_9_3_MinGW_64_bit-Debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX executable DESAFIOIII.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\Users\Emmanuel\Documents\DESAFIOIII\build\Desktop_Qt_6_9_3_MinGW_64_bit-Debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX executable DESAFIOIII.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\DESAFIOIII.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -41,9 +41,13 @@ void SteelBall::cargarGraficos()
     int anchoBola = 78;
     int altoBola = 37;
 
-    // Coordenadas iniciales en tu sprite sheet
-    int xInicio = (tipoActual == VerdeGolpeable) ? 1095 : 1095;
-    int yPos = 600;
+    // Coordenadas iniciales en el sprite sheet
+    // IMPORTANTE: si verde y roja están en filas distintas del sprite sheet,
+    // cambia el yPos de cada una. Por ahora ambas usan y=600 porque el sheet
+    // tiene los frames uno al lado del otro en la misma fila.
+    // Si quieres separarlas visualmente, ajusta estos valores midiendo el PNG.
+    int xInicio = 1095; // Mismo punto de inicio para las dos (ajustar si cambia el sheet)
+    int yPos = (tipoActual == VerdeGolpeable) ? 600 : 600; // <- cambiar el segundo 600 si roja está en otra fila
 
     // Recortamos los 4 sprites de giro uno al lado del otro
     for (int i = 0; i < 4; ++i) {
@@ -207,53 +211,55 @@ QPixmap SteelBall::quitarFondo(const QPixmap &original)
 // que sobresale del tamaño normal de la bola (92x94 vs 78x37)
 QRectF SteelBall::boundingRect() const
 {
-    if (mostrandoEfecto) {
-        // El efecto morado mide hasta 92x94, lo centramos respecto a la bola
-        // offset: (92-78)/2 = 7 en x, (94-37)/2 = 28 en y
-        return QRectF(-7, -28, 92, 94);
-    }
-    return QRectF(0, 0, 78, 37);
+    // Siempre devuelvo el bounding rect grande para que Qt no se confunda
+    // cuando el efecto morado aparece y desaparece (eso rompía las hitboxes antes).
+    // El efecto más grande mide 92x94, lo centro sobre la bola de 78x37.
+    return QRectF(-7, -28, 92, 94);
 }
 
 // 2. EL MÉTODO PAINT
+// Este era el bug gordo: el paint() original tenía solo un comentario "mantén tu código"
+// y nunca dibujaba la bola de verdad. Por eso desaparecían las pelotas.
 void SteelBall::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    // Primero dibujamos el efecto morado SI está activo (va DEBAJO de la bola visualmente
-    // pero como es grande se ve alrededor)
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
+
+    // Primero dibujamos el sprite actual de la bola (el frame de animación)
+    if (!framesAnimacion.isEmpty() && frameActual < framesAnimacion.size()) {
+        painter->drawPixmap(0, 0, framesAnimacion[frameActual]);
+    }
+
+    // Si la bola recibió un golpe, dibujamos el destello morado encima
+    // Lo centramos respecto a la bola (la estrella es más grande que la bola)
     if (mostrandoEfecto && frameEfecto < framesEfectoGolpe.size()) {
-        painter->save();
-        const QPixmap &ef = framesEfectoGolpe[frameEfecto];
-        // Centramos el efecto respecto al centro de la bola (39, 18)
-        qreal ox = 39.0 - ef.width()  / 2.0;
-        qreal oy = 18.0 - ef.height() / 2.0;
-        painter->drawPixmap(ox, oy, ef);
-        painter->restore();
+        QPixmap &efecto = framesEfectoGolpe[frameEfecto];
+        // Centramos el efecto sobre la bola (78x37 es el tamaño de la bola)
+        int offsetX = (78 - efecto.width())  / 2;
+        int offsetY = (37 - efecto.height()) / 2;
+        painter->drawPixmap(offsetX, offsetY, efecto);
     }
 
-    // Luego dibujamos la bola encima
-    QGraphicsPixmapItem::paint(painter, option, widget);
-
-    // Seguridad: si no hay escena todavia, salimos
-    if (!scene() || scene()->views().isEmpty()) {
-        return;
-    }
-
-    // Hitbox de debug
+    // Hitbox de debug: solo se muestra si el usuario presiona H
+    // Busco la propiedad en la ventana principal para saber si está activa
     bool mostrarH = false;
-    QWidget *topWidget = scene()->views().first()->window();
-    QMainWindow *mainWin = qobject_cast<QMainWindow*>(topWidget);
-    if (mainWin) {
-        mostrarH = mainWin->property("mostrarHitbox").toBool();
+    if (scene() && !scene()->views().isEmpty()) {
+        QWidget *topWidget = scene()->views().first()->window();
+        QMainWindow *mainWin = qobject_cast<QMainWindow*>(topWidget);
+        if (mainWin) {
+            mostrarH = mainWin->property("mostrarHitbox").toBool();
+        }
     }
 
-    if (mostrarH || true) {
+    if (mostrarH) {
         painter->save();
         if (tipoActual == VerdeGolpeable) {
             painter->setPen(QPen(Qt::green, 2, Qt::DashLine));
         } else {
             painter->setPen(QPen(Qt::red, 2, Qt::SolidLine));
         }
-        painter->drawRect(QRectF(0, 0, 78, 37)); // Siempre la hitbox real, no el bounding grande
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRect(QRectF(0, 0, 78, 37));
         painter->restore();
     }
 }
@@ -267,7 +273,9 @@ bool SteelBall::collidesWithItem(const QGraphicsItem *other, Qt::ItemSelectionMo
 QPainterPath SteelBall::shape() const
 {
     QPainterPath path;
-    // Usa el boundingRect completo como hitbox sólida, ignorando transparencia
-    path.addRect(boundingRect());
+    // La hitbox de COLISIÓN es solo el área de la bola (78x37), en posición (0,0)
+    // NO incluyo el área del efecto morado porque sino Jotaro recibe daño en el aire
+    // y las colisiones se sienten raras. El bounding rect grande es solo para el dibujo.
+    path.addRect(QRectF(0, 0, 78, 37));
     return path;
 }

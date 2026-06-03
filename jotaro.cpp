@@ -1,6 +1,6 @@
 #include "jotaro.h"
 
-// ── Constantes de TU sprite sheet extraídas de tu MainWindow ──────────────────
+// ── Constantes del sprite sheet ──────────────────
 static const int ANCHO_FRAME = 70;
 static const int ALTO_FRAME  = 100;
 static const int FRAMES_QUIETO     = 1;
@@ -22,67 +22,57 @@ static const int Y_DIR[4] = {
 
 jotaro::jotaro() : Personaje()
 {
-    // Atributos iniciales simples
+    // Atributos iniciales base
     speed = 4;
     direccion = 1; // Mirando abajo por defecto
     enMovimiento = false;
     atacando = false;
     frameActual = 0;
 
-    // ── INICIALIZACIÓN DE SALUD Y CONTROL DEL SURVIVAL ──
+    // Inicialización del estado de salud
     vida = 100;
     invencible = false;
     contadorInvencible = 0;
 
-    setPos(100, 100); // Posición inicial en la escena
+    setPos(100, 100);
 
-    // Tamaño base de tu hitbox (Ancho: 70, Alto: 100)
     anchoHitbox = 70;
     altoHitbox  = 100;
     hitbox = QRectF(0, 0, anchoHitbox, altoHitbox);
 
-    // El objeto se encarga de cargar sus propios recursos al crearse
+    // Inicialización de mecánicas especiales
+    energiaUlti = 0;
+    ultiActiva = false;
+    timerUlti = 0;
+    velocidadBonus = 0;
+    timerVelocidad = 0;
+
+    // Cargar sprites autónomamente
     cargarFrames();
-
-    vida = 100;
-    invencible = false;
-    contadorInvencible = 0;
-
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-//  MÉTODOS OBLIGATORIOS DE LA CLASE BASE
-// ═══════════════════════════════════════════════════════════════════════════
-void jotaro::moverse() {
-    // Tu MainWindow se encarga de llamarlo mediante eventos de teclado individuales
-}
+void jotaro::moverse() {}
+void jotaro::atacar() {}
+void jotaro::habilidadEspecial() {}
 
-void jotaro::atacar() {
-    // Lógica de ataque activa
-}
-
-void jotaro::habilidadEspecial() {
-    // Vacío. No requerido en tu minijuego survival
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-//  MÉTODOS DE SALUD Y CONTROL DE DAÑO
-// ═══════════════════════════════════════════════════════════════════════════
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-//  MÉTODOS OBLIGATORIOS DE DIBUJO DE QT (Con soporte para parpadeo de daño)
-// ═══════════════════════════════════════════════════════════════════════════
 QRectF jotaro::boundingRect() const
 {
-    // Define el área rectangular máxima que puede ocupar el sprite al redibujarse
+    // Cuando Jotaro ataca a la izquierda, el sprite se dibuja en drawX = -100
+    // Si el boundingRect no lo cubre, Qt lo recorta y no se ve el golpe.
+    // Entonces le doy suficiente margen izquierdo para que quepa el sprite de ataque.
+    // En reposo o moviéndose no afecta nada visualmente, solo le damos espacio extra.
+    if (atacando && direccion == 2) {
+        return QRectF(-110, 0, 180, 100); // margen para el puñazo hacia la izquierda
+    }
+    if (atacando) {
+        return QRectF(0, 0, 160, 100); // margen para el puñazo hacia la derecha
+    }
     return QRectF(0, 0, 70, 100);
 }
 
 QPainterPath jotaro::shape() const
 {
     QPainterPath path;
-    // Hitbox corporal real: offset 18 en X, 10 en Y, 34 ancho, 85 alto
     path.addRect(QRectF(18, 10, 34, 85));
     return path;
 }
@@ -92,22 +82,14 @@ void jotaro::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    // ── IMPORTANTE: guardamos el estado del painter antes de tocar nada ──
-    // Esto evita que configuraciones previas de Qt (del QGraphicsPixmapItem base)
-    // causen ese bug visual donde el sprite se ve raro cuando la hitbox está oculta.
-    // Básicamente "limpiamos la pizarra" antes de dibujar encima.
     painter->save();
 
-    // 1. CONTROL DEL EFECTO VISUAL DE DAÑO (Parpadeo)
     if (invencible && (contadorInvencible % 8 > 4)) {
-        // En estos frames del parpadeo no dibujamos el sprite (efecto de daño)
-        // pero igual llegamos al restore() de abajo para no dejar el painter sucio
+        // Efecto visual de parpadeo por daño
     } else {
         QPixmap spriteADibujar;
 
-        // Seleccionar el Frame correcto según el estado interno
         if(atacando) {
-            // Si los frames de ataque están vacíos por algún error de carga, no crashear
             if(framesAtaqueDerecha.isEmpty()) {
                 painter->restore();
                 return;
@@ -115,7 +97,6 @@ void jotaro::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
             int idx = frameActual % framesAtaqueDerecha.size();
             spriteADibujar = (direccion == 2) ? framesAtaqueIzquierda[idx] : framesAtaqueDerecha[idx];
         } else if(enMovimiento) {
-            // Misma protección para frames de movimiento
             if(framesMovimiento[direccion].isEmpty()) {
                 painter->restore();
                 return;
@@ -123,7 +104,6 @@ void jotaro::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
             int idx = frameActual % framesMovimiento[direccion].size();
             spriteADibujar = framesMovimiento[direccion][idx];
         } else {
-            // Frame quieto, el más básico
             if(framesQuieto[direccion].isEmpty()) {
                 painter->restore();
                 return;
@@ -131,82 +111,78 @@ void jotaro::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
             spriteADibujar = framesQuieto[direccion][0];
         }
 
-        // Solo dibujar si el pixmap es válido (no está nulo/vacío)
         if(!spriteADibujar.isNull()) {
             int drawX = 0;
             if(atacando && direccion == 2) {
-                drawX -= 100; // corrimiento para el ataque izquierda
+                drawX -= 100;
             }
-            // Dibujamos el sprite manualmente, ignorando el pixmap del item base
             painter->drawPixmap(drawX, 0, spriteADibujar);
         }
     }
 
-    // Restauramos el painter a como estaba antes de que llegáramos
-    // Esto es lo que faltaba y causaba el bug visual
     painter->restore();
 
-    // ── 2. DIBUJAR HITBOXES VISUALES CUANDO SE PRESIONA LA 'H' ──
+    // Las hitboxes de debug van DESPUÉS del restore para que no hereden
+    // el clip del sprite. Si van adentro del save/restore anterior, Qt las
+    // recorta al tamaño del sprite y no se ve el rectángulo completo.
     if (mostrarHitboxInterna) {
-        // Recordatorio: En Qt, las hitboxes se dibujan en COORDENADAS LOCALES del objeto (sin x() ni y())
-
-        // Hitbox Corporal (Color Rojo)
+        // Hitbox corporal en rojo punteado
         painter->setPen(QPen(Qt::red, 2, Qt::DashLine));
-        painter->setBrush(QBrush(QColor(255, 0, 0, 50))); // Rojo semi-transparente
-        painter->drawRect(QRectF(18, 10, 34, 85)); // Mismas medidas que tu getHitbox()
+        painter->setBrush(QBrush(QColor(255, 0, 0, 50)));
+        painter->drawRect(QRectF(18, 10, 34, 85));
 
-        // Hitbox de Ataque (Color Azul) si Jotaro está golpeando
+        // Hitbox de ataque en cian, solo cuando está golpeando
         if (atacando) {
             painter->setPen(QPen(Qt::cyan, 2, Qt::SolidLine));
-            painter->setBrush(QBrush(QColor(0, 255, 255, 70))); // Azul/Cian traslúcido
+            painter->setBrush(QBrush(QColor(0, 255, 255, 70)));
 
-            if (direccion == 2) { // Izquierda
+            if (direccion == 2) {
+                // Puñazo hacia la izquierda: empieza en x negativo
                 painter->drawRect(QRectF(-90, 25, 90, 45));
-            } else { // Derecha (o cualquier otra dirección por defecto)
+            } else {
+                // Puñazo hacia la derecha: empieza donde termina el cuerpo
                 painter->drawRect(QRectF(60, 25, 90, 45));
             }
         }
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-//  MÉTODOS DE MOVIMIENTO CON VALIDACIÓN
-// ═══════════════════════════════════════════════════════════════════════════
+// ── MOVIMIENTO CONSIDERANDO EL BONUS DEL ÍTEM CELESTE ──
 void jotaro::moveUp() {
-    float proximoY = y() - speed;
+    float proximoY = y() - (speed + velocidadBonus);
     if (!verificarColision(x(), proximoY)) setPos(x(), proximoY);
 }
 
 void jotaro::moveDown() {
-    float proximoY = y() + speed;
+    float proximoY = y() + (speed + velocidadBonus);
     if (!verificarColision(x(), proximoY)) setPos(x(), proximoY);
 }
 
 void jotaro::moveLeft() {
-    float proximoX = x() - speed;
+    float proximoX = x() - (speed + velocidadBonus);
     if (!verificarColision(proximoX, y())) setPos(proximoX, y());
 }
 
 void jotaro::moveRight() {
-    float proximoX = x() + speed;
+    float proximoX = x() + (speed + velocidadBonus);
     if (!verificarColision(proximoX, y())) setPos(proximoX, y());
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-//  SETTERS DE CONTROL DE ESTADO
-// ═══════════════════════════════════════════════════════════════════════════
-void jotaro::setDireccion(int dir)   { direccion = dir; update(); }
-void jotaro::setAtacando(bool status) { atacando = status; update(); }
+void jotaro::setDireccion(int dir)        { direccion = dir; update(); }
+void jotaro::setAtacando(bool status) {
+    if (atacando != status) {
+        // prepareGeometryChange le avisa a Qt que el boundingRect va a cambiar.
+        // Sin esto, Qt no redibuja el área extra del ataque y la hitbox aparece cortada.
+        prepareGeometryChange();
+        atacando = status;
+    }
+    update();
+}
 void jotaro::setEnMovimiento(bool status) { enMovimiento = status; update(); }
 void jotaro::actualizarFrame(int frameActualIndex) { frameActual = frameActualIndex; update(); }
 
-// ═══════════════════════════════════════════════════════════════════════════
-//  HITBOXES LÓGICAS OPTIMIZADAS (Mapeadas globalmente en la escena)
-// ═══════════════════════════════════════════════════════════════════════════
 QRectF jotaro::getHitbox()
 {
-    // Reajustada para el cuerpo real: recortamos márgenes para evitar el aire transparente lateral
-    // x_offset = +18, y_offset = +10, ancho = 34, alto = 85 (Ajustado a tus constantes 70x100)
     return QRectF(x() + 18, y() + 10, 34, 85);
 }
 
@@ -214,15 +190,12 @@ QRectF jotaro::getAttackHitbox()
 {
     if (!atacando) return QRectF(0, 0, 0, 0);
 
-    if (direccion == 2) { // Izquierda
+    if (direccion == 2) {
         return QRectF(x() - 90, y() + 25, 90, 45);
     }
-    return QRectF(x() + 60, y() + 25, 90, 45); // Derecha
+    return QRectF(x() + 60, y() + 25, 90, 45);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-//  PROCESAMIENTO INTERNO DE IMÁGENES
-// ═══════════════════════════════════════════════════════════════════════════
 void jotaro::cargarFrames()
 {
     QPixmap sprites(":/sprites_juego.png");
@@ -283,19 +256,15 @@ QPixmap jotaro::reflejarHorizontal(const QPixmap &original)
     return original.transformed(espejo);
 }
 
-
 void jotaro::recibirDanio(int cantidad)
 {
-    if (invencible) return; // Si parpadea por un golpe reciente, ignora el daño
+    if (invencible) return;
 
     vida -= cantidad;
     if (vida < 0) vida = 0;
 
-    // Activar invulnerabilidad por 60 frames (1 segundo a 60 FPS)
     invencible = true;
-    contadorInvencible = 60;
-
-    qDebug() << "¡JOTARO RECIBIÓ DAÑO! Vida restante:" << vida;
+    contadorInvencible = 60; // 1 segundo de invulnerabilidad
 }
 
 void jotaro::actualizarInvulnerabilidad()
@@ -305,6 +274,47 @@ void jotaro::actualizarInvulnerabilidad()
         if (contadorInvencible <= 0) {
             invencible = false;
         }
-        update(); // Forza a Qt a redibujar (útil para efectos visuales de parpadeo)
+        update();
+    }
+}
+
+// ── MÉTODOS DE LA INTERFAZ DE ITEMS Y PODERES ──
+void jotaro::curar(int cantidad) {
+    vida += cantidad;
+    if (vida > 100) vida = 100; // No sobrepasar la vida máxima
+}
+
+void jotaro::aumentarVelocidad() {
+    velocidadBonus = 3;    // Sumamos +3 puntos de velocidad
+    timerVelocidad = 180;  // Dura 3 segundos activos (180 frames / 60fps)
+}
+
+void jotaro::cargarEnergia(int cantidad) {
+    energiaUlti += cantidad;
+    if (energiaUlti > 100) energiaUlti = 100; // Límite de la barra
+}
+
+void jotaro::actualizarEfectosItems() {
+    if (timerVelocidad > 0) {
+        timerVelocidad--;
+        if (timerVelocidad == 0) {
+            velocidadBonus = 0;
+        }
+    }
+
+    if (ultiActiva) {
+        timerUlti--;
+        if (timerUlti <= 0) {
+            ultiActiva = false;
+        }
+    }
+}
+
+void jotaro::usarUlti() {
+    if (energiaUlti >= 100) {
+        energiaUlti = 0;
+        ultiActiva = true;
+        timerUlti = 240;     // 4 segundos de congelamiento
+        qDebug() << "⏰ ¡¡ZA WARUDO!! El tiempo se ha ralentizado.";
     }
 }

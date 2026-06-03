@@ -1,0 +1,79 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-c9bea8509b3e283bfbdc.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "DESAFIOIII",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "DESAFIOIII::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-DESAFIOIII-Debug-b3f648abf77210cd286e.json",
+					"name" : "DESAFIOIII",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "DESAFIOIII_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-DESAFIOIII_autogen-Debug-d35608c706a3b6fd0edc.json",
+					"name" : "DESAFIOIII_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "DESAFIOIII_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-DESAFIOIII_autogen_timestamp_deps-Debug-56b072ddc733fd282fab.json",
+					"name" : "DESAFIOIII_autogen_timestamp_deps",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug",
+		"source" : "C:/Users/Emmanuel/Documents/DESAFIOIII"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

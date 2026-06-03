@@ -355,6 +355,12 @@
 			null
 		],
 		[
+			"C:/Users/Emmanuel/Documents/DESAFIOIII/item.h",
+			"MU",
+			"EWIEGA46WW/moc_item.cpp",
+			null
+		],
+		[
 			"C:/Users/Emmanuel/Documents/DESAFIOIII/jotaro.h",
 			"MU",
 			"EWIEGA46WW/moc_jotaro.cpp",
@@ -455,6 +461,7 @@
 	"SOURCES" : 
 	[
 		[ "C:/Users/Emmanuel/Documents/DESAFIOIII/gyrozeppeli.cpp", "MU", null ],
+		[ "C:/Users/Emmanuel/Documents/DESAFIOIII/item.cpp", "MU", null ],
 		[ "C:/Users/Emmanuel/Documents/DESAFIOIII/jotaro.cpp", "MU", null ],
 		[ "C:/Users/Emmanuel/Documents/DESAFIOIII/main.cpp", "MU", null ],
 		[ "C:/Users/Emmanuel/Documents/DESAFIOIII/mainwindow.cpp", "MU", null ],

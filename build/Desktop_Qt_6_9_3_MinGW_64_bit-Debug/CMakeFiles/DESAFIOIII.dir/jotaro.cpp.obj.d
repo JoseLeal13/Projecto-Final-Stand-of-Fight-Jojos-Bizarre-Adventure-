@@ -396,4 +396,6 @@ CMakeFiles/DESAFIOIII.dir/jotaro.cpp.obj: \
  C:/Qt/6.9.3/mingw_64/include/QtGui/QPixmap \
  C:/Qt/6.9.3/mingw_64/include/QtGui/qpixmap.h \
  C:/Qt/6.9.3/mingw_64/include/QtCore/QRectF \
- C:/Qt/6.9.3/mingw_64/include/QtCore/qrect.h
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qrect.h \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/QDebug \
+ C:/Qt/6.9.3/mingw_64/include/QtCore/qdebug.h

@@ -1,5 +1,6 @@
 C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/DESAFIOIII_autogen/EWIEGA46WW/moc_mainwindow.cpp: C:/Users/Emmanuel/Documents/DESAFIOIII/mainwindow.h \
   C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/DESAFIOIII_autogen/moc_predefs.h \
+  C:/Qt/6.9.3/mingw_64/include/QtCore/QDebug \
   C:/Qt/6.9.3/mingw_64/include/QtCore/QList \
   C:/Qt/6.9.3/mingw_64/include/QtCore/QObject \
   C:/Qt/6.9.3/mingw_64/include/QtCore/QRect \
@@ -433,6 +434,8 @@ C:/Users/Emmanuel/Documents/DESAFIOIII/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug
   C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/time.h \
   C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/vadefs.h \
   C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/wchar.h \
+  C:/Users/Emmanuel/Documents/DESAFIOIII/gyrozeppeli.h \
+  C:/Users/Emmanuel/Documents/DESAFIOIII/item.h \
   C:/Users/Emmanuel/Documents/DESAFIOIII/jotaro.h \
   C:/Users/Emmanuel/Documents/DESAFIOIII/personaje.h \
   C:/Users/Emmanuel/Documents/DESAFIOIII/steelball.h

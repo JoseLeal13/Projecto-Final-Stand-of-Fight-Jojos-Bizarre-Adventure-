@@ -9,6 +9,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/DESAFIOIII.dir/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/.qt/rcc/qrc_resources.cpp.obj.d"
   "CMakeFiles/DESAFIOIII.dir/gyrozeppeli.cpp.obj"
   "CMakeFiles/DESAFIOIII.dir/gyrozeppeli.cpp.obj.d"
+  "CMakeFiles/DESAFIOIII.dir/item.cpp.obj"
+  "CMakeFiles/DESAFIOIII.dir/item.cpp.obj.d"
   "CMakeFiles/DESAFIOIII.dir/jotaro.cpp.obj"
   "CMakeFiles/DESAFIOIII.dir/jotaro.cpp.obj.d"
   "CMakeFiles/DESAFIOIII.dir/main.cpp.obj"

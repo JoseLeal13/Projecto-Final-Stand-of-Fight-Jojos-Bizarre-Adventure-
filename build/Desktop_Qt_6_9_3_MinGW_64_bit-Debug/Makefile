@@ -271,6 +271,30 @@ gyrozeppeli.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\DESAFIOIII.dir\build.make CMakeFiles/DESAFIOIII.dir/gyrozeppeli.cpp.s
 .PHONY : gyrozeppeli.cpp.s
 
+item.obj: item.cpp.obj
+.PHONY : item.obj
+
+# target to build an object file
+item.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DESAFIOIII.dir\build.make CMakeFiles/DESAFIOIII.dir/item.cpp.obj
+.PHONY : item.cpp.obj
+
+item.i: item.cpp.i
+.PHONY : item.i
+
+# target to preprocess a source file
+item.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DESAFIOIII.dir\build.make CMakeFiles/DESAFIOIII.dir/item.cpp.i
+.PHONY : item.cpp.i
+
+item.s: item.cpp.s
+.PHONY : item.s
+
+# target to generate assembly for a file
+item.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DESAFIOIII.dir\build.make CMakeFiles/DESAFIOIII.dir/item.cpp.s
+.PHONY : item.cpp.s
+
 jotaro.obj: jotaro.cpp.obj
 .PHONY : jotaro.obj
 
@@ -415,6 +439,9 @@ help:
 	@echo ... gyrozeppeli.obj
 	@echo ... gyrozeppeli.i
 	@echo ... gyrozeppeli.s
+	@echo ... item.obj
+	@echo ... item.i
+	@echo ... item.s
 	@echo ... jotaro.obj
 	@echo ... jotaro.i
 	@echo ... jotaro.s
