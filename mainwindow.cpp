@@ -25,12 +25,67 @@ MainWindow::MainWindow(QWidget *parent)
     scene->setSceneRect(0, 0, anchoEscena, altoEscena);
 
     // Fondo asignado como un ítem de la escena
-    fondoPixmap = QPixmap(":/fondo_juego.png");
+    //fondoPixmap = QPixmap(":/fondo_juego.png");
+    //C:\Users\Emmanuel\Documents\DESAFIOIII
+    fondoPixmap = QPixmap("C:\\Users\\Emmanuel\\Documents\\DESAFIOIII\\zona_entrenamiento.png");
     itemEscenario = new QGraphicsPixmapItem(
         fondoPixmap.scaled(anchoEscena, altoEscena, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
         );
     itemEscenario->setZValue(-1); // Se envía al fondo
     scene->addItem(itemEscenario);
+
+
+
+    // ── HUD INFERIOR IZQUIERDO ──
+    int hudX = 10;
+    int hudY = 540; // cerca del borde inferior (escena mide 600 de alto)
+
+    // Fondo barra vida
+    hudBarraVidaFondo = new QGraphicsRectItem(hudX, hudY, 150, 18);
+    hudBarraVidaFondo->setBrush(QBrush(QColor(50, 50, 50)));
+    hudBarraVidaFondo->setPen(Qt::NoPen);
+    hudBarraVidaFondo->setZValue(20);
+    scene->addItem(hudBarraVidaFondo);
+
+    // Barra vida verde
+    hudBarraVida = new QGraphicsRectItem(hudX, hudY, 150, 18);
+    hudBarraVida->setBrush(QBrush(QColor(100, 220, 100))); // verde claro
+    hudBarraVida->setPen(Qt::NoPen);
+    hudBarraVida->setZValue(21);
+    scene->addItem(hudBarraVida);
+
+    // Texto vida
+    hudTextoVida = new QGraphicsTextItem("VIDA");
+    hudTextoVida->setPos(hudX, hudY - 18);
+    hudTextoVida->setDefaultTextColor(Qt::white);
+    hudTextoVida->setFont(QFont("Arial", 8, QFont::Bold));
+    hudTextoVida->setZValue(22);
+    scene->addItem(hudTextoVida);
+
+    // Fondo barra ulti
+    hudBarraUltiFondo = new QGraphicsRectItem(hudX, hudY + 28, 150, 18);
+    hudBarraUltiFondo->setBrush(QBrush(QColor(50, 50, 50)));
+    hudBarraUltiFondo->setPen(Qt::NoPen);
+    hudBarraUltiFondo->setZValue(20);
+    scene->addItem(hudBarraUltiFondo);
+
+    // Barra ulti azul celeste
+    hudBarraUlti = new QGraphicsRectItem(hudX, hudY + 28, 0, 18);
+    hudBarraUlti->setBrush(QBrush(QColor(80, 180, 255))); // azul celeste
+    hudBarraUlti->setPen(Qt::NoPen);
+    hudBarraUlti->setZValue(21);
+    scene->addItem(hudBarraUlti);
+
+    // Texto ulti
+    hudTextoUlti = new QGraphicsTextItem("ULTI");
+    hudTextoUlti->setPos(hudX, hudY + 10);
+    hudTextoUlti->setDefaultTextColor(Qt::white);
+    hudTextoUlti->setFont(QFont("Arial", 8, QFont::Bold));
+    hudTextoUlti->setZValue(22);
+    scene->addItem(hudTextoUlti);
+
+
+
 
     // Configuración de la vista gráfica del UI
     view = new QGraphicsView(scene, this);
@@ -46,7 +101,7 @@ MainWindow::MainWindow(QWidget *parent)
     jotaro_player->setPos(100, 100); // Tu posición inicial
     scene->addItem(jotaro_player);
 
-    // 👨‍🎓 NOTA DE EXPOSICIÓN: Ahora inicializamos a Gyro como un objeto inteligente autónomo
+    //Ahora inicializamos a Gyro como un objeto inteligente autónomo
     gyroJefe = new Gyro();
     scene->addItem(gyroJefe);
 
@@ -160,7 +215,7 @@ void MainWindow::actualizar()
         jotaro_player->actualizarFrame(frameActual);
     }
 
-    // 👨‍🎓 Ralentización del tiempo por la Ulti "The World"
+    // Ralentización del tiempo por la Ulti "The World"
     bool camaraLenta = jotaro_player->estaUltiActiva();
 
     // 4. ACTUALIZAR LAS FÍSICAS DE TODAS LAS BOLAS
@@ -183,10 +238,10 @@ void MainWindow::actualizar()
 
         if (itemsColisionando.contains(jotaro_player)) {
             if (ball->getTipo() == SteelBall::RojaEsquivable) {
-                qDebug() << "💥 ¡IMPACTO REAL! Bola ROJA inflige daño (-20).";
+                qDebug() << " ¡IMPACTO REAL! Bola ROJA inflige daño (-20).";
                 jotaro_player->recibirDanio(20);
             } else {
-                qDebug() << "🟢 ¡IMPACTO REAL! Bola VERDE inflige daño (-10).";
+                qDebug() << " ¡IMPACTO REAL! Bola VERDE inflige daño (-10).";
                 jotaro_player->recibirDanio(10);
             }
 
@@ -221,7 +276,7 @@ void MainWindow::actualizar()
                 QRectF hitboxBolaGlobal = ball->getHitbox().translated(ball->pos());
 
                 if (attackGlobal.intersects(hitboxBolaGlobal)) {
-                    qDebug() << "👊 ¡ORA! Bola verde golpeada, inicia caida.";
+                    qDebug() << " ¡ORA! Bola verde golpeada, inicia caida.";
                     ball->recibirGolpe();
                     jotaro_player->cargarEnergia(25); // Carga la barra del Ulti
                 }
@@ -238,33 +293,41 @@ void MainWindow::actualizar()
         esferasActivas.append(b);
     }
 
-    // ──🎒 GESTIÓN DE ITEMS EN EL ESCENARIO ──
+    // ── GESTIÓN DE ITEMS EN EL ESCENARIO ──
     contadorSpawnItems++;
-    if (contadorSpawnItems >= 240) { // Cada 4 segundos
+    if (contadorSpawnItems >= 900) { // Cada 15 segundos
         contadorSpawnItems = 0;
 
-        ItemJuego::TipoItem tipoRnd = (std::rand() % 2 == 0) ? ItemJuego::Vida : ItemJuego::Velocidad;
-        qreal posX = (std::rand() % 500) + 150;
-        qreal posY = (std::rand() % 300) + 150;
+        // Zona segura: solo aparecen en la mitad izquierda (lejos de Gyro que está en x=700)
+        qreal posX = (std::rand() % 400) + 50;  // X entre 50 y 450
+        qreal posY = (std::rand() % 400) + 100; // Y entre 100 y 500
+
+        ItemJuego::TipoItem tipoRnd = (std::rand() % 2 == 0)
+                                          ? ItemJuego::Vida
+                                          : ItemJuego::Velocidad;
 
         ItemJuego *nuevoItem = new ItemJuego(tipoRnd, posX, posY);
         nuevoItem->setZValue(1);
         scene->addItem(nuevoItem);
         itemsActivos.append(nuevoItem);
+
+        qDebug() << "Item spawneado en x=" << posX << "y=" << posY;
     }
 
-    // Colisión de Jotaro con los Items
+    // ── ANIMAR Y COLISIONAR ITEMS ──
     for (int i = itemsActivos.size() - 1; i >= 0; --i) {
         ItemJuego *it = itemsActivos[i];
+
+        it->actualizarAnimacion(); // anima los 6 frames cada tick
 
         if (jotaro_player->collidesWithItem(it)) {
             if (it->getTipo() == ItemJuego::Vida) {
                 jotaro_player->curar(25);
-                qDebug() << "❤️ ¡Jotaro recogió un paquete de Vida! +25 HP";
+                qDebug() << "¡Jotaro recogió Vida! +25 HP";
             }
             else if (it->getTipo() == ItemJuego::Velocidad) {
                 jotaro_player->aumentarVelocidad();
-                qDebug() << "⚡ ¡Jotaro recogió botas de Velocidad! Movimiento aumentado";
+                qDebug() << "¡Jotaro recogió Velocidad!";
             }
 
             scene->removeItem(it);
@@ -282,6 +345,20 @@ void MainWindow::actualizar()
     } else {
         jotaro_player->setMostrarHitbox(false);
     }
+
+
+    // ── ACTUALIZAR HUD ──
+    int vida  = jotaro_player->getVida();    // 0 a 100
+    int ulti  = jotaro_player->getEnergia(); // 0 a 100
+
+    // Ancho proporcional: 150px = 100%, entonces vida*1.5 = ancho actual
+    hudBarraVida->setRect(10, 540, vida * 1.5, 18);
+    hudBarraUlti->setRect(10, 568, ulti * 1.5, 18);
+
+    // Actualizar texto
+    hudTextoVida->setPlainText(QString("VIDA: %1/100").arg(vida));
+    hudTextoUlti->setPlainText(QString("ULTI: %1%").arg(ulti));
+
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)

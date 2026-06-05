@@ -25,13 +25,22 @@ public:
     // Métodos obligatorios de Qt para el dibujado y colisiones fijas
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    void actualizarAnimacion(); // ← AGREGAR ESTA LÍNEA
 
 private:
+
+
     TipoItem tipoActual;
-    QPixmap spriteItem;
+    QPixmap spriteItem; // puedes dejarlo o quitarlo, ya no lo usaremos
+
+    // ── ANIMACIÓN DE 6 FRAMES ──
+    QList<QPixmap> framesAnimacion; // los 6 sprites del item
+    int frameActual;
+    int contadorFrames;
 
     void cargarGrafico();
     QPixmap quitarFondo(const QPixmap &original);
+
 };
 
 #endif // ITEM_H

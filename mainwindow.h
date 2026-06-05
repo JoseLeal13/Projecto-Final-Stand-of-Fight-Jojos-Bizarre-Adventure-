@@ -86,10 +86,21 @@ private:
     QList<QPixmap> framesExplosion;
     void cargarFramesExplosion();
 
-    // ── 🎒 NUEVAS ENTIDADES MODULARIZADAS CON POO ──
+    // ──  NUEVAS ENTIDADES MODULARIZADAS CON POO ──
     Gyro *gyroJefe;                      // El objeto inteligente de Gyro Zeppeli
     QList<ItemJuego*> itemsActivos;      // Almacena los buffs de velocidad y corazones en pantalla
     int contadorSpawnItems;              // Reloj/Temporizador interno para soltar ítems
+
+
+    // ── HUD ──
+    QGraphicsRectItem *hudBarraVidaFondo;
+    QGraphicsRectItem *hudBarraVida;
+    QGraphicsRectItem *hudBarraUltiFondo;
+    QGraphicsRectItem *hudBarraUlti;
+    QGraphicsTextItem *hudTextoVida;
+    QGraphicsTextItem *hudTextoUlti;
+
+
 };
 
 #endif // MAINWINDOW_H

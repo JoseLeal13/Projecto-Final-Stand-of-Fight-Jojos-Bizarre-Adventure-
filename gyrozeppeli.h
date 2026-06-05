@@ -8,8 +8,7 @@
 #include <QTransform>
 #include "steelball.h"
 
-// 👨‍🎓 NOTA DE ESTUDIANTE: Quitamos QObject y Q_OBJECT porque no usamos Signals/Slots en Gyro.
-// Al heredar solo de QGraphicsPixmapItem, el código es más rápido, simple y 100% compatible.
+
 class Gyro : public QGraphicsPixmapItem
 {
 public:
@@ -40,7 +39,7 @@ private:
     // porque Gyro en el juego siempre lanza hacia la izquierda
     QList<QPixmap> framesAtaqueIzquierda;
     int frameAtaqueActual;
-    int contadorFrameAtaque;
+    float contadorFrameAtaque;
 
     void cargarFramesAtaque();
     void actualizarAnimacion();

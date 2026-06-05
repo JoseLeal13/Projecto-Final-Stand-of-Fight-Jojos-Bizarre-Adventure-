@@ -13,7 +13,7 @@ static const int ALTO_ATAQUE = 81;
 static const int MARGEN_FRAME        = 12;
 static const int X_INICIO_MOVIMIENTO = 250;
 
-static const int Y_DIR[4] = {
+static const int Y_DIR[4] = { // filas de los sprites (pixeles)
     94,   // 0 = Arriba
     190,  // 1 = Abajo
     290,  // 2 = Izquierda
@@ -90,6 +90,7 @@ void jotaro::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
         QPixmap spriteADibujar;
 
         if(atacando) {
+            // Elige el frame de ataque según dirección
             if(framesAtaqueDerecha.isEmpty()) {
                 painter->restore();
                 return;
@@ -223,9 +224,11 @@ void jotaro::cargarFrames()
     }
 
     for(int f = 0; f < FRAMES_ATAQUE; f++) {
+
         int xPos = X_INICIO_ATAQUE + f * ANCHO_ATAQUE;
-        QPixmap frame = sprites.copy(xPos, Y_ATAQUE, (f > 0) ? ANCHO_ATAQUE + 115 : ANCHO_ATAQUE, ALTO_ATAQUE);
+        QPixmap frame = sprites.copy(xPos, Y_ATAQUE, (f > 0) ? ANCHO_ATAQUE + 124 : ANCHO_ATAQUE, ALTO_ATAQUE);
         framesAtaqueDerecha.append(quitarFondo(frame));
+
     }
 
     for(int f = 0; f < FRAMES_ATAQUE; f++) {
@@ -285,8 +288,8 @@ void jotaro::curar(int cantidad) {
 }
 
 void jotaro::aumentarVelocidad() {
-    velocidadBonus = 3;    // Sumamos +3 puntos de velocidad
-    timerVelocidad = 180;  // Dura 3 segundos activos (180 frames / 60fps)
+    velocidadBonus = 1;    // Sumamos +3 puntos de velocidad
+    timerVelocidad = 180;  // Dura 2 segundos activos (180 frames / 60fps)
 }
 
 void jotaro::cargarEnergia(int cantidad) {
@@ -315,6 +318,6 @@ void jotaro::usarUlti() {
         energiaUlti = 0;
         ultiActiva = true;
         timerUlti = 240;     // 4 segundos de congelamiento
-        qDebug() << "⏰ ¡¡ZA WARUDO!! El tiempo se ha ralentizado.";
+        qDebug() << " ¡¡ZA WARUDO!! El tiempo se ha ralentizado.";
     }
 }

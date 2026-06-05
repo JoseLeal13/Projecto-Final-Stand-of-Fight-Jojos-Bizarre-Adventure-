@@ -71,15 +71,15 @@ void SteelBall::avanzarFisica()
     // 1. ── CONTROL DE ANIMACIÓN (Bucle repetitivo de 4 sprites) ──
     if (!framesAnimacion.isEmpty()) {
         contadorFrames++;
-        if (contadorFrames >= retardoFrames) {
+        if (contadorFrames >= retardoFrames) { // retardoFrames = 7
             contadorFrames = 0;
             frameActual++;
 
-            if (frameActual >= framesAnimacion.size()) {
+            if (frameActual >= framesAnimacion.size()) { // size = 4 brou
                 frameActual = 0;
             }
 
-            setPixmap(framesAnimacion[frameActual]);
+            setPixmap(framesAnimacion[frameActual]); // dibuja el nuevo frame
         }
     }
 
@@ -152,7 +152,7 @@ void SteelBall::recibirGolpe()
         frameEfecto    = 0;
         contadorEfecto = 0;
 
-        qDebug() << "🥊 Bola verde golpeada, iniciando caida + efecto morado";
+        qDebug() << " Bola verde golpeada, iniciando caida + efecto morado";
     }
 }
 
@@ -218,30 +218,47 @@ QRectF SteelBall::boundingRect() const
 }
 
 // 2. EL MÉTODO PAINT
-// Este era el bug gordo: el paint() original tenía solo un comentario "mantén tu código"
-// y nunca dibujaba la bola de verdad. Por eso desaparecían las pelotas.
+
 void SteelBall::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    // Primero dibujamos el sprite actual de la bola (el frame de animación)
+    // ── AURA ÉPICA ──
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setPen(Qt::NoPen);
+
+    QRadialGradient aura(39, 18, 35);
+
+    if (tipoActual == VerdeGolpeable) {
+        aura.setColorAt(0.0, QColor(0,   255, 80,  255));
+        aura.setColorAt(0.5, QColor(0,   200, 50,  180));
+        aura.setColorAt(1.0, QColor(0,   150, 20,    0));
+    } else {
+        aura.setColorAt(0.0, QColor(255,  20,  0,  255));
+        aura.setColorAt(0.5, QColor(200,   5,  0,  180));
+        aura.setColorAt(1.0, QColor(120,   0,  0,    0));
+    }
+
+    painter->setBrush(QBrush(aura));
+    painter->drawEllipse(QRectF(4, -10, 70, 57));
+    painter->restore();
+
+    // ── SPRITE DE LA BOLA (encima del aura) ──
     if (!framesAnimacion.isEmpty() && frameActual < framesAnimacion.size()) {
         painter->drawPixmap(0, 0, framesAnimacion[frameActual]);
     }
 
-    // Si la bola recibió un golpe, dibujamos el destello morado encima
-    // Lo centramos respecto a la bola (la estrella es más grande que la bola)
+    // ── EFECTO MORADO DEL GOLPE (encima de todo) ──
     if (mostrandoEfecto && frameEfecto < framesEfectoGolpe.size()) {
         QPixmap &efecto = framesEfectoGolpe[frameEfecto];
-        // Centramos el efecto sobre la bola (78x37 es el tamaño de la bola)
         int offsetX = (78 - efecto.width())  / 2;
         int offsetY = (37 - efecto.height()) / 2;
         painter->drawPixmap(offsetX, offsetY, efecto);
     }
 
-    // Hitbox de debug: solo se muestra si el usuario presiona H
-    // Busco la propiedad en la ventana principal para saber si está activa
+    // ── HITBOX DEBUG ──
     bool mostrarH = false;
     if (scene() && !scene()->views().isEmpty()) {
         QWidget *topWidget = scene()->views().first()->window();
@@ -250,7 +267,6 @@ void SteelBall::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
             mostrarH = mainWin->property("mostrarHitbox").toBool();
         }
     }
-
     if (mostrarH) {
         painter->save();
         if (tipoActual == VerdeGolpeable) {
@@ -263,7 +279,6 @@ void SteelBall::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         painter->restore();
     }
 }
-
 // 3. LA SINCRONIZACIÓN DE LA COLISIÓN (Muda la hitbox matemática al mismo lugar que el paint)
 bool SteelBall::collidesWithItem(const QGraphicsItem *other, Qt::ItemSelectionMode mode) const
 {

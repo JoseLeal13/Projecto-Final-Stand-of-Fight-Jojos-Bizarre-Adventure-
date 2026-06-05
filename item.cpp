@@ -1,8 +1,32 @@
 #include "item.h"
 #include <cmath>
+/*
+ * QPixmap sprites("C:\\Users\\Emmanuel\\Documents\\DESAFIOIII\\items.png");
+// ── CONSTANTES DEL SPRITE SHEET DE ITEMS ──────────────────────────────────
+// Modifica estos valores si el sprite sheet cambia, sin tocar el resto
+static const int X_INICIO_ITEMS   = 30;   // X del primer frame (ambos items)
+static const int Y_VIDA           = 132;  // Y de la fila del corazón
+static const int Y_VELOCIDAD      = 132;  // Y de la fila de la gorra (cambia si está en otra fila)
+static const int ANCHO_FRAME_ITEM = 220;  // Ancho de cada frame
+static const int ALTO_FRAME_ITEM  = 254;  // Alto de cada frame
+static const int GAP_FRAME_ITEM   = 35;   // Espacio entre frames
+static const int TOTAL_FRAMES     = 6;    // Frames por item
+*/
+// ── CONSTANTES DEL SPRITE SHEET DE ITEMS ──
+static const int X_INICIO_VIDA      = 30;   // X inicial corazón
+static const int X_INICIO_VELOCIDAD = 46;   // X inicial sombrero
+static const int Y_VIDA             = 132;  // Y fila corazón
+static const int Y_VELOCIDAD        = 678;  // Y fila sombrero ← nuevo
+static const int ANCHO_FRAME_VIDA   = 220;  // ancho frame corazón
+static const int ANCHO_FRAME_VEL    = 207;  // ancho frame sombrero ← nuevo
+static const int ALTO_FRAME_VIDA    = 254;  // alto corazón
+static const int ALTO_FRAME_VEL     = 169;  // alto sombrero ← nuevo
+static const int GAP_VIDA           = 35;   // gap corazón
+static const int GAP_VELOCIDAD      = 40;   // gap sombrero ← nuevo
+static const int TOTAL_FRAMES       = 6;
 
 ItemJuego::ItemJuego(TipoItem tipo, qreal posX, qreal posY)
-    : tipoActual(tipo)
+    : tipoActual(tipo), frameActual(0), contadorFrames(0)
 {
     setPos(posX, posY);
     cargarGrafico();
@@ -10,26 +34,46 @@ ItemJuego::ItemJuego(TipoItem tipo, qreal posX, qreal posY)
 
 void ItemJuego::cargarGrafico()
 {
-    QPixmap sprites(":/sprites_juego.png");
-    QPixmap frameRecortado;
+    QPixmap sprites("C:\\Users\\Emmanuel\\Documents\\DESAFIOIII\\items.png");
 
-    // Coordenadas calculadas y estandarizadas del Sprite Sheet
+    int yPos, xInicio, anchoFrame, altoFrame, gap;
+
     if (tipoActual == Vida) {
-        // Recorte del ítem de corazón / poción de salud
-        frameRecortado = sprites.copy(1015, 60, 45, 45);
+        yPos       = Y_VIDA;
+        xInicio    = X_INICIO_VIDA;
+        anchoFrame = ANCHO_FRAME_VIDA;
+        altoFrame  = ALTO_FRAME_VIDA;
+        gap        = GAP_VIDA;
     } else {
-        // Recorte del ítem de botas / aura celeste de velocidad
-        frameRecortado = sprites.copy(1075, 60, 45, 45);
+        yPos       = Y_VELOCIDAD;
+        xInicio    = X_INICIO_VELOCIDAD;
+        anchoFrame = ANCHO_FRAME_VEL;
+        altoFrame  = ALTO_FRAME_VEL;
+        gap        = GAP_VELOCIDAD;
     }
 
-    // Guardamos el sprite final ya procesado sin el fondo oscuro (30, 27, 60)
-    spriteItem = quitarFondo(frameRecortado);
+    // Debug: imprime el color del fondo para ajustar quitarFondo()
+    QImage imgDebug = sprites.toImage();
+    QColor colorFondo = imgDebug.pixelColor(xInicio, yPos);
+    qDebug() << "Color fondo tipo" << tipoActual << ":"
+             << colorFondo.red() << colorFondo.green() << colorFondo.blue();
+
+    for (int i = 0; i < TOTAL_FRAMES; i++) {
+        int xActual = xInicio + i * (anchoFrame + gap);
+        QPixmap frame = sprites.copy(xActual, yPos, anchoFrame, altoFrame);
+        frame = quitarFondo(frame);
+        frame = frame.scaled(50, 60, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        framesAnimacion.append(frame);
+    }
+
+    if (!framesAnimacion.isEmpty())
+        setPixmap(framesAnimacion[0]);
 }
 
 QPixmap ItemJuego::quitarFondo(const QPixmap &original)
 {
     QImage img = original.toImage().convertToFormat(QImage::Format_ARGB32);
-    QColor fondoColor(30, 27, 60);
+    QColor fondoColor(174, 157, 137);//RGB: (174, 157, 137)
 
     for (int y = 0; y < img.height(); y++) {
         for (int x = 0; x < img.width(); x++) {
@@ -48,25 +92,33 @@ QPixmap ItemJuego::quitarFondo(const QPixmap &original)
 
 QRectF ItemJuego::boundingRect() const
 {
-    // Tamaño estándar para la caja de colisión del ítem en el mapa (45x45 px)
-    return QRectF(0, 0, 45, 45);
+    return QRectF(0, 0, 40, 40); // mismo tamaño que el scaled()
 }
 
+// paint() cerrado correctamente, dibuja el frame actual
 void ItemJuego::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    if (!spriteItem.isNull()) {
-        painter->drawPixmap(0, 0, spriteItem);
+    if (!framesAnimacion.isEmpty()) {
+        painter->drawPixmap(0, 0, framesAnimacion[frameActual]);
     }
 
-    // Dibujado opcional de Hitbox en modo Debug si fuese necesario
-    // Para ver si Jotaro los pisa bien, descomenta las líneas de abajo si quieres:
-    /*
-    painter->save();
+    // Debug temporal: muestra el rectángulo del item en amarillo
     painter->setPen(QPen(Qt::yellow, 1, Qt::DotLine));
     painter->drawRect(boundingRect());
-    painter->restore();
-    */
+}
+
+// actualizarAnimacion() es una función SEPARADA, fuera de paint()
+void ItemJuego::actualizarAnimacion()
+{
+    if (framesAnimacion.isEmpty()) return;
+
+    contadorFrames++;
+    if (contadorFrames >= 8) {
+        contadorFrames = 0;
+        frameActual = (frameActual + 1) % framesAnimacion.size();
+        setPixmap(framesAnimacion[frameActual]);
+    }
 }

@@ -23,12 +23,13 @@ Personaje::Personaje(QGraphicsItem *parent) : QGraphicsPixmapItem(parent)
 }
 
 // Implementación del método de colisión lógica que declaraste en tu .h
+// personaje.cpp — SOLO AQUÍ, no en jotaro.cpp
 bool Personaje::verificarColision(float proximoX, float proximoY)
 {
-    // Aquí puedes poner tu lógica de colisión con el mapa o los obstáculos del escenario.
-    // Por ahora, si no hay colisiones complejas, permitimos el paso retornando false (no colisiona)
-    Q_UNUSED(proximoX);
-    Q_UNUSED(proximoY);
+    if (proximoX < 0)   return true;  // borde izquierdo
+    if (proximoX > 730) return true;  // borde derecho
+    if (proximoY < 0)   return true;  // borde arriba
+    if (proximoY > 500) return true;  // borde abajo
     return false;
 }
 

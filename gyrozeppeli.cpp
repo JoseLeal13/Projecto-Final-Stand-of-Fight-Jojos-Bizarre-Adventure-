@@ -136,7 +136,7 @@ void Gyro::actualizarComportamiento(int tiempoRestante, qreal jotaroY) {
     else if (estadoActual == Lluvia) {
         // Modo presión: cada 35 frames en vez de 15 para no saturar la pantalla.
         // A veces lanza una segunda bola extra con 40% de probabilidad.
-        if (contadorAtaque >= 35) {
+        if (contadorAtaque >= 38) {
             contadorAtaque = 0;
 
             setY(jotaroY); // Sigue sutilmente el eje Y de Jotaro

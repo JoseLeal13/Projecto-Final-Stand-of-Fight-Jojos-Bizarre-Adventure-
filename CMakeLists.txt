@@ -30,6 +30,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         gyrozeppeli.h gyrozeppeli.cpp
         steelball.h steelball.cpp
         item.h item.cpp
+        zona_entrenamiento.png
+        items.png
     )
 qt_add_resources(DESAFIOIII "resources"
         PREFIX "/"
