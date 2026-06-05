@@ -16,7 +16,6 @@ protected:
     Jojo* jojo;          // El protagonista persistente
 
 public:
-    // El constructor recibe la escena y el puntero al personaje principal
     Nivel(QGraphicsScene* escenaCompartida, Jojo* personajeJojo, QObject* parent = nullptr)
         : QObject(parent), escena(escenaCompartida), jojo(personajeJojo) {
 
@@ -40,9 +39,11 @@ public:
     virtual bool verificarCondicionDerrota() = 0;
     virtual void limpiarNivel() = 0;
 
-protected slots:
-    // Slot obligatorio que procesará el Game Loop de cada nivel de manera independiente
+protected slots:   
     virtual void actualizarLoop() = 0;
+
+signals:
+    void nivelTerminado(bool victoria);
 };
 
 #endif // NIVEL_H

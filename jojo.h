@@ -5,6 +5,17 @@
 #include <QList>
 #include <QPainter>
 #include <QGraphicsDropShadowEffect>
+#include <utility>
+
+// Operador * : Multiplica un par STL por un flotante (Para aplicar la ESCALA)
+inline std::pair<float, float> operator*(const std::pair<float, float>& par, float escalar) {
+    return std::make_pair(par.first * escalar, par.second * escalar);
+}
+
+// Operador + : Suma dos pares STL (Para mover o desplazar coordenadas)
+inline std::pair<float, float> operator+(const std::pair<float, float>& a, const std::pair<float, float>& b) {
+    return std::make_pair(a.first + b.first, a.second + b.second);
+}
 
 class Jojo : public Personaje
 {
@@ -20,7 +31,7 @@ public:
     void setEsDummy(bool dummy) { esDummy = dummy; }
     void moverse() override;
     void atacar() override;
-    void atacarFuerte(int tipo);
+    void atacar(int tipo);
     void actualizarAtaque();
     void actualizarAtaquesFuertes();
     void defensa();
@@ -28,7 +39,7 @@ public:
     void actualizarEspecial();
     void procesarDano(QRectF area, int cantidad);
     void recibirDano(int cantidad);
-    void recibirDanoConOrigen(int cantidad, float atacanteX);
+    void recibirDano(int cantidad, float atacanteX);
     void saltar();
     void setVelocidadX(float v) {
         if (estadoDano == DANO1 || estadoDano == DANO2 ||
@@ -51,11 +62,8 @@ public:
     void evaluarHitboxFuerte2();
     void evaluarHitboxEspecial();
 
-    // Sobrecarga de moverse: Recibe las velocidades deseadas (vx, vy) desde el input del Nivel 1
     void moverse(float nuevoVx, float nuevoVy);
-    // Sobrecarga de atacar: Recibe un tipo de golpe o dirección para interactuar con las pelotas
     void atacar(char tipoGolpe);
-    // Sobrecarga de habilidadEspecial: Recibe un factor de escala o porcentaje
     void habilidadEspecial(float factorRalentizacion);
     // Sobrecarga del Constructor
     // Al recibir un QString, el compilador sabe que es el Jotaro del Nivel 1
@@ -109,8 +117,8 @@ private:
     bool recibiendoGolpes = false;  // true mientras llegan golpes del ataque actual
 
     void cargarSprites();
-    void activarDano1();
-    void activarDano2(bool mitadEmpuje = false);
+    void activarDano();
+    void activarDano(bool mitadEmpuje);
     void actualizarAnimDano();
 
     // Sobrecarga de los sprites

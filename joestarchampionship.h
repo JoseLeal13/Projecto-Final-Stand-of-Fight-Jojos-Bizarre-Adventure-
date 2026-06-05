@@ -14,6 +14,7 @@
 #include <QGraphicsScene>
 #include <QSet>
 #include <QDialog>
+#include "nivel1.h"
 #include "nivel2.h"
 
 class JoestarChampionship : public QMainWindow {
@@ -97,6 +98,7 @@ private:
     QLabel *lblResultadoPostJuego;
 
     // Controladores de estado del torneo
+    Nivel1 *nivel1Activo;
     Nivel2 *nivel2Activo;
     int idUltimoNivelJugado;
     QString dificultadUltimoNivel1;

@@ -647,17 +647,7 @@ void JoestarChampionship::reanudarMusicaNivelDetenido() {
 void JoestarChampionship::keyPressEvent(QKeyEvent *event) {
     if (event->isAutoRepeat()) return;
 
-    if (event->key() == Qt::Key_F1) {
-        Personaje::modoDebug = !Personaje::modoDebug;
-        if (nivel2Activo && controladorPantallas->currentIndex() > 4) {
-            if (QGraphicsView* vista = qobject_cast<QGraphicsView*>(controladorPantallas->currentWidget())) {
-                if (vista->scene()) vista->scene()->update();
-            }
-        }
-        event->accept();
-        return;
-    }
-
+    // Controles de comandos Debug del sistema
     if (event->key() == Qt::Key_F2) {
         nivel1Completado = !nivel1Completado;
         if (controladorPantallas->currentIndex() == 1) {
@@ -666,90 +656,35 @@ void JoestarChampionship::keyPressEvent(QKeyEvent *event) {
         event->accept();
         return;
     }
-
     if (event->key() == Qt::Key_F5) {
         event->accept();
         idUltimoNivelJugado = 2;
-        capturarFinDelJuego(true); // true = Victoria de Jotaro (Yare Yare Daze)
+        capturarFinDelJuego(true);
         return;
     }
-
-    // F6: Forzar VICTORIA de DIO en el NIVEL 2
     if (event->key() == Qt::Key_F6) {
         event->accept();
         idUltimoNivelJugado = 2;
-        capturarFinDelJuego(false); // false = Victoria de DIO / Derrota del Jugador (Risa WRYYY)
+        capturarFinDelJuego(false);
         return;
     }
-
-    // F7: Forzar VICTORIA de JOJO en el NIVEL 1
     if (event->key() == Qt::Key_F7) {
         event->accept();
         idUltimoNivelJugado = 1;
-        capturarFinDelJuego(true); // true = Pasa la prueba de Gyro (Nyo-ho / Pizza Mozzarella)
+        capturarFinDelJuego(true);
         return;
     }
-
-    // F8: Forzar PANTALLA de GYRO (Fallo de prueba) en el NIVEL 1
     if (event->key() == Qt::Key_F8) {
         event->accept();
         idUltimoNivelJugado = 1;
-        capturarFinDelJuego(false); // false = No pasó la prueba de Gyro
+        capturarFinDelJuego(false);
         return;
     }
 
-    // --- Control de captura de físicas de entrada estándar para el combate activo ---
+    // REDIRECCIÓN DIRECTA PASANDO EL EVENTO COMPLETO
     QGraphicsView* vistaActual = qobject_cast<QGraphicsView*>(controladorPantallas->currentWidget());
     if (nivel2Activo && vistaActual) {
-
-        if (nivel2Activo->isRondaEnTransicion()) {
-            event->accept();
-            return;
-        }
-
-        teclasPresionadas.insert(event->key());
-
-        Jojo* jojo = nivel2Activo->getJugador();
-        if (!jojo) {
-            QMainWindow::keyPressEvent(event);
-            return;
-        }
-
-        switch (event->key()) {
-        case Qt::Key_A:
-        case Qt::Key_Left:
-            if (jojo->getVelocidadX() == 0) jojo->setFrameActual(0);
-            jojo->setVelocidadX(-7);
-            break;
-
-        case Qt::Key_D:
-        case Qt::Key_Right:
-            if (jojo->getVelocidadX() == 0) jojo->setFrameActual(0);
-            jojo->setVelocidadX(7);
-            break;
-
-        case Qt::Key_Space:
-            jojo->saltar();
-            break;
-
-        case Qt::Key_K:
-            jojo->setDefensa(true);
-            break;
-
-        case Qt::Key_J:
-            if (teclasPresionadas.contains(Qt::Key_W)) {
-                jojo->atacarFuerte(1);
-            } else if (teclasPresionadas.contains(Qt::Key_S)) {
-                jojo->atacarFuerte(2);
-            } else {
-                jojo->atacar();
-            }
-            break;
-
-        case Qt::Key_L:
-            jojo->habilidadEspecial();
-            break;
-        }
+        nivel2Activo->procesarPresionTeclada(event);
         event->accept();
         return;
     }
@@ -760,33 +695,11 @@ void JoestarChampionship::keyPressEvent(QKeyEvent *event) {
 void JoestarChampionship::keyReleaseEvent(QKeyEvent *event) {
     if (event->isAutoRepeat()) return;
 
+    // REDIRECCIÓN DIRECTA PASANDO EL EVENTO COMPLETO
     if (nivel2Activo && controladorPantallas->currentIndex() > 4) {
-
-        if (nivel2Activo->isRondaEnTransicion()) {
-            event->accept();
-            return;
-        }
-
-        teclasPresionadas.remove(event->key());
-
-        Jojo* jojo = nivel2Activo->getJugador();
-        if (jojo) {
-            int key = event->key();
-            if (key == Qt::Key_A || key == Qt::Key_Left) {
-                if (!teclasPresionadas.contains(Qt::Key_D) && !teclasPresionadas.contains(Qt::Key_Right)) {
-                    jojo->setVelocidadX(0);
-                }
-            }
-            else if (key == Qt::Key_D || key == Qt::Key_Right) {
-                if (!teclasPresionadas.contains(Qt::Key_A) && !teclasPresionadas.contains(Qt::Key_Left)) {
-                    jojo->setVelocidadX(0);
-                }
-            }
-
-            if (key == Qt::Key_K) {
-                jojo->setDefensa(false);
-            }
-        }
+        nivel2Activo->procesarLiberacionTeclada(event);
+        event->accept();
+        return;
     }
     QMainWindow::keyReleaseEvent(event);
 }

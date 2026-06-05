@@ -141,18 +141,18 @@ void Jojo::cargarSprites() {
 // ═══════════════════════════════════════════════════════════════════════════
 //  ACTIVAR DAÑO 1 — golpe leve (acumulado < 15)
 // ═══════════════════════════════════════════════════════════════════════════
-void Jojo::activarDano1() {
+void Jojo::activarDano() {
     estadoDano = DANO1;
     frameDano = 0;
     ralentizadorDano = 0;
-    // Quitamos la línea que calculaba vx aquí
+
     qDebug() << "[DAÑO1] Golpe leve recibido. Acumulado:" << danioAcumulado;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-//  ACTIVAR DAÑO 2 — golpe fuerte (acumulado >= 15) o muerte
+// ACTIVAR DAÑO 2: activarEstadoDano(bool) -> Para golpes fuertes/knockback
 // ═══════════════════════════════════════════════════════════════════════════
-void Jojo::activarDano2(bool mitadEmpuje) {
+void Jojo::activarDano(bool mitadEmpuje) {
     estadoDano = DANO2;
     frameDano = 0;
     ralentizadorDano = 0;
@@ -160,19 +160,22 @@ void Jojo::activarDano2(bool mitadEmpuje) {
     // SI ESTÁ EN ATAQUE FUERTE O ESPECIAL, TIENE ARMADURA IMPARABLE
     if (stand && (faseCombo == 3 || faseCombo == 4 || faseCombo == 5)) {
         qDebug() << "[HYPER ARMOR] ¡Jotaro resiste el aturdimiento y continúa el ataque!";
-        // NO reseteamos estaAtacando, ni stand, ni faseCombo. La animación sigue viva.
     } else {
-        // Si no está usando su Stand de forma pesada, sí se interrumpe normalmente
         estaAtacando = false;
         stand = false;
         faseCombo = 0;
         frameActualStand = 0;
     }
 
-    // El empuje físico se aplica igual (vuela por el golpe pero el Stand sigue golpeando)
+    // El empuje físico se aplica igual
     float empujeX = mirandoDerecha ? -6.0f : 6.0f;
     float empujeY = -10.0f;
-    if (mitadEmpuje) { empujeX *= 0.5f; empujeY *= 0.5f; }
+
+    if (mitadEmpuje) {
+        empujeX *= 0.5f;
+        empujeY *= 0.5f;
+    }
+
     vx = empujeX;
     vy = empujeY;
     enSuelo = false;
@@ -184,17 +187,30 @@ void Jojo::activarDano2(bool mitadEmpuje) {
 //  recibirDano — lógica principal con acumulación
 // ═══════════════════════════════════════════════════════════════════════════
 void Jojo::recibirDano(int cantidad) {
+
+    recibirDano(cantidad, this->x());
+}
+
+void Jojo::recibirDano(int cantidad, float atacanteX) {
     if (estadoDano == MUERTO) return;
 
-    // Aplicar reducción por defensa
+    // --- LÓGICA DE CONTADOR GOLPES GOLPEADOS (Aura Roja de Furia) ---
+    if (animoActual != ENOJADO) {
+        contadorGolpesRecibidos++;
+        if (contadorGolpesRecibidos >= 40) {
+            animoActual = ENOJADO;
+            proximoAtaquePotenciado = true;
+            actualizarAuraVisual();
+            qDebug() << "[ENOJADO ACTIVO] ¡Jotaro ha recibido 40 golpes! Siguiente ataque hará +40% de daño.";
+        }
+    }
+
     bool defendiendo = estaDefendiendo;
     if (defendiendo) cantidad /= 2;
 
-    // Descontar vida
     puntosdevida -= cantidad;
     qDebug() << "¡Jojo recibió" << cantidad << "de daño! Vida:" << puntosdevida;
 
-    // ── MUERTE ────────────────────────────────────────────────────────────
     if (puntosdevida <= 0) {
         puntosdevida = 0;
         estadoDano = MUERTO;
@@ -202,30 +218,48 @@ void Jojo::recibirDano(int cantidad) {
         estaAtacando = false;
         stand = false;
         vx = 0; vy = 0;
+        if (sonidoBasico && sonidoBasico->isPlaying())   sonidoBasico->stop();
+        if (sonidoFuerte1 && sonidoFuerte1->isPlaying()) sonidoFuerte1->stop();
+        if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
+        if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
         qDebug() << ">>> JOJO HA SIDO DERROTADO <<<";
         return;
     }
-
-    // ── ACUMULAR DAÑO ─────────────────────────────────────────────────────
     danioAcumulado += cantidad;
 
-    // ── DEFENSA: ignora Daño1, solo activa Daño2 si acumulado >= 15 ──────
-    if (defendiendo) {
-        if (danioAcumulado >= 22) {
-            activarDano2(true); // mitad de empuje
-            danioAcumulado = 0;
-        }
-        // si < 15 mientras defiende: ignorar animación
+    // Calculamos la dirección del empuje basándonos en las posiciones
+    float direccionEmpuje = 0.0f;
+    if (atacanteX < this->x())       direccionEmpuje = 0.5f;   // Atacante a la izquierda -> Empuje a la derecha
+    else if (atacanteX > this->x())  direccionEmpuje = -0.5f;  // Atacante a la derecha -> Empuje a la izquierda
+    // Nota: Si atacanteX == this->x(), direccionEmpuje se queda en 0.0f (no hay empuje)
+
+    if (stand && (faseCombo == 3 || faseCombo == 4 || faseCombo == 5)) {
+        estadoDano = NORMAL;
+        vx = direccionEmpuje * 4.0f;
         return;
     }
 
-    // ── SIN DEFENSA ───────────────────────────────────────────────────────
+    if (defendiendo) {
+        if (danioAcumulado >= 22) {
+            this->activarDano(true);
+            vx = direccionEmpuje * 10.0f;
+            danioAcumulado = 0;
+        }
+        return;
+    }
+
     if (danioAcumulado >= 22) {
-        activarDano2(false);
+        this->activarDano(false);
+        vx = direccionEmpuje * 10.0f;
         danioAcumulado = 0;
+        if (sonidoBasico && sonidoBasico->isPlaying())   sonidoBasico->stop();
+        if (sonidoFuerte1 && sonidoFuerte1->isPlaying()) sonidoFuerte1->stop();
+        if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
+        if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
     } else {
-        // < 15: activar o reiniciar Daño1
-        activarDano1();
+        this->activarDano();
+        vx = direccionEmpuje * 1.0f;
+        if (sonidoBasico && sonidoBasico->isPlaying()) sonidoBasico->stop();
     }
 }
 
@@ -574,7 +608,7 @@ void Jojo::actualizarAtaque() {
     }
 }
 
-void Jojo::atacarFuerte(int tipo) {
+void Jojo::atacar(int tipo) {
     if (stand || !puedeAtacar || estaAtacando || estaDefendiendo || estadoDano != NORMAL) return;
 
     estaAtacando = true;
@@ -722,10 +756,18 @@ void Jojo::defensa() {
 //  HITBOXES
 // ═══════════════════════════════════════════════════════════════════════════
 void Jojo::evaluarHitboxBasico() {
-    float anchoHit = 20 * ESCALA, altoHit = 20 * ESCALA;
-    // AUMENTADO: Se desplaza a 65.0f a la derecha para emparejar el alcance
-    float offX = mirandoDerecha ? 65.0f : -anchoHit + 10.0f;
-    QRectF rect(x() + offX, y() + 25, anchoHit, altoHit);
+    // 1. Definimos las dimensiones usando el par STL y lo escalamos con el operador *
+    std::pair<float, float> dimBase = std::make_pair(20.0f, 20.0f);
+    std::pair<float, float> dim = dimBase * ESCALA; // Usa el operador *
+
+    // 2. Calculamos los offsets de posición
+    float despX = mirandoDerecha ? 65.0f : (-dim.first + 10.0f);
+
+    // 3. Creamos la posición final usando el operador + para combinar coordenadas
+    std::pair<float, float> posPersonaje = std::make_pair(x() + despX, y() + 25.0f);
+
+    // 4. Construimos el QRectF final para el motor de Qt
+    QRectF rect(posPersonaje.first, posPersonaje.second, dim.first, dim.second);
     procesarDano(rect, 5);
     danoAplicado = true;
 
@@ -736,10 +778,12 @@ void Jojo::evaluarHitboxBasico() {
 }
 
 void Jojo::evaluarHitboxFuerte1() {
-    float anchoHit = 60 * ESCALA, altoHit = 45 * ESCALA;
-    // AUMENTADO: Ajustado a 85.0f para que la ráfaga conecte justo donde se materializa el Stand
-    float offX = mirandoDerecha ? 85.0f : -anchoHit - 10.0f;
-    QRectF rect(x() + offX, y() - 15, anchoHit, altoHit);
+    std::pair<float, float> dim = std::make_pair(60.0f, 45.0f) * ESCALA; // Usa el operador *
+
+    float despX = mirandoDerecha ? 85.0f : (-dim.first - 10.0f);
+    std::pair<float, float> posFinal = std::make_pair(x() + despX, y() - 15.0f);
+
+    QRectF rect(posFinal.first, posFinal.second, dim.first, dim.second);
     procesarDano(rect, 2);
 
     if (Personaje::modoDebug) {
@@ -750,10 +794,12 @@ void Jojo::evaluarHitboxFuerte1() {
 
 void Jojo::evaluarHitboxFuerte2() {
     if (frameActualStand >= 4 && frameActualStand <= 8) {
-        float anchoHit = 55 * ESCALA, altoHit = 40 * ESCALA;
-        // AUMENTADO: Ajustado a 80.0f para sincronizar con la extensión máxima del brazo
-        float offX = mirandoDerecha ? 80.0f : -anchoHit - 20.0f;
-        QRectF rect(x() + offX, y() + 15, anchoHit, altoHit);
+        std::pair<float, float> dim = std::make_pair(55.0f, 40.0f) * ESCALA; // Usa el operador *
+
+        float despX = mirandoDerecha ? 80.0f : (-dim.first - 20.0f);
+        std::pair<float, float> posFinal = std::make_pair(x() + despX, y() + 15.0f);
+
+        QRectF rect(posFinal.first, posFinal.second, dim.first, dim.second);
         procesarDano(rect, 5);
 
         if (Personaje::modoDebug) {
@@ -764,10 +810,13 @@ void Jojo::evaluarHitboxFuerte2() {
 }
 
 void Jojo::evaluarHitboxEspecial() {
-    float anchoHit = 80 * ESCALA;
-    // AUMENTADO: Ajustado a 90.0f para cubrir toda la pantalla frontal durante la marea de puños
-    float offX = mirandoDerecha ? 90.0f : -anchoHit + 5.0f;
-    QRectF rect(x() + offX, y() - 20, anchoHit, 90);
+    std::pair<float, float> dim = std::make_pair(80.0f, 90.0f);
+    dim.first = dim.first * ESCALA; // Usa el operador * en un solo componente
+
+    float despX = mirandoDerecha ? 90.0f : (-dim.first + 5.0f);
+    std::pair<float, float> posFinal = std::make_pair(x() + despX, y() - 20.0f);
+
+    QRectF rect(posFinal.first, posFinal.second, dim.first, dim.second);
     procesarDano(rect, 2);
 
     if (Personaje::modoDebug) {
@@ -793,14 +842,14 @@ void Jojo::procesarDano(QRectF area, int cantidad) {
         Jojo* personajeGolpeado = dynamic_cast<Jojo*>(item);
         if (personajeGolpeado && personajeGolpeado != this) {
             golpeoAAlguien = true;
-            personajeGolpeado->recibirDanoConOrigen(cantidad, this->x());
+            personajeGolpeado->recibirDano(cantidad, this->x());
             continue;
         }
 
         DIO* dioGolpeado = dynamic_cast<DIO*>(item);
         if (dioGolpeado) {
             golpeoAAlguien = true;
-            dioGolpeado->recibirDanoConOrigen(cantidad, this->x());
+            dioGolpeado->recibirDano(cantidad, this->x());
         }
     }
 
@@ -813,77 +862,6 @@ void Jojo::procesarDano(QRectF area, int cantidad) {
         if (barradeCarga >= 100) {
             actualizarAuraVisual();
         }
-    }
-}
-
-void Jojo::recibirDanoConOrigen(int cantidad, float atacanteX) {
-    if (estadoDano == MUERTO) return;
-
-    // --- LÓGICA DE CONTADOR GOLPES GOLPEADOS (Aura Roja de Furia) ---
-    if (animoActual != ENOJADO) {
-        contadorGolpesRecibidos++;
-        if (contadorGolpesRecibidos >= 40) {
-            animoActual = ENOJADO;
-            proximoAtaquePotenciado = true; // Reserva el daño devastador para el siguiente combo
-            actualizarAuraVisual();
-            qDebug() << "[ENOJADO ACTIVO] ¡Jotaro ha recibido 50 golpes! Siguiente ataque hará +40% de daño. Es más lento y pesado.";
-        }
-    }
-
-    bool defendiendo = estaDefendiendo;
-    if (defendiendo) cantidad /= 2;
-
-    puntosdevida -= cantidad;
-    qDebug() << "¡Jojo recibió" << cantidad << "de daño! Vida:" << puntosdevida;
-
-    if (puntosdevida <= 0) {
-        puntosdevida = 0;
-        estadoDano = MUERTO;
-        frameDano = 0;
-        estaAtacando = false;
-        stand = false;
-        vx = 0; vy = 0;
-        if (sonidoBasico && sonidoBasico->isPlaying())   sonidoBasico->stop();
-        if (sonidoFuerte1 && sonidoFuerte1->isPlaying()) sonidoFuerte1->stop();
-        if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
-        if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
-        qDebug() << ">>> JOJO HA SIDO DERROTADO <<<";
-        return;
-    }
-    danioAcumulado += cantidad;
-
-
-    float direccionEmpuje = (atacanteX < this->x()) ? 0.5f : -0.5f;
-
-    if (stand && (faseCombo == 3 || faseCombo == 4 || faseCombo == 5)) {
-        // El daño se resta (ya se hizo arriba), pero conservamos el estado NORMAL para la animación
-        estadoDano = NORMAL;
-        // Aplicamos un pequeño empuje horizontal por el impacto, pero sin cancelar el ataque
-        vx = direccionEmpuje * 4.0f;
-        return;
-    }
-
-    if (defendiendo) {
-        if (danioAcumulado >= 22) {
-            this->activarDano2(true);
-            vx = direccionEmpuje * 10.0f;
-            danioAcumulado = 0;
-        }
-        return;
-    }
-
-    if (danioAcumulado >= 22) {
-        this->activarDano2(false);
-        vx = direccionEmpuje * 10.0f;
-        danioAcumulado = 0;
-        if (sonidoBasico && sonidoBasico->isPlaying())   sonidoBasico->stop();
-        if (sonidoFuerte1 && sonidoFuerte1->isPlaying()) sonidoFuerte1->stop();
-        if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
-        if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
-    } else {
-        this->activarDano1();
-        vx = direccionEmpuje * 1.0f;
-        if (sonidoBasico && sonidoBasico->isPlaying()) sonidoBasico->stop();
     }
 }
 

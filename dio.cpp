@@ -33,15 +33,15 @@ DIO::DIO(Personaje* jojo) : Personaje()
 
     sonidoFuerte1 = new QSoundEffect(this);
     sonidoFuerte1->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Wryyyyy meme sound effect.wav"));
-    sonidoFuerte1->setVolume(0.90f);
+    sonidoFuerte1->setVolume(0.80f);
 
     sonidoFuerte2 = new QSoundEffect(this);
     sonidoFuerte2->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Single muda sound effect.wav"));
-    sonidoFuerte2->setVolume(0.90f);
+    sonidoFuerte2->setVolume(0.80f);
 
     sonidoEspecial = new QSoundEffect(this);
     sonidoEspecial->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/muda muda muda sound effect.wav"));
-    sonidoEspecial->setVolume(1.0f);
+    sonidoEspecial->setVolume(0.80f);
 
     sonidoZaWarudo = new QSoundEffect(this);
     sonidoZaWarudo->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Za Warudo - Sound Effect.wav"));
@@ -227,7 +227,7 @@ void DIO::ejecutarCerebro(float dx, float distancia) {
             cooldownAprendizajeTicks = 600;
             actualizarAuraVisual();
             qDebug() << "[APRENDIZAJE] 2 segundos exactos cumplidos. DIO contraataca con Fuerte 1.";
-            atacarFuerte(1);
+            atacar(1);
             vx = 0; // Detener inercia inmediatamente
             return;
         }
@@ -399,14 +399,14 @@ void DIO::ejecutarCerebro(float dx, float distancia) {
         else {
             int dadoTipoGolpe = std::rand() % 100;
             if (modoHiperagresivoActivo) {
-                if (std::rand() % 100 < 50) atacarFuerte(1);
-                else atacarFuerte(2);
+                if (std::rand() % 100 < 50) atacar(1);
+                else atacar(2);
             } else {
                 if (dadoTipoGolpe < 70) {
                     atacar();
                 } else {
-                    if (std::rand() % 100 < 50) atacarFuerte(1);
-                    else atacarFuerte(2);
+                    if (std::rand() % 100 < 50) atacar(1);
+                    else atacar(2);
                 }
             }
             vx = 0; // Forzar velocidad cero tras ordenar ataque a corta distancia
@@ -414,8 +414,8 @@ void DIO::ejecutarCerebro(float dx, float distancia) {
     }
     else if (distancia > 50 && distancia <= 100) {
         vx = 0;
-        if (modoHiperagresivoActivo || std::rand() % 100 < 50) atacarFuerte(1);
-        else atacarFuerte(2);
+        if (modoHiperagresivoActivo || std::rand() % 100 < 50) atacar(1);
+        else atacar(2);
         vx = 0;
     }
     else {
@@ -501,8 +501,8 @@ void DIO::moverse() {
                     ralentDioEsp = 0; ralentTWEsp = 0;
                 }
                 else if (decisionAtaqueTS < 60) atacar();
-                else if (decisionAtaqueTS < 85) atacarFuerte(1);
-                else atacarFuerte(2);
+                else if (decisionAtaqueTS < 85) atacar(1);
+                else atacar(2);
             }
         }
     }
@@ -730,7 +730,7 @@ void DIO::actualizarAtaque() {
     }
 }
 
-void DIO::atacarFuerte(int tipo) {
+void DIO::atacar(int tipo) {
     if (stand || !puedeAtacar || estaAtacando || estaDefendiendo || estadoDano != NORMAL) return;
 
     estaAtacando = true;
@@ -894,7 +894,7 @@ void DIO::actualizarEspecial() {
                     faseCombo = 0;
                     vx = 0;
                     setOffset(0, 0);
-                    atacarFuerte(1); // Usa un ataque común en su lugar para no quedarse quieto
+                    atacar(1); // Usa un ataque común en su lugar para no quedarse quieto
                 }
                 return;
             }
@@ -978,13 +978,19 @@ void DIO::defensa() {
     actualizarAuraVisual();
 }
 
-// Hitboxes optimizadas con offsets corregidos de tu versión local
+// Hitboxes optimizadas
 void DIO::evaluarHitboxBasico() {
-    float anchoHit = 20 * ESCALA, altoHit = 20 * ESCALA;
-    float offX = mirandoDerecha ? 65.0f : -anchoHit + 10.0f;
-    QRectF rect(x() + offX, y() + 25, anchoHit, altoHit);
+    std::pair<float, float> dimBase = std::make_pair(20.0f, 20.0f);
+    std::pair<float, float> dim = dimBase * ESCALA;
+
+    float offX = mirandoDerecha ? 65.0f : (-dim.first + 10.0f);
+
+    std::pair<float, float> posPersonaje = std::make_pair(x() + offX, y() + 25.0f);
+
+    QRectF rect(posPersonaje.first, posPersonaje.second, dim.first, dim.second);
     procesarDano(rect, 5);
     danoAplicado = true;
+
     if (Personaje::modoDebug) {
         QGraphicsRectItem* dr = scene()->addRect(rect, QPen(Qt::yellow, 2));
         QTimer::singleShot(100, [dr]() { if (dr && dr->scene()) { dr->scene()->removeItem(dr); delete dr; } });
@@ -992,10 +998,14 @@ void DIO::evaluarHitboxBasico() {
 }
 
 void DIO::evaluarHitboxFuerte1() {
-    float anchoHit = 60 * ESCALA, altoHit = 45 * ESCALA;
-    float offX = mirandoDerecha ? 85.0f : -anchoHit - 10.0f;
-    QRectF rect(x() + offX, y() - 15, anchoHit, altoHit);
+    std::pair<float, float> dim = std::make_pair(60.0f, 45.0f) * ESCALA;
+
+    float offX = mirandoDerecha ? 85.0f : (-dim.first - 10.0f);
+    std::pair<float, float> posFinal = std::make_pair(x() + offX, y() - 15.0f);
+
+    QRectF rect(posFinal.first, posFinal.second, dim.first, dim.second);
     procesarDano(rect, 2);
+
     if (Personaje::modoDebug) {
         QGraphicsRectItem* dr = scene()->addRect(rect, QPen(Qt::yellow, 2));
         QTimer::singleShot(50, [dr]() { if (dr && dr->scene()) { dr->scene()->removeItem(dr); delete dr; } });
@@ -1004,10 +1014,14 @@ void DIO::evaluarHitboxFuerte1() {
 
 void DIO::evaluarHitboxFuerte2() {
     if (frameActualStand >= 4 && frameActualStand <= 8) {
-        float anchoHit = 65 * ESCALA, altoHit = 40 * ESCALA;
-        float offX = mirandoDerecha ? 80.0f : -anchoHit - 20.0f;
-        QRectF rect(x() + offX, y() + 15, anchoHit, altoHit);
+        std::pair<float, float> dim = std::make_pair(65.0f, 40.0f) * ESCALA;
+
+        float offX = mirandoDerecha ? 80.0f : (-dim.first - 20.0f);
+        std::pair<float, float> posFinal = std::make_pair(x() + offX, y() + 15.0f);
+
+        QRectF rect(posFinal.first, posFinal.second, dim.first, dim.second);
         procesarDano(rect, 5);
+
         if (Personaje::modoDebug) {
             QGraphicsRectItem* dr = scene()->addRect(rect, QPen(Qt::yellow, 3));
             QTimer::singleShot(50, [dr]() { if (dr && dr->scene()) { dr->scene()->removeItem(dr); delete dr; } });
@@ -1016,10 +1030,15 @@ void DIO::evaluarHitboxFuerte2() {
 }
 
 void DIO::evaluarHitboxEspecial() {
-    float anchoHit = 80 * ESCALA;
-    float offX = mirandoDerecha ? 90.0f : -anchoHit + 5.0f;
-    QRectF rect(x() + offX, y() - 20, anchoHit, 90);
+    std::pair<float, float> dimBase = std::make_pair(80.0f, 90.0f);
+    std::pair<float, float> dim = dimBase * ESCALA;
+
+    float offX = mirandoDerecha ? 90.0f : (-dim.first + 5.0f);
+    std::pair<float, float> posFinal = std::make_pair(x() + offX, y() - 20.0f);
+
+    QRectF rect(posFinal.first, posFinal.second, dim.first, dim.second);
     procesarDano(rect, 4);
+
     if (Personaje::modoDebug) {
         QGraphicsRectItem* dr = scene()->addRect(rect, QPen(Qt::yellow, 2));
         QTimer::singleShot(40, [dr]() { if (dr && dr->scene()) { dr->scene()->removeItem(dr); delete dr; } });
@@ -1033,7 +1052,7 @@ void DIO::procesarDano(QRectF area, int cantidad) {
         Jojo* personajeGolpeado = dynamic_cast<Jojo*>(item);
         if (personajeGolpeado) {
             golpeoAAlguien = true;
-            personajeGolpeado->recibirDanoConOrigen(cantidad, this->x());
+            personajeGolpeado->recibirDano(cantidad, this->x());
         }
     }
 
@@ -1048,110 +1067,13 @@ void DIO::procesarDano(QRectF area, int cantidad) {
     }
 }
 
-// ── RESTABLECIMIENTO DE LAS FÍSICAS DE RETROCESO (REPARADO) ──
 void DIO::recibirDano(int cantidad) {
-    if (estadoDano == MUERTO) return;
-    if (estaDefendiendo) cantidad /= 2;
-    puntosdevida -= cantidad;
-    danioAcumulado += cantidad;
-    contadorGolpesRecibidos++;
-
-    if (contadorGolpesRecibidos >= 50 && !contraataqueActivo && !estaDefendiendo && !preparandoTimeStop
-        && estadoDano == NORMAL && estadoCuracion == CUR_IDLE) {
-        contraataqueActivo = true;
-        ticksContraataque = 120;
-        estaAtacando = false;
-        stand = false;
-        faseCombo = 0;
-        frameActual = 0;
-    }
-    qDebug() << "¡DIO recibió" << cantidad << "de daño! Vida restante:" << puntosdevida;
-    if (puntosdevida <= 0) {
-        puntosdevida = 0;
-        estadoDano = MUERTO;
-        frameDano = 0;
-        estaAtacando = false;
-        stand = false;
-        preparandoTimeStop = false;
-        faseCombo = 0;
-        vx = 0; vy = 0;
-        setOffset(0, 0);
-        if (sonidoBasico && sonidoBasico->isPlaying())   sonidoBasico->stop();
-        if (sonidoFuerte1 && sonidoFuerte1->isPlaying()) sonidoFuerte1->stop();
-        if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
-        if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
-        if (sonidoEspecial && sonidoZaWarudo->isPlaying()) sonidoZaWarudo->stop();
-        qDebug() << ">>> DIO HA SIDO ELIMINADO <<<";
-        return;
-    }
-    // ── SEGUNDO FILTRO: ¿ESTABA CANALIZANDO EL TIMESTOP? ──
-    if (preparandoTimeStop) {
-        if (danioAcumulado >= 22) {
-            qDebug() << "[¡INTERRUMPIDO!] Jotaro golpeó a DIO con fuerza. Se cancela Za Warudo.";
-
-            preparandoTimeStop = false;
-            ticksPreTimeStop = 0;
-            estaAtacando = false;
-            stand = false;
-            faseCombo = 0;
-            setOffset(0, 0);
-
-            this->activarDano2(false);
-            danioAcumulado = 0;
-
-            vx = (objetivo->x() < this->x()) ? 8.0f : -8.0f;
-            if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
-            if (sonidoEspecial && sonidoZaWarudo->isPlaying()) sonidoZaWarudo->stop();
-        }
-        return; // Si sigue vivo pero en fase de amago, salimos aquí para no romper las animaciones
-    }
-    // ── TERCER FILTRO: EVALUAR HYPER ARMOR DE COMBOS ──
-    if (stand && (faseCombo == 3 || faseCombo == 4 || faseCombo == 5)) {
-        qDebug() << "[HYPER ARMOR] ¡DIO resiste el impacto y continúa con The World!";
-    } else {
-        estaAtacando = false;
-        stand = false;
-        faseCombo = 0;
-        frameActual = 0;
-        frameActualStand = 0;
-        setOffset(0, 0);
-    }
-    float direccionEmpuje = (objetivo->x() < this->x()) ? 0.5f : -0.5f;
-    // Si tiene Hyper Armor activa, se procesa el empuje leve y salimos
-    if (stand && (faseCombo == 3 || faseCombo == 4 || faseCombo == 5)) {
-        estadoDano = NORMAL;
-        vx = direccionEmpuje * 2.0f;
-        return;
-    }
-    if (estaDefendiendo) {
-        if (danioAcumulado >= 22) {
-            estaDefendiendo = false;
-            ticksDefensaRestantes = 0;
-            this->activarDano2(true);
-            vx = direccionEmpuje * 10.0f;
-            danioAcumulado = 0;
-            if (sonidoBasico && sonidoBasico->isPlaying()) sonidoBasico->stop();
-        }
-        return;
-    }
-    // Reacción normal a impactos fuera de amagos o defensas
-    if (danioAcumulado >= 22) {
-        this->activarDano2(false);
-        vx = direccionEmpuje * 10.0f;
-        danioAcumulado = 0;
-        if (sonidoBasico && sonidoBasico->isPlaying())   sonidoBasico->stop();
-        if (sonidoFuerte1 && sonidoFuerte1->isPlaying()) sonidoFuerte1->stop();
-        if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
-        if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
-    } else {
-        this->activarDano1();
-        vx = direccionEmpuje * 1.0f;
-        if (sonidoBasico && sonidoBasico->isPlaying()) sonidoBasico->stop();
-    }
+    recibirDano(cantidad, this->x());
 }
 
-void DIO::recibirDanoConOrigen(int cantidad, float atacanteX) {
+void DIO::recibirDano(int cantidad, float atacanteX) {
     if (estadoDano == MUERTO) return;
+
     // REGLA: Si está curándose, funciona como defensa (mitad de daño)
     bool defendiendo = estaDefendiendo || estaCurando;
     if (defendiendo) cantidad /= 2;
@@ -1171,7 +1093,9 @@ void DIO::recibirDanoConOrigen(int cantidad, float atacanteX) {
         frameActual = 0;
         actualizarAuraVisual();
     }
-    qDebug() << "¡DIO recibió con origen" << cantidad << "de daño! Vida restante:" << puntosdevida;
+
+    qDebug() << "¡DIO recibió daño! Vida restante:" << puntosdevida;
+
     // ── FILTRO DE MUERTE INMEDIATA ──
     if (puntosdevida <= 0) {
         puntosdevida = 0;
@@ -1188,11 +1112,12 @@ void DIO::recibirDanoConOrigen(int cantidad, float atacanteX) {
         if (sonidoFuerte1 && sonidoFuerte1->isPlaying()) sonidoFuerte1->stop();
         if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
         if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
-        if (sonidoEspecial && sonidoZaWarudo->isPlaying()) sonidoZaWarudo->stop();
-        qDebug() << ">>> DIO HA SIDO ELIMINADO CON ORIGEN <<<";
+        if (sonidoZaWarudo && sonidoZaWarudo->isPlaying()) sonidoZaWarudo->stop();
+        qDebug() << ">>> DIO HA SIDO ELIMINADO <<<";
         return;
     }
-    // ── NUEVO: Si lo golpean con origen mientras amaga el TimeStop ──
+
+    // ── SEGUNDO FILTRO: ¿ESTABA CANALIZANDO EL TIMESTOP? ──
     if (preparandoTimeStop) {
         if (danioAcumulado >= 22) {
             qDebug() << "[¡INTERRUMPIDO ORIGEN!] Se cancela Za Warudo.";
@@ -1203,28 +1128,30 @@ void DIO::recibirDanoConOrigen(int cantidad, float atacanteX) {
             faseCombo = 0;
             setOffset(0, 0);
 
-            this->activarDano2(defendiendo);
+            this->activarDano(defendiendo);
             danioAcumulado = 0;
             vx = (atacanteX < this->x()) ? 10.0f : -10.0f;
             if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
-            if (sonidoEspecial && sonidoZaWarudo->isPlaying()) sonidoZaWarudo->stop();
+            if (sonidoZaWarudo && sonidoZaWarudo->isPlaying()) sonidoZaWarudo->stop();
         }
         return;
     }
 
     float direccionEmpuje = (atacanteX < this->x()) ? 0.5f : -0.5f;
 
-    // Filtro Hyper Armor...
+    // Filtro Hyper Armor de combos (Resiste interrupción)
     if (stand && (faseCombo == 3 || faseCombo == 4 || faseCombo == 5)) {
+        qDebug() << "[HYPER ARMOR] ¡DIO resiste el impacto y continúa con The World!";
         estadoDano = NORMAL;
         vx = direccionEmpuje * 4.0f;
         return;
     }
 
+    // Reacción normal a impactos fuera de amagos o hyper armor
     if (danioAcumulado >= 22) {
         estaCurando = false;
-        estaDefendiendo = false; // Rompemos la defensa si el impacto es masivo
-        this->activarDano2(defendiendo);
+        estaDefendiendo = false; // Rompemos la postura defensiva si el impacto es masivo
+        this->activarDano(defendiendo);
         vx = direccionEmpuje * 10.0f;
         danioAcumulado = 0;
         if (sonidoBasico && sonidoBasico->isPlaying())   sonidoBasico->stop();
@@ -1232,12 +1159,11 @@ void DIO::recibirDanoConOrigen(int cantidad, float atacanteX) {
         if (sonidoFuerte2 && sonidoFuerte2->isPlaying()) sonidoFuerte2->stop();
         if (sonidoEspecial && sonidoEspecial->isPlaying()) sonidoEspecial->stop();
     } else {
-        // Si se está defendiendo, absorbe el golpe sin perder su postura (sin activar DANO1)
         if (defendiendo) {
-            vx = direccionEmpuje * 0.5f; // Un pequeño empuje de bloqueo casi imperceptible
+            vx = direccionEmpuje * 0.5f; // Absorbe el impacto (bloqueo leve)
         } else {
             if (!estaCurando) {
-                this->activarDano1();
+                this->activarDano();
             }
             vx = direccionEmpuje * 1.0f;
             if (sonidoBasico && sonidoBasico->isPlaying()) sonidoBasico->stop();
@@ -1245,18 +1171,19 @@ void DIO::recibirDanoConOrigen(int cantidad, float atacanteX) {
     }
 }
 
-void DIO::activarDano1() {
+void DIO::activarDano() { // Corregida la O mayúscula
     estadoDano = DANO1;
     frameDano = 0;
     ralentizadorDano = 0;
+    qDebug() << "[DIO] Daño leve activado.";
 }
 
-void DIO::activarDano2(bool mitadEmpuje) {
+void DIO::activarDano(bool mitadEmpuje) {
     estadoDano = DANO2;
     frameDano = 0;
     ralentizadorDano = 0;
 
-    // SI ESTÁ USANDO SU STAND EN FUERTES O ESPECIAL, CONSERVA LA ANIMACIÓN
+    // SI ESTÁ USANDO SU STAND EN FUERTES O ESPECIAL, CONSERVA LA ANIMACIÓN (HYPER ARMOR)
     if (stand && (faseCombo == 3 || faseCombo == 4 || faseCombo == 5)) {
         qDebug() << "[HYPER ARMOR DANO2] ¡The World se mantiene firme!";
     } else {
@@ -1265,10 +1192,21 @@ void DIO::activarDano2(bool mitadEmpuje) {
         faseCombo = 0;
         frameActualStand = 0;
     }
+
+    // ── CORRECCIÓN FÍSICA: Calculamos el empuje horizontal basado en a dónde mira ──
+    float empujeX = mirandoDerecha ? -6.0f : 6.0f;
     float empujeY = -10.0f;
-    if (mitadEmpuje) { empujeY *= 0.5f; }
+
+    if (mitadEmpuje) {
+        empujeX *= 0.5f;
+        empujeY *= 0.5f;
+    }
+
+    vx = empujeX;
     vy = empujeY;
     enSuelo = false;
+
+    qDebug() << "[DIO] Daño fuerte activado. vy:" << vy << "vx:" << vx;
 }
 
 void DIO::actualizarAnimDano() {

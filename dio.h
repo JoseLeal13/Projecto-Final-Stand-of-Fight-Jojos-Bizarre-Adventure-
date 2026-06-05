@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <QGraphicsDropShadowEffect>
+#include <utility>
 
 class DIO : public Personaje
 {
@@ -31,14 +32,14 @@ public:
     void setMirandoDerecha(bool derecha) { mirandoDerecha = derecha; }
     void moverse() override;
     void atacar() override;
-    void atacarFuerte(int tipo);
+    void atacar(int tipo);
     void actualizarAtaque();
     void actualizarAtaquesFuertes();
     void defensa();
     void habilidadEspecial() override;
     void actualizarEspecial();
     void procesarDano(QRectF area, int cantidad);
-    void recibirDanoConOrigen(int cantidad, float atacanteX);
+    void recibirDano(int cantidad, float atacanteX);
     void recibirDano(int cantidad);
     void saltar();
     void setVelocidadX(float v) {
@@ -129,8 +130,8 @@ private:
     short int ralentizadorDano = 0;
 
     void cargarSprites();
-    void activarDano1();
-    void activarDano2(bool mitadEmpuje = false);
+    void activarDano();
+    void activarDano(bool mitadEmpuje);
     void actualizarAnimDano();
 
     // --- Motor de Decisiones ---

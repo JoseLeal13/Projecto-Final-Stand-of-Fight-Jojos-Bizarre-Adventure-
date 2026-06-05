@@ -358,3 +358,81 @@ void Nivel2::limpiarNivel() {
     if (dummy) { escena->removeItem(dummy); delete dummy; dummy = nullptr; }
     if (interfazHUD) { delete interfazHUD; interfazHUD = nullptr; }
 }
+
+void Nivel2::procesarPresionTeclada(QKeyEvent *event) {
+    if (isRondaEnTransicion()) return;
+
+    teclasPresionadas.insert(event->key());
+    if (!jojo) return;
+
+    switch (event->key()) {
+    case Qt::Key_A:
+    case Qt::Key_Left:
+        if (jojo->getVelocidadX() == 0) jojo->setFrameActual(0);
+        jojo->setVelocidadX(-7);
+        break;
+
+    case Qt::Key_D:
+    case Qt::Key_Right:
+        if (jojo->getVelocidadX() == 0) jojo->setFrameActual(0);
+        jojo->setVelocidadX(7);
+        break;
+
+    case Qt::Key_Space:
+        jojo->saltar();
+        break;
+
+    case Qt::Key_K:
+        jojo->setDefensa(true);
+        break;
+
+    case Qt::Key_J:
+        if (teclasPresionadas.contains(Qt::Key_W)) {
+            jojo->atacar(1);
+        } else if (teclasPresionadas.contains(Qt::Key_S)) {
+            jojo->atacar(2);
+        } else {
+            jojo->atacar();
+        }
+        break;
+
+    case Qt::Key_L:
+        jojo->habilidadEspecial();
+        break;
+
+    case Qt::Key_F1:
+        Personaje::modoDebug = !Personaje::modoDebug;
+        qDebug() << "[MODO DEBUG]" << (Personaje::modoDebug ? "ACTIVADO" : "DESACTIVADO");
+        if (escena) {
+            escena->update();
+        }
+        event->accept();
+        break;
+
+    default:
+        break;
+    }
+}
+
+void Nivel2::procesarLiberacionTeclada(QKeyEvent *event) {
+    if (isRondaEnTransicion()) return;
+
+    teclasPresionadas.remove(event->key());
+    if (!jojo) return;
+
+    int key = event->key();
+    if (key == Qt::Key_A || key == Qt::Key_Left) {
+        if (!teclasPresionadas.contains(Qt::Key_D) && !teclasPresionadas.contains(Qt::Key_Right)) {
+            jojo->setVelocidadX(0);
+        }
+    }
+    else if (key == Qt::Key_D || key == Qt::Key_Right) {
+        if (!teclasPresionadas.contains(Qt::Key_A) && !teclasPresionadas.contains(Qt::Key_Left)) {
+            jojo->setVelocidadX(0);
+        }
+    }
+
+    if (key == Qt::Key_K) {
+        jojo->setDefensa(false);
+    }
+}

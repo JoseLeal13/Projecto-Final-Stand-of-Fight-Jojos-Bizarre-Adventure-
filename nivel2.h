@@ -5,6 +5,7 @@
 #include "standuserstats.h"
 #include "dio.h"
 #include <QWidget>
+#include <QKeyEvent>
 
 class Nivel2 : public Nivel {
     Q_OBJECT
@@ -31,6 +32,8 @@ private:
     void procesarFinRound(const QString& ganador);
     void cargarPosicionesIniciales();
 
+    QSet<int> teclasPresionadas;
+
 private slots:
     void actualizarSegundo();   // Se ejecuta cada 1000ms para el cronómetro
 
@@ -43,6 +46,9 @@ public:
     bool verificarCondicionDerrota() override;
     void limpiarNivel() override;
     bool isRondaEnTransicion() const { return rondaEnTransicion; }
+
+    void procesarPresionTeclada(QKeyEvent *event);
+    void procesarLiberacionTeclada(QKeyEvent *event);
 
 protected slots:
     void actualizarLoop() override; // Aquí va la física 2D lateral y las hitboxes
