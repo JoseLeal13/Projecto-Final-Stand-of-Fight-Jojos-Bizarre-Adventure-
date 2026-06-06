@@ -14,7 +14,7 @@ static const int GAP_ENTRE_FRAMES = 29;   // Espacio vacío entre frame 0 y fram
 
 Gyro::Gyro() {
     estadoActual = Tranquilo;
-    contadorAtaque = 0;
+    contadorAtaque = 0.0f;
     frameAtaqueActual = 0;
     contadorFrameAtaque = 0;
     cargarFramesAtaque(); // Cargo los 2 frames de lanzamiento animados
@@ -93,9 +93,12 @@ void Gyro::actualizarAnimacion()
 }
 
 // Lógica centralizada de la inteligencia artificial de Gyro
-void Gyro::actualizarComportamiento(int tiempoRestante, qreal jotaroY) {
+void Gyro::actualizarComportamiento(int tiempoRestante, qreal jotaroY, bool camaraLenta) {
+
     contadorAtaque++;
-    actualizarAnimacion(); // Animo el sprite de Gyro en cada tick del game loop
+
+    // Animo el sprite de Gyro en cada tick del game loop
+     actualizarAnimacion();
 
     // Cambiamos de estado según el reloj
     if (tiempoRestante > 40) {

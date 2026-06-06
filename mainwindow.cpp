@@ -96,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(view); // Hace que la vista ocupe la pantalla automáticamente
     this->setFixedSize(anchoEscena + 2, altoEscena + 2);
 
-    // ── INICIALIZACIÓN DE JOTARO Y ENEMY ──
+    // ── INICIALIZACIÓN DE JOTARO Y GYRO ──
     jotaro_player = new jotaro();
     jotaro_player->setPos(100, 100); // Tu posición inicial
     scene->addItem(jotaro_player);
@@ -182,6 +182,9 @@ void MainWindow::actualizar()
                    teclasPresionadas.contains(Qt::Key_D);
 
     jotaro_player->setEnMovimiento(enMovimiento);
+    atacando = teclasPresionadas.contains(Qt::Key_J) &&
+               (teclasPresionadas.contains(Qt::Key_D) ||
+                teclasPresionadas.contains(Qt::Key_A));
     jotaro_player->setAtacando(atacando);
 
     // 2. Procesar direcciones
@@ -285,7 +288,7 @@ void MainWindow::actualizar()
     }
 
     // 6. LÓGICA DE SPAWN CENTRALIZADA EN GYRO
-    gyroJefe->actualizarComportamiento(tiempoSurvival, jotaro_player->y());
+    gyroJefe->actualizarComportamiento(tiempoSurvival, jotaro_player->y(), camaraLenta);
 
     QList<SteelBall*> nuevasBolas = gyroJefe->tomarNuevasBolas();
     for (SteelBall* b : nuevasBolas) {
@@ -367,9 +370,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
     teclasPresionadas.insert(event->key());
 
-    if (event->key() == Qt::Key_J) {
-        atacando = true;
-    }
 
     if (event->key() == Qt::Key_H) {
         mostrarHitbox = !mostrarHitbox;
@@ -386,9 +386,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 
     teclasPresionadas.remove(event->key());
 
-    if (event->key() == Qt::Key_J) {
-        atacando = false;
-    }
+
 }
 
 void MainWindow::cargarFramesExplosion()

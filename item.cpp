@@ -2,15 +2,6 @@
 #include <cmath>
 /*
  * QPixmap sprites("C:\\Users\\Emmanuel\\Documents\\DESAFIOIII\\items.png");
-// ── CONSTANTES DEL SPRITE SHEET DE ITEMS ──────────────────────────────────
-// Modifica estos valores si el sprite sheet cambia, sin tocar el resto
-static const int X_INICIO_ITEMS   = 30;   // X del primer frame (ambos items)
-static const int Y_VIDA           = 132;  // Y de la fila del corazón
-static const int Y_VELOCIDAD      = 132;  // Y de la fila de la gorra (cambia si está en otra fila)
-static const int ANCHO_FRAME_ITEM = 220;  // Ancho de cada frame
-static const int ALTO_FRAME_ITEM  = 254;  // Alto de cada frame
-static const int GAP_FRAME_ITEM   = 35;   // Espacio entre frames
-static const int TOTAL_FRAMES     = 6;    // Frames por item
 */
 // ── CONSTANTES DEL SPRITE SHEET DE ITEMS ──
 static const int X_INICIO_VIDA      = 30;   // X inicial corazón
@@ -106,8 +97,10 @@ void ItemJuego::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     }
 
     // Debug temporal: muestra el rectángulo del item en amarillo
+    /*
     painter->setPen(QPen(Qt::yellow, 1, Qt::DotLine));
     painter->drawRect(boundingRect());
+*/
 }
 
 // actualizarAnimacion() es una función SEPARADA, fuera de paint()

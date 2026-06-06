@@ -22,7 +22,7 @@ public:
     Gyro();
 
     // Método clave que decide qué hacer según el tiempo restante
-    void actualizarComportamiento(int tiempoRestante, qreal jotaroY);
+    void actualizarComportamiento(int tiempoRestante, qreal jotaroY, bool camaraLenta);
 
     // Getter para saber si Gyro generó esferas en este frame
     QList<SteelBall*> tomarNuevasBolas();
