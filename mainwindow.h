@@ -2,45 +2,20 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QTimer>
-#include <QGraphicsScene>
-#include <QKeyEvent>
-#include <QGraphicsColorizeEffect>
-#include "jojo.h"
-#include "dio.h"
-#include "standuserstats.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-    void actualizar();
-    void aplicarEfectoZaWarudo(bool activar);
-
 private:
     Ui::MainWindow *ui;
-    QGraphicsScene *scene; // El mundo donde vive Jojo
-    Jojo *jojo;            // El objeto Jojo
-    Jojo *dummy;
-    DIO *dio;
-    QSet<int> teclasPresionadas;
-    QGraphicsPixmapItem* itemEscenario;
-    bool efectoGrisActivo = false;
-    QGraphicsColorizeEffect* efectoJotaro = nullptr;
-
-    StandUserStats *usuario;
-
-protected:
-    void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
 };
-#endif
+
+#endif // MAINWINDOW_H

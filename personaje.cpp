@@ -5,7 +5,7 @@ Personaje* Personaje::electorDelTiempo = nullptr;
 
 Personaje::Personaje(QGraphicsItem *parent) : QGraphicsPixmapItem(parent)
 {
-    puntosdevida = 300;
+    puntosdevida = 500;
     barradeCarga = 0;
     vx = 0;
     vy = 0;
@@ -34,7 +34,7 @@ bool Personaje::verificarColision(float proximoX, float proximoY)
     return false;
 }
 
-bool Personaje::modoDebug = true; //Verificar hitbox
+bool Personaje::modoDebug = false; //Verificar hitbox
 
 void Personaje::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     // Dibujamos el sprite original (lo que hace QGraphicsPixmapItem normalmente)
@@ -44,5 +44,30 @@ void Personaje::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     if (modoDebug) {
         painter->setPen(Qt::red);
         painter->drawRect(hitbox);
+    }
+}
+
+Personaje::~Personaje() {
+    if (sonidoBasico)  delete sonidoBasico;
+    if (sonidoFuerte1) delete sonidoFuerte1;
+    if (sonidoFuerte2) delete sonidoFuerte2;
+    if (sonidoEspecial) delete sonidoEspecial;
+}
+
+// Implementación del método de audio que heredarán Jojo y Dio
+void Personaje::reproducirSonido(TipoSonido tipo) {
+    switch (tipo) {
+    case SONIDO_BASICO:
+        if (sonidoBasico) sonidoBasico->play();
+        break;
+    case SONIDO_FUERTE1:
+        if (sonidoFuerte1) sonidoFuerte1->play();
+        break;
+    case SONIDO_FUERTE2:
+        if (sonidoFuerte2) sonidoFuerte2->play();
+        break;
+    case SONIDO_ESPECIAL:
+        if (sonidoEspecial) sonidoEspecial->play();
+        break;
     }
 }

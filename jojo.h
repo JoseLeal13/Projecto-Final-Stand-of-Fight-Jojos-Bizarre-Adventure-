@@ -5,6 +5,17 @@
 #include <QList>
 #include <QPainter>
 #include <QGraphicsDropShadowEffect>
+#include <utility>
+
+// Operador * : Multiplica un par STL por un flotante (Para aplicar la ESCALA)
+inline std::pair<float, float> operator*(const std::pair<float, float>& par, float escalar) {
+    return std::make_pair(par.first * escalar, par.second * escalar);
+}
+
+// Operador + : Suma dos pares STL (Para mover o desplazar coordenadas)
+inline std::pair<float, float> operator+(const std::pair<float, float>& a, const std::pair<float, float>& b) {
+    return std::make_pair(a.first + b.first, a.second + b.second);
+}
 
 class Jojo : public Personaje
 {
@@ -20,7 +31,7 @@ public:
     void setEsDummy(bool dummy) { esDummy = dummy; }
     void moverse() override;
     void atacar() override;
-    void atacarFuerte(int tipo);
+    void atacar(int tipo);
     void actualizarAtaque();
     void actualizarAtaquesFuertes();
     void defensa();
@@ -28,12 +39,17 @@ public:
     void actualizarEspecial();
     void procesarDano(QRectF area, int cantidad);
     void recibirDano(int cantidad);
-    void recibirDanoConOrigen(int cantidad, float atacanteX);
+    void recibirDano(int cantidad, float atacanteX);
     void saltar();
     void setVelocidadX(float v) {
         if (estadoDano == DANO1 || estadoDano == DANO2 ||
             estadoDano == STANDUP || estadoDano == MUERTO) return;
         vx = v;
+    }
+    void setVelocidadY(float v) {
+        if (estadoDano == DANO1 || estadoDano == DANO2 ||
+            estadoDano == STANDUP || estadoDano == MUERTO) return;
+        vy = v;
     }
     void setDefensa(bool d) {
         estaDefendiendo = d;
@@ -46,10 +62,61 @@ public:
     void evaluarHitboxFuerte2();
     void evaluarHitboxEspecial();
 
+    void moverse(float nuevoVx, float nuevoVy);
+    void atacar(char tipoGolpe);
+    void habilidadEspecial(float factorRalentizacion);
+    // Sobrecarga del Constructor
+    // Al recibir un QString, el compilador sabe que es el Jotaro del Nivel 1
+    Jojo(QString rutaHojaNivel1);
+
     // Estado de daño recibido
     enum EstadoDano { NORMAL, DANO1, DANO2, STANDUP, MUERTO };
     EstadoDano estadoDano = NORMAL;
 
+
+    // Bool que indica si estamos en nivel 1 (lógica de jotaro tuya)
+    bool esNivel1 = false;
+
+    // Variables de Jotaro Nivel
+    int speed;
+    int direccion;
+    bool enMovimiento;
+    bool atacando;
+    int vida;
+    bool invencible;
+    int contadorInvencible;
+    bool mostrarHitboxInterna = false;
+    int energiaUlti;
+    bool ultiActiva;
+    int timerUlti;
+    int velocidadBonus;
+    int timerVelocidad;
+
+    // Métodos de Jotaro Nivel 1
+    void cargarFramesNivel1();
+    void moveUp();
+    void moveDown();
+    void moveLeft();
+    void moveRight();
+    void setDireccion(int dir);
+    void setAtacando(bool status);
+    void setEnMovimiento(bool status);
+    void actualizarFrame(int frameActualIndex);
+    void recibirDanio(int cantidad); // Nota: Nivel 2 usa recibirDano (sin 'i')
+    void actualizarInvulnerabilidad();
+    void cargarEnergia(int cantidad);
+    void usarUlti();
+    bool estaUltiActiva() const { return ultiActiva; }
+    void curar(int cantidad);
+    void aumentarVelocidad();
+    void actualizarEfectosItems();
+    QRectF getHitbox();
+    QRectF getAttackHitbox();
+    QRectF boundingRect() const override;
+    QPainterPath shape() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    void setMostrarHitbox(bool status) { mostrarHitboxInterna = status; update(); }
+    int getEnergia() const { return energiaUlti; }
 private:
     bool estaDefendiendo;
     int tiempoAtaque;
@@ -94,9 +161,12 @@ private:
     bool recibiendoGolpes = false;  // true mientras llegan golpes del ataque actual
 
     void cargarSprites();
-    void activarDano1();
-    void activarDano2(bool mitadEmpuje = false);
+    void activarDano();
+    void activarDano(bool mitadEmpuje);
     void actualizarAnimDano();
+
+    // Sobrecarga de los sprites
+    void cargarSprites(QString rutaHoja);
 
     enum Personalidad { NORMAL_ANIMO, CALCULADOR, ENOJADO };
     Personalidad animoActual = NORMAL_ANIMO;
@@ -105,5 +175,15 @@ private:
     bool proximoAtaquePotenciado = false;
     QGraphicsDropShadowEffect* elAuraEfecto = nullptr;
     void actualizarAuraVisual();
+
+    //sprites jotaro nivel1
+    QList<QPixmap> framesQuieto[4];
+    QList<QPixmap> framesMovimiento[4];
+    QList<QPixmap> framesAtaqueDerecha;
+    QList<QPixmap> framesAtaqueIzquierda;
+
+    QPixmap quitarFondoN1(const QPixmap &original);
+    QPixmap reflejarHorizontalN1(const QPixmap &original);
+
 };
 #endif

@@ -8,6 +8,7 @@
 #include "obstaculo.h"
 #include <QTimer>
 #include <QPainter>
+#include <QSoundEffect>
 
 class Personaje : public QObject, public QGraphicsPixmapItem
 {
@@ -23,6 +24,11 @@ protected:
     bool enSuelo;
 
     QRectF hitbox;
+
+    QSoundEffect* sonidoBasico = nullptr;
+    QSoundEffect* sonidoFuerte1 = nullptr;
+    QSoundEffect* sonidoFuerte2 = nullptr;
+    QSoundEffect* sonidoEspecial = nullptr;
 
 
 public:
@@ -44,11 +50,20 @@ public:
 
     void setVida(int v) { puntosdevida = v; }
     int getVida() { return puntosdevida; }
+    void setBarraCarga(int v) { barradeCarga = v; }
     int getCarga() { return barradeCarga; }
 
     static bool modoDebug; // Variable para activar/desactivar hitboxes
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
+    enum TipoSonido {
+        SONIDO_BASICO,
+        SONIDO_FUERTE1,
+        SONIDO_FUERTE2,
+        SONIDO_ESPECIAL
+    };
+    void reproducirSonido(TipoSonido tipo);
+    virtual ~Personaje();
 };
 
 #endif // PERSONAJE_H

@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui widgets multimedia multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,22 +10,35 @@ CONFIG += c++17
 
 SOURCES += \
     dio.cpp \
+    item.cpp \
+    joestarchampionship.cpp \
     jojo.cpp \
     jojobro.cpp \
     main.cpp \
     mainwindow.cpp \
+    nivel.cpp \
+    nivel1.cpp \
+    nivel2.cpp \
     obstaculo.cpp \
     personaje.cpp \
-    standuserstats.cpp
+    standuserstats.cpp \
+    steelball.cpp
 
 HEADERS += \
     dio.h \
+    efectovisual.h \
+    item.h \
+    joestarchampionship.h \
     jojo.h \
     jojobro.h \
     mainwindow.h \
+    nivel.h \
+    nivel1.h \
+    nivel2.h \
     obstaculo.h \
     personaje.h \
-    standuserstats.h
+    standuserstats.h \
+    steelball.h
 
 FORMS += \
     mainwindow.ui

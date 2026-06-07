@@ -6,5 +6,34 @@
         <file>SpritesJojoChampionship/Jotaro Kujo sprites.png</file>
         <file>SpritesJojoChampionship/sprites extras.png</file>
         <file>SpritesJojoChampionship/JoestarChampionship Jaula MMA.png</file>
+        <file>SpritesJojoChampionship/onomatopeyaJojo.png</file>
+        <file>SpritesJojoChampionship/onomatopeyaJojo2.png</file>
+        <file>SpritesJojoChampionship/Jojovictoria.png</file>
+        <file>SpritesJojoChampionship/Diovictoria.png</file>
+        <file>SpritesJojoChampionship/gyrovictoria.png</file>
+        <file>SpritesJojoChampionship/zona_entrenamiento.png</file>
+        <file>SpritesJojoChampionship/sprites_juego.png</file>
+        <file>SpritesJojoChampionship/items.png</file>
+    </qresource>
+    <qresource prefix="/menú">
+        <file>Video,Imagenes,Sonido/iconoAltavoz.png</file>
+        <file>Video,Imagenes,Sonido/iconoAltavoz2.png</file>
+        <file>Video,Imagenes,Sonido/Joestarchampionship.menu.mp4</file>
+        <file>Video,Imagenes,Sonido/Jojo Battle Tendency OST_ Overdrive [NO INTRO].mp3</file>
+        <file>Video,Imagenes,Sonido/JOJO Steel Ball Run OST_ Gyro Zeppeli Theme _ EPIC VERSION Fan-Made.mp3</file>
+        <file>Video,Imagenes,Sonido/Jotaro Theme but it's EPIC VERSION Star Platinum Over Heaven.mp3</file>
+    </qresource>
+    <qresource prefix="/Efectos">
+        <file>EfectosdeAudio/Efecto de Sonido de RISA DE DIO BRANDO.wav</file>
+        <file>EfectosdeAudio/Gyros Pizza Mozzarella Cheese Song.wav</file>
+        <file>EfectosdeAudio/Nyo-ho gyro zeppeli sound.wav</file>
+        <file>EfectosdeAudio/ORA ORA ORA - Sound effect.wav</file>
+        <file>EfectosdeAudio/Ora Ora Ora Ora Ora sound effect.wav</file>
+        <file>EfectosdeAudio/Single muda sound effect.wav</file>
+        <file>EfectosdeAudio/Star platinum single ora.wav</file>
+        <file>EfectosdeAudio/Za Warudo - Sound Effect.wav</file>
+        <file>EfectosdeAudio/muda muda muda sound effect.wav</file>
+        <file>EfectosdeAudio/Wryyyyy meme sound effect.wav</file>
+        <file>EfectosdeAudio/Yare Yare Daze Jotaro Kujo - [HQ] Sound Effect.wav</file>
     </qresource>
 </RCC>
