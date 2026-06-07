@@ -11,6 +11,7 @@
 JoestarChampionship::JoestarChampionship(QWidget *parent) : QMainWindow(parent) {
     setFixedSize(1200, 550);
 
+    nivel1Activo = nullptr;
     nivel2Activo = nullptr;
     nivel1Completado = false;
     idUltimoNivelJugado = 1;
@@ -359,8 +360,37 @@ void JoestarChampionship::comenzarNivel1(const QString& dificultad) {
 
     idUltimoNivelJugado = 1;
     dificultadUltimoNivel1 = dificultad;
-    nivel1Completado = true;
-    capturarFinDelJuego(true);
+
+    if (nivel1Activo) {
+        nivel1Activo->deleteLater();
+        nivel1Activo = nullptr;
+    }
+
+
+    //QPixmap fondo(":/sprites/SpritesJojoChampionship/zona_entrenamiento.png");
+
+    QGraphicsView* vistaJuego = new QGraphicsView(this);
+    vistaJuego->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    vistaJuego->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    QGraphicsScene* escenaCompartida = new QGraphicsScene(this);
+    escenaCompartida->setSceneRect(0, 0, 1200, 500);
+    vistaJuego->setScene(escenaCompartida);
+
+    Jojo* jugadorJojo = new Jojo();
+    jugadorJojo->esNivel1 = true;
+    jugadorJojo->cargarFramesNivel1();
+
+
+    nivel1Activo = new Nivel1(escenaCompartida, jugadorJojo, dificultad, this);
+
+    controladorPantallas->addWidget(vistaJuego);
+    controladorPantallas->setCurrentWidget(vistaJuego);
+
+    connect(nivel1Activo, &Nivel1::combateTerminado, this, &JoestarChampionship::capturarFinDelJuego);
+
+    nivel1Activo->iniciarNivel();
+    this->setFocus();
 }
 
 void JoestarChampionship::comenzarNivel2() {
@@ -406,10 +436,15 @@ void JoestarChampionship::capturarFinDelJuego(bool victoria) {
             nivel1Completado = true;
         }
 
+        // 3. Anular el puntero del nivel que terminó para que keyPressEvent
+        //    deje de enrutarle teclas. Sin esto, nivel1Activo sigue vivo
+        //    mientras se juega el Nivel2 y roba todos los eventos de teclado.
         if (idUltimoNivelJugado == 1) {
+            nivel1Activo = nullptr;
             mostrarEpilogoNivel1(victoria);
         }
         else if (idUltimoNivelJugado == 2) {
+            nivel2Activo = nullptr;
             mostrarEpilogoNivel2(victoria);
         }
 
@@ -683,6 +718,13 @@ void JoestarChampionship::keyPressEvent(QKeyEvent *event) {
 
     // REDIRECCIÓN DIRECTA PASANDO EL EVENTO COMPLETO
     QGraphicsView* vistaActual = qobject_cast<QGraphicsView*>(controladorPantallas->currentWidget());
+
+    if (nivel1Activo && vistaActual) {
+        nivel1Activo->procesarPresionTeclada(event->key());
+        event->accept();
+        return;
+    }
+
     if (nivel2Activo && vistaActual) {
         nivel2Activo->procesarPresionTeclada(event);
         event->accept();
@@ -692,11 +734,18 @@ void JoestarChampionship::keyPressEvent(QKeyEvent *event) {
     QMainWindow::keyPressEvent(event);
 }
 
+
 void JoestarChampionship::keyReleaseEvent(QKeyEvent *event) {
     if (event->isAutoRepeat()) return;
 
-    // REDIRECCIÓN DIRECTA PASANDO EL EVENTO COMPLETO
-    if (nivel2Activo && controladorPantallas->currentIndex() > 4) {
+    QGraphicsView* vistaActual = qobject_cast<QGraphicsView*>(controladorPantallas->currentWidget());
+
+    if (nivel1Activo && vistaActual) {
+        nivel1Activo->procesarLiberacionTeclada(event->key());
+        event->accept();
+        return;
+    }
+    if (nivel2Activo && vistaActual) {
         nivel2Activo->procesarLiberacionTeclada(event);
         event->accept();
         return;

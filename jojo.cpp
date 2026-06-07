@@ -34,6 +34,21 @@ Jojo::Jojo() : Personaje()
     sonidoEspecial->setSource(QUrl("qrc:/Efectos/EfectosdeAudio/Ora Ora Ora Ora Ora sound effect.wav"));
     sonidoEspecial->setVolume(1.0f);
 
+    // ── Inicializar variables de nivel 1 con valores por defecto ──
+    esNivel1           = false;
+    speed              = 4;
+    direccion          = 1;
+    enMovimiento       = false;
+    atacando           = false;
+    vida               = 100;
+    invencible         = false;
+    contadorInvencible = 0;
+    energiaUlti        = 0;
+    ultiActiva         = false;
+    timerUlti          = 0;
+    velocidadBonus     = 0;
+    timerVelocidad     = 0;
+
     cargarSprites();
     if (!spritesQUIETO.isEmpty()) {
         setPixmap(spritesQUIETO.at(0));
@@ -229,9 +244,8 @@ void Jojo::recibirDano(int cantidad, float atacanteX) {
 
     // Calculamos la dirección del empuje basándonos en las posiciones
     float direccionEmpuje = 0.0f;
-    if (atacanteX < this->x())       direccionEmpuje = 0.5f;   // Atacante a la izquierda -> Empuje a la derecha
-    else if (atacanteX > this->x())  direccionEmpuje = -0.5f;  // Atacante a la derecha -> Empuje a la izquierda
-    // Nota: Si atacanteX == this->x(), direccionEmpuje se queda en 0.0f (no hay empuje)
+    if (atacanteX < this->x())       direccionEmpuje = 0.5f;
+    else if (atacanteX > this->x())  direccionEmpuje = -0.5f;
 
     if (stand && (faseCombo == 3 || faseCombo == 4 || faseCombo == 5)) {
         estadoDano = NORMAL;
@@ -277,7 +291,6 @@ void Jojo::actualizarAnimDano() {
     case DANO1:
         frameDano++;
         if (frameDano >= spritesDANO1.size()) {
-            // Terminó Daño1 → volver a normal, resetear acumulado
             frameDano = spritesDANO1.size() - 1;
             estadoDano = NORMAL;
             danioAcumulado = 0;
@@ -289,7 +302,6 @@ void Jojo::actualizarAnimDano() {
         frameDano++;
         if (frameDano >= spritesDANO2.size()) {
             frameDano = spritesDANO2.size() - 1;
-            // Solo pasar a StandUp cuando esté en el suelo
             if (enSuelo) {
                 estadoDano = STANDUP;
                 frameDano = 0;
@@ -302,7 +314,6 @@ void Jojo::actualizarAnimDano() {
     case STANDUP:
         frameDano++;
         if (frameDano >= spritesSTANDUP.size()) {
-            // Terminó StandUp → volver a normal
             estadoDano = NORMAL;
             frameDano = 0;
             danioAcumulado = 0;
@@ -345,11 +356,7 @@ void Jojo::moverse() {
         return;
     }
 
-    // =======================================================================
-    // LOGICA DE CONTROL DE PERSONALIDADES (TICKS)
-    // =======================================================================
     if (!estaAtacando && !estaDefendiendo && estadoDano == NORMAL) {
-        // Si no está haciendo ninguna acción agresiva ni recibiendo daño, sube el contador
         if (animoActual == NORMAL_ANIMO) {
             ticksSinAtacar++;
             if (ticksSinAtacar >= 240) {
@@ -360,7 +367,6 @@ void Jojo::moverse() {
             }
         }
     } else {
-        // Si ataca, defiende o es golpeado estando en modo Calculador, se rompe su concentración
         if (animoActual == CALCULADOR) {
             animoActual = NORMAL_ANIMO;
             ticksSinAtacar = 0;
@@ -369,18 +375,15 @@ void Jojo::moverse() {
         }
     }
 
-    // Ajuste de velocidades dinámicas basadas en el Estado de Ánimo
     float multiplicadorVelocidad = 1.0f;
     if (animoActual == CALCULADOR) {
-        multiplicadorVelocidad = 1.2f;  // +20% Velocidad (Limpio, no acumulativo)
+        multiplicadorVelocidad = 1.2f;
     } else if (animoActual == ENOJADO) {
-        multiplicadorVelocidad = 0.7f;  // -30% Velocidad (1.0 - 0.3)
+        multiplicadorVelocidad = 0.7f;
     }
 
-    // Aplicar el multiplicador a los movimientos horizontales del jugador si no está en animación de daño
     bool enAnimDano = (estadoDano == DANO1 || estadoDano == DANO2 || estadoDano == STANDUP);
 
-    // GUARDAMOS el valor original de vx antes de aplicar el multiplicador para procesar el frame físico
     float vxFinal = vx;
 
     if (esDummy) {
@@ -390,26 +393,22 @@ void Jojo::moverse() {
             if (estaAtacando || estaDefendiendo) {
                 vxFinal = 0;
             } else {
-                // Aplicamos el multiplicador a una variable temporal de física
-                // ESTO evita que vx crezca exponencialmente en el próximo tick del timer
                 vxFinal = vx * multiplicadorVelocidad;
             }
         }
     }
 
-    // Modificación de Gravedad/Peso: Si está enojado cae un poco más rápido (Sensación de peso)
     float gravedadActual = aceleracion_y;
     if (animoActual == ENOJADO) {
-        gravedadActual = aceleracion_y * 1.3f; // 30% más pesado al caer
+        gravedadActual = aceleracion_y * 1.3f;
     }
 
-    // Procesamiento de Físicas Verticales y Horizontales (Cambiado vx por vxFinal)
     if (estadoDano == DANO2) {
         vy += gravedadActual;
         if (!verificarColision(x(), y() + vy)) setPos(x(), y() + vy);
         else { if (vy > 0) { enSuelo = true; vy = 0; } }
         if (!verificarColision(x() + vxFinal, y())) setPos(x() + vxFinal, y());
-        if (enSuelo) vx = 0; // Aquí sí limpiamos el input original al tocar suelo
+        if (enSuelo) vx = 0;
     } else {
         vy += gravedadActual;
         if (!verificarColision(x(), y() + vy)) setPos(x(), y() + vy);
@@ -557,8 +556,8 @@ void Jojo::moverse() {
 
 void Jojo::saltar() {
     if (enSuelo && !estaDefendiendo && estadoDano == NORMAL) {
-            vy = -15; // Salto normal
-        }
+        vy = -15;
+    }
     enSuelo = false;
 }
 
@@ -683,7 +682,6 @@ void Jojo::habilidadEspecial() {
         danioAcumulado = 0;
         puedeAtacar    = true;
 
-        // Reseteo limpio de todos los contadores del especial
         frameActual      = 0;
         frameActualStand = 0;
         frameJotaroEsp   = 0;
@@ -703,16 +701,13 @@ void Jojo::habilidadEspecial() {
 void Jojo::actualizarEspecial() {
     if (!stand || faseCombo != 5) return;
 
-    // ── Jotaro: 5 frames rápidos (cada 6 ticks), luego se congela ────────
     if (frameJotaroEsp < 5) {
         if (++ralentJotaroEsp >= 7) {
             ralentJotaroEsp = 0;
             frameJotaroEsp++;
         }
     }
-    // frameJotaroEsp queda en 4 (último frame) y no avanza más → congelado
 
-    // ── SP: 28 frames en ráfaga
     if (frameSPEsp < 28) {
         if (++ralentSPEsp >= 6) {
             ralentSPEsp = 0;
@@ -723,7 +718,6 @@ void Jojo::actualizarEspecial() {
         }
     }
 
-    // ── Fin: SP terminó sus 28 frames ────────────────────────────────────
     if (frameSPEsp >= 28) {
         if (animoActual == ENOJADO) {
             animoActual = NORMAL_ANIMO;
@@ -756,17 +750,13 @@ void Jojo::defensa() {
 //  HITBOXES
 // ═══════════════════════════════════════════════════════════════════════════
 void Jojo::evaluarHitboxBasico() {
-    // 1. Definimos las dimensiones usando el par STL y lo escalamos con el operador *
     std::pair<float, float> dimBase = std::make_pair(20.0f, 20.0f);
-    std::pair<float, float> dim = dimBase * ESCALA; // Usa el operador *
+    std::pair<float, float> dim = dimBase * ESCALA;
 
-    // 2. Calculamos los offsets de posición
     float despX = mirandoDerecha ? 65.0f : (-dim.first + 10.0f);
 
-    // 3. Creamos la posición final usando el operador + para combinar coordenadas
     std::pair<float, float> posPersonaje = std::make_pair(x() + despX, y() + 25.0f);
 
-    // 4. Construimos el QRectF final para el motor de Qt
     QRectF rect(posPersonaje.first, posPersonaje.second, dim.first, dim.second);
     procesarDano(rect, 5);
     danoAplicado = true;
@@ -778,7 +768,7 @@ void Jojo::evaluarHitboxBasico() {
 }
 
 void Jojo::evaluarHitboxFuerte1() {
-    std::pair<float, float> dim = std::make_pair(60.0f, 45.0f) * ESCALA; // Usa el operador *
+    std::pair<float, float> dim = std::make_pair(60.0f, 45.0f) * ESCALA;
 
     float despX = mirandoDerecha ? 85.0f : (-dim.first - 10.0f);
     std::pair<float, float> posFinal = std::make_pair(x() + despX, y() - 15.0f);
@@ -794,7 +784,7 @@ void Jojo::evaluarHitboxFuerte1() {
 
 void Jojo::evaluarHitboxFuerte2() {
     if (frameActualStand >= 4 && frameActualStand <= 8) {
-        std::pair<float, float> dim = std::make_pair(55.0f, 40.0f) * ESCALA; // Usa el operador *
+        std::pair<float, float> dim = std::make_pair(55.0f, 40.0f) * ESCALA;
 
         float despX = mirandoDerecha ? 80.0f : (-dim.first - 20.0f);
         std::pair<float, float> posFinal = std::make_pair(x() + despX, y() + 15.0f);
@@ -811,7 +801,7 @@ void Jojo::evaluarHitboxFuerte2() {
 
 void Jojo::evaluarHitboxEspecial() {
     std::pair<float, float> dim = std::make_pair(80.0f, 90.0f);
-    dim.first = dim.first * ESCALA; // Usa el operador * en un solo componente
+    dim.first = dim.first * ESCALA;
 
     float despX = mirandoDerecha ? 90.0f : (-dim.first + 5.0f);
     std::pair<float, float> posFinal = std::make_pair(x() + despX, y() - 20.0f);
@@ -829,7 +819,6 @@ void Jojo::evaluarHitboxEspecial() {
 //  procesarDano
 // ═══════════════════════════════════════════════════════════════════════════
 void Jojo::procesarDano(QRectF area, int cantidad) {
-    // Si la furia está activa, incrementamos la potencia un 40%
     if (animoActual == ENOJADO && proximoAtaquePotenciado) {
         cantidad = static_cast<int>(cantidad * 1.4f);
         qDebug() << "[GOLPE DE FURIA] ¡Ataque potenciado con un 40% más de daño! Cantidad final:" << cantidad;
@@ -853,7 +842,6 @@ void Jojo::procesarDano(QRectF area, int cantidad) {
         }
     }
 
-    // ── CAMBIO AQUÍ: Solo carga barra si es un combo básico (1 o 2)
     if (golpeoAAlguien && barradeCarga < 100 && faseCombo <= 4) {
         barradeCarga += 5;
         if (barradeCarga > 100) barradeCarga = 100;
@@ -870,27 +858,307 @@ void Jojo::actualizarAuraVisual() {
 
     if (this->graphicsEffect()) {
         this->setGraphicsEffect(nullptr);
-        elAuraEfecto = nullptr; // Qt elimina el objeto automáticamente al hacerle set(nullptr)
+        elAuraEfecto = nullptr;
     }
     if (barradeCarga >= 100) {
         elAuraEfecto = new QGraphicsDropShadowEffect();
-        elAuraEfecto->setBlurRadius(55);                     // Más difuminado y expansivo
-        elAuraEfecto->setColor(QColor(148, 0, 211, 255));    // Morado Eléctrico intenso (Violeta)
+        elAuraEfecto->setBlurRadius(55);
+        elAuraEfecto->setColor(QColor(148, 0, 211, 255));
         elAuraEfecto->setOffset(0, 0);
         this->setGraphicsEffect(elAuraEfecto);
     }
     if (animoActual == CALCULADOR) {
         elAuraEfecto = new QGraphicsDropShadowEffect();
-        elAuraEfecto->setBlurRadius(30);                     // Brillo del aura
-        elAuraEfecto->setColor(QColor(0, 191, 255, 200));   // Azul claro brillante (DeepSkyBlue) con opacidad
+        elAuraEfecto->setBlurRadius(30);
+        elAuraEfecto->setColor(QColor(0, 191, 255, 200));
         elAuraEfecto->setOffset(0, 0);
         this->setGraphicsEffect(elAuraEfecto);
     }
     else if (animoActual == ENOJADO) {
         elAuraEfecto = new QGraphicsDropShadowEffect();
-        elAuraEfecto->setBlurRadius(45);                     // Un aura más grande e intensa (pesada)
-        elAuraEfecto->setColor(QColor(255, 0, 0, 220));     // Rojo furioso con alta opacidad
+        elAuraEfecto->setBlurRadius(45);
+        elAuraEfecto->setColor(QColor(255, 0, 0, 220));
         elAuraEfecto->setOffset(0, 0);
         this->setGraphicsEffect(elAuraEfecto);
     }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  MÉTODOS EXCLUSIVOS DE NIVEL 1 (jotaro.cpp)
+//  Todos usan esNivel1 internamente o son exclusivos de top-down
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── Constantes del sprite sheet de tu jotaro ──
+static const int ANCHO_FRAME_N1     = 70;
+static const int ALTO_FRAME_N1      = 100;
+static const int FRAMES_QUIETO_N1   = 1;
+static const int FRAMES_MOV_N1      = 3;
+static const int FRAMES_ATAQUE_N1   = 2;
+static const int X_INICIO_ATAQUE_N1 = 720;
+static const int Y_ATAQUE_N1        = 92;
+static const int ANCHO_ATAQUE_N1    = 80;
+static const int ALTO_ATAQUE_N1     = 81;
+static const int MARGEN_FRAME_N1    = 12;
+static const int X_INICIO_MOV_N1    = 250;
+
+static const int Y_DIR_N1[4] = {
+    94,   // 0 = Arriba
+    190,  // 1 = Abajo
+    290,  // 2 = Izquierda
+    390   // 3 = Derecha
+};
+
+void Jojo::cargarFramesNivel1()
+{
+    QPixmap sprites(":/sprites/SpritesJojoChampionship/sprites_juego.png");
+
+
+    for (int dir = 0; dir < 3; dir++) {
+        for (int f = 0; f < FRAMES_QUIETO_N1; f++) {
+            int xPos = X_INICIO_MOV_N1 + f * (ANCHO_FRAME_N1 + MARGEN_FRAME_N1);
+            QPixmap frame = sprites.copy(xPos, Y_DIR_N1[dir], ANCHO_FRAME_N1, ALTO_FRAME_N1);
+            framesQuieto[dir].append(quitarFondoN1(frame));
+        }
+        for (int f = 0; f < FRAMES_MOV_N1; f++) {
+            int xPos = X_INICIO_MOV_N1 + f * ANCHO_FRAME_N1;
+            QPixmap frame = sprites.copy(xPos, Y_DIR_N1[dir], ANCHO_FRAME_N1, ALTO_FRAME_N1);
+            framesMovimiento[dir].append(quitarFondoN1(frame));
+        }
+    }
+
+    for (int f = 0; f < FRAMES_QUIETO_N1; f++)
+        framesQuieto[3].append(reflejarHorizontalN1(framesQuieto[2][f]));
+    for (int f = 0; f < FRAMES_MOV_N1; f++)
+        framesMovimiento[3].append(reflejarHorizontalN1(framesMovimiento[2][f]));
+
+    for (int f = 0; f < FRAMES_ATAQUE_N1; f++) {
+        int xPos = X_INICIO_ATAQUE_N1 + f * ANCHO_ATAQUE_N1;
+        QPixmap frame = sprites.copy(xPos, Y_ATAQUE_N1,
+                                     (f > 0) ? ANCHO_ATAQUE_N1 + 124 : ANCHO_ATAQUE_N1,
+                                     ALTO_ATAQUE_N1);
+        framesAtaqueDerecha.append(quitarFondoN1(frame));
+    }
+    for (int f = 0; f < FRAMES_ATAQUE_N1; f++)
+        framesAtaqueIzquierda.append(reflejarHorizontalN1(framesAtaqueDerecha[f]));
+}
+
+QPixmap Jojo::quitarFondoN1(const QPixmap &original)
+{
+    QImage img = original.toImage().convertToFormat(QImage::Format_ARGB32);
+    QColor fondoColor(30, 27, 60);
+
+    for (int yPos = 0; yPos < img.height(); yPos++) {
+        for (int xPos = 0; xPos < img.width(); xPos++) {
+            QColor pixel = img.pixelColor(xPos, yPos);
+            if (abs(pixel.red()   - fondoColor.red())   < 8 &&
+                abs(pixel.green() - fondoColor.green()) < 8 &&
+                abs(pixel.blue()  - fondoColor.blue())  < 8)
+            {
+                img.setPixelColor(xPos, yPos, QColor(0, 0, 0, 0));
+            }
+        }
+    }
+    return QPixmap::fromImage(img);
+}
+
+QPixmap Jojo::reflejarHorizontalN1(const QPixmap &original)
+{
+    QTransform espejo;
+    espejo.scale(-1, 1);
+    return original.transformed(espejo);
+}
+
+void Jojo::moveUp() {
+    float proximoY = y() - (speed + velocidadBonus);
+    if (proximoY < 0) proximoY = 0;
+    if (!verificarColision(x(), proximoY)) setPos(x(), proximoY);
+}
+
+void Jojo::moveDown() {
+    float proximoY = y() + (speed + velocidadBonus);
+    if (proximoY > 550 - 100) proximoY = 550 - 100; // 100 = alto del sprite
+    if (!verificarColision(x(), proximoY)) setPos(x(), proximoY);
+}
+
+void Jojo::moveLeft() {
+    float proximoX = x() - (speed + velocidadBonus);
+    if (proximoX < 0) proximoX = 0;
+    if (!verificarColision(proximoX, y())) setPos(proximoX, y());
+}
+
+void Jojo::moveRight() {
+    float proximoX = x() + (speed + velocidadBonus);
+    if (proximoX > 1000 - 70) proximoX = 1000 - 70;
+    if (!verificarColision(proximoX, y())) setPos(proximoX, y());
+}
+
+void Jojo::setDireccion(int dir)  { direccion = dir; update(); }
+
+void Jojo::setAtacando(bool status) {
+    if (atacando != status) {
+        qDebug() << "ATACANDO:" << status;
+        prepareGeometryChange();
+        atacando = status;
+    }
+    update();
+}
+
+void Jojo::setEnMovimiento(bool status) { enMovimiento = status; update(); }
+
+void Jojo::actualizarFrame(int frameActualIndex) { frameActual = frameActualIndex; update(); }
+
+void Jojo::recibirDanio(int cantidad)
+{
+    if (invencible) return;
+    vida -= cantidad;
+    if (vida < 0) vida = 0;
+    invencible = true;
+    contadorInvencible = 60;
+}
+
+void Jojo::actualizarInvulnerabilidad()
+{
+    if (invencible) {
+        contadorInvencible--;
+        if (contadorInvencible <= 0) {
+            invencible = false;
+        }
+        update();
+    }
+    if (ultiActiva) {
+        timerUlti--;
+        if (timerUlti <= 0) {
+            ultiActiva = false;
+            timerUlti  = 0;
+        }
+    }
+
+
+}
+
+void Jojo::curar(int cantidad) {
+    vida += cantidad;
+    if (vida > 100) vida = 100;
+}
+
+void Jojo::aumentarVelocidad() {
+    velocidadBonus = 1;
+    timerVelocidad = 180;
+}
+
+void Jojo::cargarEnergia(int cantidad) {
+    energiaUlti += cantidad;
+    if (energiaUlti > 100) energiaUlti = 100;
+}
+
+void Jojo::usarUlti() {
+    if (energiaUlti >= 100) {
+        energiaUlti = 0;
+        ultiActiva  = true;
+        timerUlti   = 240;
+        qDebug() << "¡¡ZA WARUDO!! El tiempo se ha ralentizado.";
+    }
+}
+
+void Jojo::actualizarEfectosItems() {
+    if (timerVelocidad > 0) {
+        timerVelocidad--;
+        if (timerVelocidad == 0) velocidadBonus = 0;
+    }
+    if (ultiActiva) {
+        timerUlti--;
+        if (timerUlti <= 0) ultiActiva = false;
+    }
+}
+
+QRectF Jojo::getHitbox()
+{
+    return QRectF(x() + 18, y() + 10, 34, 85);
+}
+
+QRectF Jojo::getAttackHitbox()
+{
+    if (!atacando) return QRectF(0, 0, 0, 0);
+    if (direccion == 2) return QRectF(x() - 90, y() + 25, 90, 45);
+    return QRectF(x() + 60, y() + 25, 90, 45);
+}
+
+// ── boundingRect: nivel1 usa el del jotaro, nivel2 usa el del pixmap ──
+QRectF Jojo::boundingRect() const
+{
+    if (esNivel1) {
+        if (atacando && direccion == 2) return QRectF(-110, 0, 180, 100);
+        if (atacando)                   return QRectF(0, 0, 160, 100);
+        return QRectF(0, 0, 70, 100);
+    }
+    return QGraphicsPixmapItem::boundingRect();
+}
+
+// ── shape: nivel1 usa hitbox corporal ajustada, nivel2 usa la del pixmap ──
+QPainterPath Jojo::shape() const
+{
+    if (esNivel1) {
+        QPainterPath path;
+        path.addRect(QRectF(18, 10, 34, 85));
+        return path;
+    }
+    QPainterPath path;
+    path.addRect(boundingRect());
+    return path;
+}
+
+// ── paint: nivel1 dibuja tus sprites top-down, nivel2 no hace nada extra ──
+void Jojo::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    if (esNivel1) {
+        painter->save();
+
+        if (invencible && (contadorInvencible % 8 > 4)) {
+            // parpadeo de invencibilidad: no dibujamos nada este frame
+        } else {
+            QPixmap spriteADibujar;
+
+            if (atacando) {
+                if (framesAtaqueDerecha.isEmpty()) { painter->restore(); return; }
+                int idx = frameActual % framesAtaqueDerecha.size();
+                spriteADibujar = (direccion == 2)
+                                     ? framesAtaqueIzquierda[idx]
+                                     : framesAtaqueDerecha[idx];
+            } else if (enMovimiento) {
+                if (framesMovimiento[direccion].isEmpty()) { painter->restore(); return; }
+                int idx = frameActual % framesMovimiento[direccion].size();
+                spriteADibujar = framesMovimiento[direccion][idx];
+            } else {
+                if (framesQuieto[direccion].isEmpty()) { painter->restore(); return; }
+                spriteADibujar = framesQuieto[direccion][0];
+            }
+
+            if (!spriteADibujar.isNull()) {
+                int drawX = (atacando && direccion == 2) ? -100 : 0;
+                painter->drawPixmap(drawX, 0, spriteADibujar);
+            }
+        }
+
+        painter->restore();
+
+        // Hitboxes de debug fuera del save/restore para que no se recorten
+        if (mostrarHitboxInterna) {
+            painter->setPen(QPen(Qt::red, 2, Qt::DashLine));
+            painter->setBrush(QBrush(QColor(255, 0, 0, 50)));
+            painter->drawRect(QRectF(18, 10, 34, 85));
+
+            if (atacando) {
+                painter->setPen(QPen(Qt::cyan, 2, Qt::SolidLine));
+                painter->setBrush(QBrush(QColor(0, 255, 255, 70)));
+                if (direccion == 2)
+                    painter->drawRect(QRectF(-90, 25, 90, 45));
+                else
+                    painter->drawRect(QRectF(60, 25, 90, 45));
+            }
+        }
+        return; // no caer al paint del nivel 2
+    }
+
+    // Paint del nivel 2: deja que Qt dibuje el pixmap normalmente
+    QGraphicsPixmapItem::paint(painter, option, widget);
 }

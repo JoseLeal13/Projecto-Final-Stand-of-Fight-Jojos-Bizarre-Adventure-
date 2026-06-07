@@ -11,6 +11,9 @@
         <file>SpritesJojoChampionship/Jojovictoria.png</file>
         <file>SpritesJojoChampionship/Diovictoria.png</file>
         <file>SpritesJojoChampionship/gyrovictoria.png</file>
+        <file>SpritesJojoChampionship/zona_entrenamiento.png</file>
+        <file>SpritesJojoChampionship/sprites_juego.png</file>
+        <file>SpritesJojoChampionship/items.png</file>
     </qresource>
     <qresource prefix="/menú">
         <file>Video,Imagenes,Sonido/iconoAltavoz.png</file>

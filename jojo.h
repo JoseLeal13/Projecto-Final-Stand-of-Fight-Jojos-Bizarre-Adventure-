@@ -73,6 +73,50 @@ public:
     enum EstadoDano { NORMAL, DANO1, DANO2, STANDUP, MUERTO };
     EstadoDano estadoDano = NORMAL;
 
+
+    // Bool que indica si estamos en nivel 1 (lógica de jotaro tuya)
+    bool esNivel1 = false;
+
+    // Variables de Jotaro Nivel
+    int speed;
+    int direccion;
+    bool enMovimiento;
+    bool atacando;
+    int vida;
+    bool invencible;
+    int contadorInvencible;
+    bool mostrarHitboxInterna = false;
+    int energiaUlti;
+    bool ultiActiva;
+    int timerUlti;
+    int velocidadBonus;
+    int timerVelocidad;
+
+    // Métodos de Jotaro Nivel 1
+    void cargarFramesNivel1();
+    void moveUp();
+    void moveDown();
+    void moveLeft();
+    void moveRight();
+    void setDireccion(int dir);
+    void setAtacando(bool status);
+    void setEnMovimiento(bool status);
+    void actualizarFrame(int frameActualIndex);
+    void recibirDanio(int cantidad); // Nota: Nivel 2 usa recibirDano (sin 'i')
+    void actualizarInvulnerabilidad();
+    void cargarEnergia(int cantidad);
+    void usarUlti();
+    bool estaUltiActiva() const { return ultiActiva; }
+    void curar(int cantidad);
+    void aumentarVelocidad();
+    void actualizarEfectosItems();
+    QRectF getHitbox();
+    QRectF getAttackHitbox();
+    QRectF boundingRect() const override;
+    QPainterPath shape() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    void setMostrarHitbox(bool status) { mostrarHitboxInterna = status; update(); }
+    int getEnergia() const { return energiaUlti; }
 private:
     bool estaDefendiendo;
     int tiempoAtaque;
@@ -131,6 +175,15 @@ private:
     bool proximoAtaquePotenciado = false;
     QGraphicsDropShadowEffect* elAuraEfecto = nullptr;
     void actualizarAuraVisual();
+
+    //sprites jotaro nivel1
+    QList<QPixmap> framesQuieto[4];
+    QList<QPixmap> framesMovimiento[4];
+    QList<QPixmap> framesAtaqueDerecha;
+    QList<QPixmap> framesAtaqueIzquierda;
+
+    QPixmap quitarFondoN1(const QPixmap &original);
+    QPixmap reflejarHorizontalN1(const QPixmap &original);
 
 };
 #endif

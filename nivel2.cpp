@@ -349,6 +349,9 @@ void Nivel2::aplicarEfectoZaWarudo(bool activar) {
     }
 }
 
+// ==========================================
+// FUNCIÓN DESCOMENTADA Y RE ACTIVADA PARA CORREGIR EL ERROR
+// ==========================================
 void Nivel2::limpiarNivel() {
     if (gameLoopTimer->isActive()) gameLoopTimer->stop();
     if (timerUnSegundo->isActive()) timerUnSegundo->stop();
@@ -436,3 +439,4 @@ void Nivel2::procesarLiberacionTeclada(QKeyEvent *event) {
         jojo->setDefensa(false);
     }
 }
+

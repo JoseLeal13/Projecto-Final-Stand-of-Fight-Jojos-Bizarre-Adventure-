@@ -1,152 +1,210 @@
-/*
 #include "nivel1.h"
 #include <QPixmap>
 #include <QImage>
 #include <cstdlib>
-#include <ctime>
-#include <QDebug>
 
+// ==========================================
+// CONSTRUCTOR
+// ==========================================
 Nivel1::Nivel1(QGraphicsScene* escenaCompartida, Jojo* personajeJojo, const QString& dificultad, QObject* parent)
     : Nivel(escenaCompartida, personajeJojo, parent)
 {
-    gyroJefe = nullptr;
-    interfazHUD = nullptr;
-    fondoMapa = nullptr;
+    gyroJefe           = nullptr;
+    interfazHUD        = nullptr;
+    fondoMapa          = nullptr;
 
-    // Guardamos la dificultad en una variable de clase para Gyro
-    this->dificultadNivel = dificultad;
+    this->dificultad   = dificultad;
+    contadorSpawnItems = 0;
+    mostrarHitbox      = false;
+    nivelFinalizado    = false;
 
-    roundActual = 1;
-    tiempoRestanteRound = 60; // 1 minuto exacto por ronda
-    KOsJotaro = 0;
-    KOsGyro = 0;
-    rondaEnTransicion = false;
-    finRoundProcesado = false;
+    tiempoRestante     = 60;
 
     timerUnSegundo = new QTimer(this);
     cargarFramesExplosion();
 }
 
+// ==========================================
+// DESTRUCTOR
+// ==========================================
 Nivel1::~Nivel1() {
     limpiarNivel();
 }
 
+// ==========================================
+// INICIAR NIVEL
+// ==========================================
 void Nivel1::iniciarNivel() {
-    // Escena igual de grande que Nivel 2: 1200 x 500
-    int anchoEscena = 1200;
-    int altoEscena  = 500;
-
-    // Carga de fondo escalado a la jaula/arena correspondiente al Nivel 1
-    QPixmap fondo(":/fondo_juego.png");
+    // ── Fondo ──
+    //QPixmap fondo("C:\\Users\\Emmanuel\\Documents\\DESAFIOIII\\zona_entrenamiento.png");
+    QPixmap fondo(":/sprites/SpritesJojoChampionship/zona_entrenamiento.png");
     fondoMapa = new QGraphicsPixmapItem(
-        fondo.scaled(anchoEscena, altoEscena, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
+        fondo.scaled(1200, 550, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
         );
+    fondoMapa->setPos(0, 0);
     fondoMapa->setZValue(-1);
     escena->addItem(fondoMapa);
 
-    // Añadir al protagonista persistente si no está en la escena
-    if (jojo) {
-        if (!escena->items().contains(jojo)) {
-            escena->addItem(jojo);
-        }
+    // ── Jojo ──
+    if (jojo && !escena->items().contains(jojo)) {
+        escena->addItem(jojo);
     }
 
-    // Inicializar la inteligencia artificial autónoma de Gyro
-    gyroJefe = new Gyro();
+    // ── Gyro ──
+    gyroJefe = new Jojobro();
+    gyroJefe->setDificultad(dificultad == "dificil"); //
     escena->addItem(gyroJefe);
 
-    // Reutilizamos el HUD gráfico para pintar el cronómetro en la esquina superior derecha
-    interfazHUD = new StandUserStats(escena);
+    // ── HUD Survival (sin barras de DIO) ──
+    interfazHUD = new StandUserStats(escena, StandUserStats::SURVIVAL);
 
-    cargarPosicionesIniciales();
+    // ── Posición inicial de Jojo ──
+    configurarJojo();
 
-    // Conexiones de los loops de actualización
-    connect(gameLoopTimer, &QTimer::timeout, this, &Nivel1::actualizarLoop);
+    // ── Anuncio de inicio ──
+    if (interfazHUD) {
+        interfazHUD->actualizarRelojYMarcador(tiempoRestante, 0, 0);
+        interfazHUD->mostrarAnuncioCentral("¡SOBREVIVE!", QColor(255, 140, 0));
+    }
+    QTimer::singleShot(2000, this, [this]() {
+        if (interfazHUD) interfazHUD->ocultarAnuncioCentral();
+    });
+
+    // ── Timers ──
+    connect(gameLoopTimer,  &QTimer::timeout, this, &Nivel1::actualizarLoop);
     connect(timerUnSegundo, &QTimer::timeout, this, &Nivel1::actualizarSegundo);
 
     gameLoopTimer->start(1000 / 60);
     timerUnSegundo->start(1000);
 }
 
-void Nivel1::cargarPosicionesIniciales() {
-    rondaEnTransicion = true;
-    finRoundProcesado = false;
-
-    // Limpiar proyectiles residuales del round anterior
-    vaciarEntidadesEscena();
-
-    // Colocar a Jotaro en su punto de origen (Adaptado a dimensiones 1200x500)
-    if (jojo) {
-        jojo->setVelocidadX(0);
-        jojo->setVelocidadY(0);
-        jojo->setPos(200, 250);
-        jojo->setVida(500); // Restaurar salud al máximo al inicio de ronda
-        jojo->setBarraCarga(0);
-        jojo->setFrameActual(0);
-        jojo->setEnMovimiento(false);
-        jojo->setAtacando(false);
-    }
-
-    // Reposicionar a Gyro en el extremo opuesto del escenario
-    if (gyroJefe) {
-        gyroJefe->setPos(1000, 200);
-    }
-
-    tiempoRestanteRound = 60; // 1 minuto exacto por round
-
-    if (interfazHUD) {
-        // Enviar parámetros al HUD común (Rondas ganadas de Jotaro actúan como KOs)
-        interfazHUD->actualizarRelojYMarcador(tiempoRestanteRound, KOsJotaro, KOsGyro);
-        interfazHUD->mostrarAnuncioCentral(QString("ROUND %1").arg(roundActual), QColor(0, 191, 255));
-
-        // El HUD simula el segundo usuario usando a Gyro como entidad ficticia para no romper la firma
-        if (jojo && gyroJefe) {
-            interfazHUD->actualizarEstados(jojo, jojo);
-        }
-    }
-
-    QTimer::singleShot(2000, this, [this]() {
-        if (interfazHUD) interfazHUD->ocultarAnuncioCentral();
-        rondaEnTransicion = false;
-    });
+// ==========================================
+// CONFIGURAR JOJO AL INICIO
+// ==========================================
+void Nivel1::configurarJojo() {
+    if (!jojo) return;
+    jojo->setPos(100, 200);
+    jojo->vida             = 100;
+    jojo->direccion        = 3;   // mirando derecha
+    jojo->enMovimiento     = false;
+    jojo->atacando         = false;
+    jojo->invencible       = false;
+    jojo->contadorInvencible = 0;
+    jojo->energiaUlti      = 0;
+    jojo->ultiActiva       = false;
 }
 
-void Nivel1::actualizarSegundo() {
-    if (rondaEnTransicion) return;
+// ==========================================
+// LOOP PRINCIPAL — 60 FPS
+// ==========================================
+void Nivel1::actualizarLoop() {
+    if (nivelFinalizado || !jojo) return;
 
-    if (tiempoRestanteRound > 0) {
-        tiempoRestanteRound--;
-        if (interfazHUD) {
-            interfazHUD->actualizarRelojYMarcador(tiempoRestanteRound, KOsJotaro, KOsGyro);
+    // ── Movimiento WASD ──
+    if (teclasPresionadas.contains(Qt::Key_W)) { jojo->moveUp();    jojo->setDireccion(1); }
+    if (teclasPresionadas.contains(Qt::Key_S)) { jojo->moveDown();  jojo->setDireccion(0); }
+    if (teclasPresionadas.contains(Qt::Key_A)) { jojo->moveLeft();  jojo->setDireccion(2); }
+    if (teclasPresionadas.contains(Qt::Key_D)) { jojo->moveRight(); jojo->setDireccion(3); }
+
+    bool enMov = teclasPresionadas.contains(Qt::Key_W) ||
+                 teclasPresionadas.contains(Qt::Key_S) ||
+                 teclasPresionadas.contains(Qt::Key_A) ||
+                 teclasPresionadas.contains(Qt::Key_D);
+
+    jojo->setEnMovimiento(enMov);
+
+    if (enMov) {
+        contadorFrames++;
+        if (contadorFrames >= 8) {
+            contadorFrames = 0;
+            frameActualJugador = (frameActualJugador + 1) % 3;
+            jojo->actualizarFrame(frameActualJugador);
         }
     } else {
-        // Al terminarse los 60 segundos el jugador gana la ronda por supervivencia
-        processarFinRound("JOTARO");
-    }
-}
-
-void Nivel1::actualizarLoop() {
-    if (!jojo || !gyroJefe) return;
-
-    // Congelar dinámicas si la ronda está cambiando o en anuncio central
-    if (rondaEnTransicion) {
-        jojo->setVelocidadX(0);
-        return;
+        frameActualJugador = 0;
+        jojo->actualizarFrame(0);
     }
 
-    // ── 1. ACTUALIZAR EFECTOS E INMUNIDADES DE JOTARO ──
+    // ── Ataque con J (solo J, sin requerir A o D) ──
+    bool atacando = teclasPresionadas.contains(Qt::Key_J);
+    jojo->setAtacando(atacando);
+
     jojo->actualizarInvulnerabilidad();
     jojo->actualizarEfectosItems();
 
-    // ── 2. ACTUALIZAR ANIMACIONES DE EXPLOSIÓN DORADA ──
+    // ── Gyro lanza bolas ──
+    bool modoDificil = (dificultad == "dificil");
+    gyroJefe->actualizarComportamiento(tiempoRestante, jojo->y(), modoDificil);
+
+
+    QList<SteelBall*> nuevasBolas = gyroJefe->tomarNuevasBolas();
+    for (SteelBall* b : nuevasBolas) {
+        escena->addItem(b);
+        esferasActivas.append(b);
+    }
+
+    // ── Steel Balls: física + colisión con Jojo ──
+    for (int i = esferasActivas.size() - 1; i >= 0; --i) {
+        SteelBall *ball = esferasActivas[i];
+        ball->setRalentizada(jojo->estaUltiActiva());
+        qDebug() << "ulti activa:" << jojo->estaUltiActiva();
+        ball->avanzarFisica();
+
+        // Bola fuera de pantalla → eliminar
+        if (ball->x() < -100 || ball->x() > 1300 ||
+            ball->y() < -100 || ball->y() > 600) {
+            escena->removeItem(ball);
+            esferasActivas.removeAt(i);
+            delete ball;
+            continue;
+        }
+
+        // Bola toca a Jojo → daño + explosión visual
+        if (escena->collidingItems(ball).contains(jojo)) {
+            int danio = (ball->getTipo() == SteelBall::RojaEsquivable) ? 20 : 10;
+            jojo->recibirDanio(danio);
+
+            if (!framesExplosion.isEmpty()) {
+                EfectoExplosion ef;
+                ef.frames         = framesExplosion;
+                ef.frameActual    = 0;
+                ef.contadorFrames = 0;
+                ef.item = new QGraphicsPixmapItem(ef.frames[0]);
+                ef.item->setPos(jojo->x() + 35 - ef.frames[0].width()  / 2.0,
+                                jojo->y() + 50 - ef.frames[0].height() / 2.0);
+                ef.item->setZValue(10);
+                escena->addItem(ef.item);
+                explosionesActivas.append(ef);
+            }
+
+            escena->removeItem(ball);
+            esferasActivas.removeAt(i);
+            delete ball;
+        }
+    }
+
+    // ── Ataque de Jojo contra bolas verdes ──
+    if (atacando) {
+        QRectF attackBox = jojo->getAttackHitbox();
+        for (SteelBall* ball : esferasActivas) {
+            if (ball->getTipo() == SteelBall::VerdeGolpeable && !ball->estaCayendo()) {
+                QRectF ballBox = ball->getHitbox().translated(ball->pos());
+                if (attackBox.intersects(ballBox)) {
+                    qDebug() << "ORA! Bola golpeada";
+                    ball->recibirGolpe();
+                    jojo->cargarEnergia(25);
+                }
+            }
+        }
+    }
+
+    // ── Animación de explosiones ──
     for (int i = explosionesActivas.size() - 1; i >= 0; --i) {
         EfectoExplosion &ef = explosionesActivas[i];
         ef.contadorFrames++;
-
         if (ef.contadorFrames >= 9) {
             ef.contadorFrames = 0;
             ef.frameActual++;
-
             if (ef.frameActual < ef.frames.size()) {
                 ef.item->setPixmap(ef.frames[ef.frameActual]);
             } else {
@@ -157,250 +215,164 @@ void Nivel1::actualizarLoop() {
         }
     }
 
-    // Verificar caída súbita de salud del jugador (Derrota instantánea de ronda)
-    if (jojo->getVida() <= 0) {
-        processarFinRound("GYRO");
-        return;
-    }
-
-    // ── 3. ACTUALIZAR LAS FÍSICAS DE LAS BOLAS DE ACERO ──
-    bool camaraLenta = jojo->estaUltiActiva();
-
-    for (int i = 0; i < esferasActivas.size(); ++i) {
-        SteelBall *ball = esferasActivas[i];
-
-        if (!camaraLenta || (rand() % 3 == 0)) {
-            ball->avanzarFisica();
-        }
-
-        // Se eliminan si salen del rango de la nueva escena (1200 de ancho)
-        if (ball->x() < -100 || ball->x() > 1300 || ball->y() < -100 || ball->y() > 600) {
-            escena->removeItem(ball);
-            esferasActivas.removeAt(i);
-            delete ball;
-            --i;
-            continue;
-        }
-
-        if (escena->collidingItems(ball).contains(jojo)) {
-            if (ball->getTipo() == SteelBall::RojaEsquivable) {
-                jojo->recibirDanio(20);
-            } else {
-                jojo->recibirDanio(10);
-            }
-
-            if (!framesExplosion.isEmpty()) {
-                EfectoExplosion ef;
-                ef.frames = framesExplosion;
-                ef.frameActual = 0;
-                ef.contadorFrames = 0;
-                ef.item = new QGraphicsPixmapItem(ef.frames[0]);
-                ef.item->setPos(jojo->x() + 35 - ef.frames[0].width() / 2.0,
-                                jojo->y() + 50 - ef.frames[0].height() / 2.0);
-                ef.item->setZValue(10);
-                escena->addItem(ef.item);
-                explosionesActivas.append(ef);
-            }
-
-            escena->removeItem(ball);
-            esferasActivas.removeAt(i);
-            delete ball;
-            --i;
-        }
-    }
-
-    // ── 4. DETECTAR CONTRAATAQUES ORA A LAS BOLAS VERDES ──
-    if (jojo->estaAtacando) {
-        for (int i = 0; i < esferasActivas.size(); ++i) {
-            SteelBall *ball = esferasActivas[i];
-            if (ball->getTipo() == SteelBall::VerdeGolpeable && !ball->estaCayendo()) {
-                QRectF attackGlobal = jojo->getAttackHitbox();
-                QRectF hitboxBolaGlobal = ball->getHitbox().translated(ball->pos());
-
-                if (attackGlobal.intersects(hitboxBolaGlobal)) {
-                    ball->recibirGolpe();
-                    jojo->cargarEnergia(25); // Incrementa la barra de habilidad definitiva
-                }
-            }
-        }
-    }
-
-    // ── 5. RUTINA COMPORTAMIENTO GYRO INTELIGENTE ──
-    gyroJefe->actualizarComportamiento(tiempoRestanteRound, jojo->y());
-
-    QList<SteelBall*> nuevasBolas = gyroJefe->tomarNuevasBolas();
-    for (SteelBall* b : nuevasBolas) {
-        escena->addItem(b);
-        esferasActivas.append(b);
-    }
-
-    // ── 6. SPAWN ALEATORIO DE ITEMS DE AYUDA ──
-    if (rand() % 300 == 7) {
-        ItemJuego::TipoItem tipoRnd = (rand() % 2 == 0) ? ItemJuego::Vida : ItemJuego::Velocidad;
-        qreal posX = (rand() % 800) + 200;
-        qreal posY = (rand() % 250) + 150;
-
-        ItemJuego *nuevoItem = new ItemJuego(tipoRnd, posX, posY);
+    // ── Spawn y recogida de ítems ──
+    contadorSpawnItems++;
+    int intervaloSpawn = (dificultad == "facil") ? 600 : 900;
+    if (contadorSpawnItems >= intervaloSpawn) {
+        contadorSpawnItems = 0;
+        qreal posX = (std::rand() % 500) + 50;
+        qreal posY = (std::rand() % 300) + 100;
+        ItemJuego::TipoItem tipo = (std::rand() % 2 == 0)
+                                       ? ItemJuego::Vida
+                                       : ItemJuego::Velocidad;
+        ItemJuego *nuevoItem = new ItemJuego(tipo, posX, posY);
         nuevoItem->setZValue(1);
         escena->addItem(nuevoItem);
         itemsActivos.append(nuevoItem);
     }
 
-    // Colisión absorber items
     for (int i = itemsActivos.size() - 1; i >= 0; --i) {
         ItemJuego *it = itemsActivos[i];
+        it->actualizarAnimacion();
         if (jojo->collidesWithItem(it)) {
-            if (it->getTipo() == ItemJuego::Vida) {
+            if (it->getTipo() == ItemJuego::Vida)
                 jojo->curar(25);
-            } else if (it->getTipo() == ItemJuego::Velocidad) {
+            else if (it->getTipo() == ItemJuego::Velocidad)
                 jojo->aumentarVelocidad();
-            }
             escena->removeItem(it);
             itemsActivos.removeAt(i);
             delete it;
         }
     }
 
-    // Mantener la sincronización visual del HUD de barras
-    if (interfazHUD) {
-        interfazHUD->actualizarEstados(jojo, jojo);
+    // ── HUD ──
+    if (interfazHUD) interfazHUD->actualizarEstadosNivel1(jojo);
+
+    // ── Condición de derrota: Jojo sin vida ──
+    if (jojo->vida <= 0) {
+        terminarNivel(false);
     }
 }
 
-void Nivel1::processarFinRound(const QString& ganador) {
-    if (finRoundProcesado) return;
-    finRoundProcesado = true;
-    rondaEnTransicion = true;
+// ==========================================
+// RELOJ — 1 segundo
+// ==========================================
+void Nivel1::actualizarSegundo() {
+    if (nivelFinalizado) return;
 
-    QString mensajeAnuncio = "K.O.";
-    QColor colorAnuncio = Qt::red;
-
-    if (ganador == "JOTARO") {
-        KOsJotaro++; // El jugador sobrevivió con éxito el minuto completo
-        mensajeAnuncio = "ROUND CLEAR";
-        colorAnuncio = Qt::green;
-    } else if (ganador == "GYRO") {
-        KOsGyro++; // La vida del jugador bajó a cero antes de tiempo
-        mensajeAnuncio = "FAILED";
+    if (tiempoRestante > 0) {
+        tiempoRestante--;
+        if (interfazHUD)
+            interfazHUD->actualizarRelojYMarcador(tiempoRestante, 0, 0);
+    } else {
+        // Tiempo agotado → victoria
+        terminarNivel(true);
     }
+}
+
+// ==========================================
+// TERMINAR NIVEL (único punto de salida)
+// ==========================================
+void Nivel1::terminarNivel(bool victoria) {
+    if (nivelFinalizado) return;   // evita doble disparo
+    nivelFinalizado = true;
+
+    timerUnSegundo->stop();
+    gameLoopTimer->stop();
 
     if (interfazHUD) {
-        interfazHUD->mostrarAnuncioCentral(mensajeAnuncio, colorAnuncio);
+        if (victoria)
+            interfazHUD->mostrarAnuncioCentral("¡SOBREVIVISTE!", QColor(255, 215, 0));
+        else
+            interfazHUD->mostrarAnuncioCentral("K.O.", Qt::red);
     }
 
-    // Pausa dramática de 3 segundos
-    QTimer::singleShot(3000, this, [this, ganador]() {
-        roundActual++;
-
-        if (verificarCondicionVictoria() || verificarCondicionDerrota()) {
-            timerUnSegundo->stop();
-            gameLoopTimer->stop();
-
-            if (interfazHUD) {
-                if (KOsJotaro >= 3 || (roundActual > 3 && KOsJotaro > KOsGyro)) {
-                    interfazHUD->mostrarAnuncioCentral("VICTORIA: PRUEBA SUPERADA", Qt::green);
-                    // CORRECCIÓN: Emitir 'nivelTerminado' en vez de 'combateTerminado'
-                    QTimer::singleShot(2000, this, [this]() { emit nivelTerminado(true); });
-                } else {
-                    interfazHUD->mostrarAnuncioCentral("DERROTA: FALLASTE LA PRUEBA", Qt::red);
-                    // CORRECCIÓN: Emitir 'nivelTerminado' en vez de 'combateTerminado'
-                    QTimer::singleShot(2000, this, [this]() { emit nivelTerminado(false); });
-                }
-            }
-        } else {
-            // Avanzar a la siguiente ronda restaurando los estados originales
-            cargarPosicionesIniciales();
-        }
+    QTimer::singleShot(2000, this, [this, victoria]() {
+        emit combateTerminado(victoria);
     });
 }
 
-void Nivel1::procesarPresionTeclada(int tecla) {
-    if (!jojo || rondaEnTransicion) return;
+// ==========================================
+// CONDICIONES (requeridas por la clase base)
+// ==========================================
+bool Nivel1::verificarCondicionVictoria() { return nivelFinalizado && tiempoRestante == 0; }
+bool Nivel1::verificarCondicionDerrota()  { return nivelFinalizado && (jojo && jojo->vida <= 0); }
 
-    jojo->setEnMovimiento(true);
-
-    if (tecla == Qt::Key_S || tecla == Qt::Key_Down) {
-        jojo->moveDown();
-        jojo->setDireccion(0);
-    }
-    else if (tecla == Qt::Key_W || tecla == Qt::Key_Up) {
-        jojo->moveUp();
-        jojo->setDireccion(1);
-    }
-    else if (tecla == Qt::Key_A || tecla == Qt::Key_Left) {
-        jojo->moveLeft();
-        jojo->setDireccion(2);
-    }
-    else if (tecla == Qt::Key_D || tecla == Qt::Key_Right) {
-        jojo->moveRight();
-        jojo->setDireccion(3);
-    }
-    else if (tecla == Qt::Key_J) {
-        jojo->estaAtacando = true;
-    }
-    else if (tecla == Qt::Key_L) {
-        jojo->usarUlti();
-    }
-}
-
-void Nivel1::procesarLiberacionTeclada(int tecla) {
-    if (!jojo) return;
-
-    if (tecla == Qt::Key_J) {
-        jojo->estaAtacando = false;
-    }
-    jojo->setEnMovimiento(false);
-}
-
-bool Nivel1::verificarCondicionVictoria() {
-    return (KOsJotaro >= 3);
-}
-
-bool Nivel1::verificarCondicionDerrota() {
-    return (KOsGyro >= 1 || roundActual > 3);
-}
-
+// ==========================================
+// LIMPIAR NIVEL
+// ==========================================
 void Nivel1::vaciarEntidadesEscena() {
+    for (auto &ef : explosionesActivas) {
+        if (ef.item) { escena->removeItem(ef.item); delete ef.item; }
+    }
+    explosionesActivas.clear();
+
     for (SteelBall* b : esferasActivas) { escena->removeItem(b); delete b; }
     esferasActivas.clear();
 
     for (ItemJuego* it : itemsActivos) { escena->removeItem(it); delete it; }
     itemsActivos.clear();
-
-    for (auto &ef :  explosionesActivas) { escena->removeItem(ef.item); delete ef.item; }
-    explosionesActivas.clear();
 }
 
 void Nivel1::limpiarNivel() {
-    if (gameLoopTimer->isActive()) gameLoopTimer->stop();
-    if (timerUnSegundo->isActive()) timerUnSegundo->stop();
+    if (gameLoopTimer  && gameLoopTimer->isActive())  gameLoopTimer->stop();
+    if (timerUnSegundo && timerUnSegundo->isActive()) timerUnSegundo->stop();
 
     vaciarEntidadesEscena();
 
-    if (fondoMapa) { escena->removeItem(fondoMapa); delete fondoMapa; fondoMapa = nullptr; }
-    if (gyroJefe) { escena->removeItem(gyroJefe); delete gyroJefe; gyroJefe = nullptr; }
+    if (fondoMapa)   { escena->removeItem(fondoMapa);  delete fondoMapa;  fondoMapa  = nullptr; }
+    if (gyroJefe)    { escena->removeItem(gyroJefe);   delete gyroJefe;   gyroJefe   = nullptr; }
     if (interfazHUD) { delete interfazHUD; interfazHUD = nullptr; }
 }
 
+// ==========================================
+// EXPLOSIÓN DORADA
+// ==========================================
 void Nivel1::cargarFramesExplosion() {
+    framesExplosion.clear();
     QPixmap sprites(":/sprites_juego.png");
-    struct { int x, w; } data[] = { {1099, 53}, {1170, 81}, {1266, 102}, {1370, 126} };
-    QColor fondoColor(30, 27, 60);
 
+    struct { int x, w; } data[] = {
+        {1099, 53}, {1170, 81}, {1266, 102}, {1370, 126}
+    };
+
+    QColor fondoColor(30, 27, 60);
     for (auto &d : data) {
         QPixmap frame = sprites.copy(d.x, 811, d.w, 88);
         QImage img = frame.toImage().convertToFormat(QImage::Format_ARGB32);
         for (int y = 0; y < img.height(); y++) {
             for (int x = 0; x < img.width(); x++) {
                 QColor px = img.pixelColor(x, y);
-                if (abs(px.red() - fondoColor.red()) < 10 &&
+                if (abs(px.red()   - fondoColor.red())   < 10 &&
                     abs(px.green() - fondoColor.green()) < 10 &&
-                    abs(px.blue() - fondoColor.blue()) < 10) {
-                    img.setPixelColor(x, y, QColor(0,0,0,0));
-                }
+                    abs(px.blue()  - fondoColor.blue())  < 10)
+                    img.setPixelColor(x, y, QColor(0, 0, 0, 0));
             }
         }
         framesExplosion.append(QPixmap::fromImage(img));
     }
 }
-*/
+
+// ==========================================
+// INPUT
+// ==========================================
+void Nivel1::procesarPresionTeclada(int tecla) {
+    if (nivelFinalizado || !jojo) return;
+
+    teclasPresionadas.insert(tecla);
+
+    if (tecla == Qt::Key_H) {
+        mostrarHitbox = !mostrarHitbox;
+        jojo->setMostrarHitbox(mostrarHitbox);
+        for (SteelBall* b : esferasActivas) {
+            b->setProperty("mostrarHitbox", mostrarHitbox);
+            b->update();
+        }
+    }
+    if (tecla == Qt::Key_L) jojo->usarUlti();
+}
+
+void Nivel1::procesarLiberacionTeclada(int tecla) {
+    if (nivelFinalizado || !jojo) return;
+    teclasPresionadas.remove(tecla);
+}

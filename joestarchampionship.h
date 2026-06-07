@@ -10,6 +10,7 @@
 #include <QAudioOutput>
 #include <QVideoSink>
 #include <QVideoFrame>
+#include <QSoundEffect>
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QSet>

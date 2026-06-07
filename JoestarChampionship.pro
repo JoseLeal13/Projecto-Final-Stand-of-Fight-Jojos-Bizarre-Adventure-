@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     dio.cpp \
+    item.cpp \
     joestarchampionship.cpp \
     jojo.cpp \
     jojobro.cpp \
@@ -20,11 +21,13 @@ SOURCES += \
     nivel2.cpp \
     obstaculo.cpp \
     personaje.cpp \
-    standuserstats.cpp
+    standuserstats.cpp \
+    steelball.cpp
 
 HEADERS += \
     dio.h \
     efectovisual.h \
+    item.h \
     joestarchampionship.h \
     jojo.h \
     jojobro.h \
@@ -34,7 +37,8 @@ HEADERS += \
     nivel2.h \
     obstaculo.h \
     personaje.h \
-    standuserstats.h
+    standuserstats.h \
+    steelball.h
 
 FORMS += \
     mainwindow.ui
